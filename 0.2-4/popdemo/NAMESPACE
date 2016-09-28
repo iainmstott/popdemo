@@ -1,0 +1,38 @@
+### Export all functions
+# functions useful for working with square matrices
+export(Matlab2R,R2Matlab,is.matrix_primitive,
+       is.matrix_irreducible,is.matrix_ergodic,
+       blockmatrix,minCS)
+
+# population projection
+export(project,truelambda)
+
+# indices of transient density
+export(reactivity,firststepatt,maxamp,maxatt,
+       inertia,Kreiss)
+
+# perturbation analysis methods
+export(tf,tfa,tfamatrix,tfsens,tfsensmatrix,
+       inertia.tfa,inertia.tfamatrix,
+       inertia.tfsens,inertia.tfsensmatrix,
+       sens,elas)
+
+# indices of convergence
+export(dr,Keyfitz.delta,projection.distance,
+       Cohen.cumulative,convergence.time)
+
+
+###Register S3 methods
+S3method(plot,projection)
+S3method(print,projection)
+S3method(plot,tfa)
+S3method(print,tfa)
+S3method(plot,tfamatrix)
+S3method(print,tfamatrix)
+
+### Import %^% from expm: this is the only variable needed
+importFrom(expm, "%^%")
+### Import all variables from Matrix
+import(Matrix)
+### Import global functions from graphics for S3 plot methods
+importFrom("graphics", "axis", "layout", "lines", "par", "plot", "text")
