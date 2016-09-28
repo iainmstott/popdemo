@@ -1,8 +1,7 @@
 # popdemo
 R Package for Demographic Modelling Using Projection Matrices
 
-This is the development page for popdemo. The latest stable release can also be found on CRAN at:
-cran.r-project.org/web/packages/popdemo
+This is the development page for popdemo. The latest stable release can also be found on CRAN [here](https://cran.r-project.org/web/packages/popdemo)
 
 The current stable version is 0.2-3.
 
