@@ -1,0 +1,18 @@
+Package: popdemo
+Version: 0.2-3
+Date: 2016-05-18
+Title: Demographic Modelling Using Projection Matrices
+Author: Iain Stott <iainmstott@gmail.com>, Dave Hodgson
+    <D.J.Hodgson@exeter.ac.uk>, Stuart Townley <S.B.Townley@exeter.ac.uk>
+Maintainer: Iain Stott <iainmstott@gmail.com>
+Depends:
+    R (>= 3.3.0)
+Imports:
+    expm
+Description:  Tools for modelling populations and demography using matrix projection 
+    models (MPMs). Designed to build on similar tools already available in 'popbio'. 
+    Specific foci are on indices of transient dynamics and use of control theory 
+    approaches, but 'popdemo' may also be useful for other implementations of MPMs, 
+    or matrix models in a more general sense. 
+License: GPL (>= 2)
+LazyLoad: yes
