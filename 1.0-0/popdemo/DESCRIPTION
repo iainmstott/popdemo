@@ -12,7 +12,7 @@ Description:  Tools for modelling populations and demography using matrix projec
 Depends:
     R (>= 3.3.0)
 Imports:
-    expm graphics
+    expm, graphics
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
