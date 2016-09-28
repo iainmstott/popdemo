@@ -1,4 +1,4 @@
-Package: popdemotest
+Package: popdemo
 Title: Demographic Modelling Using Projection Matrices
 Version: 1.0-0
 Authors@R: c(person("Iain", "Stott", email = "iainmstott@gmail.com", role = c("aut", "cre")),
