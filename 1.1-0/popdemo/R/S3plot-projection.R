@@ -64,7 +64,7 @@
 #'   # distribution, and plot the density of population sizes
 #'   # within the bounds of population density
 #'   plot(project(Tort, time=30, vector="diri", draws=500, alpha.draws="unif",
-#'                standard.A=TRUE),plottype="colmap", show.bounds=TRUE)
+#'                standard.A=TRUE),plottype="contour", show.bounds=TRUE)
 #'
 #' @concept 
 #' population projection
@@ -74,13 +74,13 @@
 plot.projection<-function(x,labs=TRUE, plottype = "lines", ybreaks=100, 
                           contourlevels=100, show.bounds=TRUE,...){
 if(!is.list(x)){
-    if(plottype=="colmap") warning('plottype "colmap" only valid for projections with vector="diri",\n  defaulting to plottype="lines" instead')
+    if(plottype=="contour") warning('plottype "contour" only valid for projections with vector="diri",\n  defaulting to plottype="lines" instead')
     plottype <- "lines"
     N <- x
     PopulationDensity <- range(N)
 }
 if (is.list(x)&!any(names(x)=="Bias")){ 
-    if(plottype=="colmap") warning('plottype "colmap" only valid for projections with vector="diri",\n  defaulting to plottype="lines" instead')
+    if(plottype=="contour") warning('plottype "contour" only valid for projections with vector="diri",\n  defaulting to plottype="lines" instead')
     plottype <- "lines"
     N <- x$N
     PopulationDensity <- range(N)
@@ -110,7 +110,7 @@ if (length(dim(N)) == 2 & plottype == "lines") {
     }
     options(warn = 0)
 }
-if (length(dim(N)) == 2 & plottype == "colmap") {
+if (length(dim(N)) == 2 & plottype == "contour") {
     len <- dim(N)[1]
     TimeInterval <- c(0, (len - 1))
     ybr<-cbind(seq(PopulationDensity[1]-0.000001,PopulationDensity[2]+0.000001,length.out=ybreaks+1)[-(ybreaks+1)],seq(PopulationDensity[1]-0.000001,PopulationDensity[2]+0.000001,length.out=ybreaks+1)[-1])
