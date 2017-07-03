@@ -47,4 +47,3 @@ Matlab-style character string that may be useful for exporting into databases.
 \concept{
 Matlab
 }
-

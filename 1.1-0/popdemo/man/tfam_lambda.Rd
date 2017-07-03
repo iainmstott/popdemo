@@ -107,12 +107,12 @@ Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
 S3 plotting method:\cr
 \code{\link{plot.tfa}}\cr
 
-Other PerturbationAnalyses: \code{\link{elas}},
-  \code{\link{sens}}, \code{\link{tfa_inertia}},
+Other TransferFunctionAnalyses: \code{\link{tfa_inertia}},
   \code{\link{tfa_lambda}}, \code{\link{tfam_inertia}},
   \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
 
-Other TransferFunctionAnalyses: \code{\link{tfa_inertia}},
+Other PerturbationAnalyses: \code{\link{elas}},
+  \code{\link{sens}}, \code{\link{tfa_inertia}},
   \code{\link{tfa_lambda}}, \code{\link{tfam_inertia}},
   \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
 }
@@ -120,4 +120,3 @@ Other TransferFunctionAnalyses: \code{\link{tfa_inertia}},
 transfer function systems control nonlinear perturbation population viability
 PVA ecology demography PPM MPM
 }
-

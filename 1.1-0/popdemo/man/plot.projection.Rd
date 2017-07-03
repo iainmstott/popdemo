@@ -5,37 +5,37 @@
 \title{Plot population dynamics}
 \usage{
 \method{plot}{projection}(x, labs = TRUE, plottype = "lines",
-  ybreaks = 100, contourlevels = 100, show.bounds = TRUE, ...)
+  ybreaks = 100, contourlevels = 100, show.bounds = FALSE, ...)
 }
 \arguments{
 \item{x}{an object of class 'projection' created using \code{\link{project}}.}
 
 \item{labs}{logical: if \code{TRUE}, then lines are automatically labelled 
-when \code{x} contains more than one projection.}
+when \code{x} contains stage-biased projections (generated using 
+\code{vector="n"} in \code{project})}
 
 \item{plottype}{for projections generated from dirichlet draws (see 
 \code{\link{project}}), \code{plottype} has two options. \code{"lines"}
-will plot each projection as a separate line. \code{"contours"} will 
+will plot each projection as a separate line. \code{"shady"} will 
 plot shaded contours showing the probabilities of population 
 densities over over time, calculated across the set of projections from 
 dirichlet draws. Darker colours indicate more likely population 
 densities.}
 
-\item{ybreaks}{if \code{plottype="contour"}, gives the number of breaks on
+\item{ybreaks}{if \code{plottype="shady"}, gives the number of breaks on
 the y axis for generating the grid for the contour plot. A larger number of
 breaks means a finer resolution grid for the contour plot.}
 
-\item{contourlevels}{if \code{plottype="contour"}, gives the number of
-colour/shading levels to use when generating the contour plot. A larger
-number of levels means a finer resolution colour/shade on the contour
-plot of population density.}
-
-\item{show.bounds}{logical: if \code{plottype="contour"}, indicates whether 
-to plot the bounds on population density: non-zero contours lie within the 
-bounds.}
+\item{show.bounds}{logical: if \code{vector="diri"}, indicates whether to 
+plot the bounds on population density.}
 
 \item{...}{arguments to be passed to methods: see \code{\link{par}} and
 \code{\link{plot}}.}
+
+\item{shadelevels}{if \code{plottype="shady"}, gives the number of
+colour/shading levels to use when generating the contour plot. A larger
+number of levels means a finer resolution colour/shade on the contour
+plot of population density.}
 }
 \description{
 Plot dynamics of a population matrix projection model
@@ -68,7 +68,7 @@ particularly useful for sets of more than one projection.
   # distribution, and plot the density of population sizes
   # within the bounds of population density
   plot(project(Tort, time=30, vector="diri", draws=500, alpha.draws="unif",
-               standard.A=TRUE),plottype="colmap", show.bounds=TRUE)
+               standard.A=TRUE),plottype="shady", show.bounds=TRUE)
 
 }
 \seealso{
@@ -77,4 +77,3 @@ particularly useful for sets of more than one projection.
 \concept{
 population projection
 }
-

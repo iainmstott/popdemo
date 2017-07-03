@@ -57,4 +57,13 @@ Information on the convergence of populations to stable state can be useful, and
 \code{\link{CohenD}}).  There is also a means of calculating convergence time
 through simulation: \code{\link{convt}}.\cr
 }
+\author{
+\strong{Maintainer}: Iain Stott \email{iainmstott@gmail.com}
 
+Authors:
+\itemize{
+  \item Dave Hodgson \email{D.J.Hodgson@exeter.ac.uk}
+  \item Stuart Townley \email{S.B.Townley@exeter.ac.uk}
+}
+
+}

@@ -2,14 +2,11 @@
 % Please edit documentation in R/popdemo-deprecated.R
 \docType{package}
 \name{popdemo-deprecated}
+\alias{popdemo-deprecated}
 \alias{Cohen.cumulative}
 \alias{Cohen.cumulative-deprecated}
-\alias{Keyfitz-delta-deprecated}
-\alias{Keyfitz.delta}
 \alias{convergence.time}
 \alias{convergence.time-deprecated}
-\alias{firststepatt}
-\alias{firststepatt-deprecated}
 \alias{inertia.tfa}
 \alias{inertia.tfa-deprecated}
 \alias{inertia.tfamatrix}
@@ -24,16 +21,10 @@
 \alias{is.matrix_irreducible-deprecated}
 \alias{is.matrix_primitive}
 \alias{is.matrix_primitive-deprecated}
-\alias{minCS}
-\alias{minCS-deprecated}
-\alias{popdemo-deprecated}
-\alias{popdemo-deprecated-package}
+\alias{Keyfitz.delta}
+\alias{Keyfitz-delta-deprecated}
 \alias{projection.distance}
 \alias{projection.distance-deprecated}
-\alias{reactivity}
-\alias{reactivity-deprecated}
-\alias{tf}
-\alias{tf-deprecated}
 \alias{tfa}
 \alias{tfa-deprecated}
 \alias{tfamatrix}
@@ -42,6 +33,15 @@
 \alias{tfsens-deprecated}
 \alias{tfsensmatrix}
 \alias{tfsensmatrix-deprecated}
+\alias{minCS}
+\alias{minCS-deprecated}
+\alias{tf}
+\alias{tf-deprecated}
+\alias{reactivity}
+\alias{reactivity-deprecated}
+\alias{firststepatt}
+\alias{firststepatt-deprecated}
+\alias{popdemo-deprecated-package}
 \title{Deprecated functions in the popdemo package}
 \usage{
 Cohen.cumulative(...)
@@ -101,4 +101,3 @@ the semantics, \code{reac} now deals with both amplification and attenuation
 in the first timestep, everything that was calculable in the previous two
 functions is also calculable in the one new function.
 }
-

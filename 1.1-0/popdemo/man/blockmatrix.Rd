@@ -47,4 +47,3 @@ Stott et al. (2010) Methods. Ecol. Evol., 1, 242-252.
 reducible irreducible submatrix permutation conjugation permute conjugate 
 arrange rearrange row column
 }
-

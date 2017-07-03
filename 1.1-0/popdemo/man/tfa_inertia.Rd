@@ -126,16 +126,15 @@ Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
 \seealso{
 S3 plotting method: \code{\link{plot.tfa}}\cr
 
-Other PerturbationAnalyses: \code{\link{elas}},
-  \code{\link{sens}}, \code{\link{tfa_lambda}},
+Other TransferFunctionAnalyses: \code{\link{tfa_lambda}},
   \code{\link{tfam_inertia}}, \code{\link{tfam_lambda}},
   \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
 
-Other TransferFunctionAnalyses: \code{\link{tfa_lambda}},
+Other PerturbationAnalyses: \code{\link{elas}},
+  \code{\link{sens}}, \code{\link{tfa_lambda}},
   \code{\link{tfam_inertia}}, \code{\link{tfam_lambda}},
   \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
 }
 \concept{
 KEYWORDS
 }
-

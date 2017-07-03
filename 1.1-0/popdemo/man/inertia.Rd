@@ -88,4 +88,3 @@ Other TransientIndices: \code{\link{Kreiss}},
 \concept{
 transient amplification attenuation unstable instability stable equivalent ratio
 }
-

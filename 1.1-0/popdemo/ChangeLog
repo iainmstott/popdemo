@@ -67,4 +67,6 @@ Version 1.0-0: 'devtools' now used to check and build the package.
                     'reactivity','firststepatt'  now 'reac'
                2. New functions
                   'reac' replaces 'reactivity' and 'firststepatt'.
-               
+Version 1.1-0  Updates to 'project' function and its S3 method to 
+               facilitate projection of dirichlet draws of population 
+               structures.

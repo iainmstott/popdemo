@@ -80,4 +80,3 @@ Other ConvergenceMeasures: \code{\link{dr}},
 \concept{
 project projection converge convergence
 }
-

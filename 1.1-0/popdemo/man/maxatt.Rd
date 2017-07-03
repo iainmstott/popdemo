@@ -112,4 +112,3 @@ Other TransientIndices: \code{\link{Kreiss}},
 \concept{
 transient dynamics attenuation unstable instability
 }
-

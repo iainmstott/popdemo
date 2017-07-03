@@ -56,4 +56,3 @@ Other ConvergenceMeasures: \code{\link{convt}},
 \concept{
 converge convergence resilience stability
 }
-

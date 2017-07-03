@@ -35,4 +35,3 @@ Doak et al. (1994) Ecol. Appl., 4, 446-460.
 data desert tortoise matrix Gopherus agassizzii
 }
 \keyword{datasets}
-

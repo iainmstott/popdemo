@@ -62,4 +62,3 @@ Constructor functions: \code{\link{tfa_lambda}}, \code{\link{tfa_inertia}}
 transfer function systems control nonlinear perturbation population viability
 PVA ecology demography PPM MPM
 }
-

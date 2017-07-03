@@ -48,4 +48,3 @@ Other DistanceMeasures: \code{\link{CohenD}},
 \concept{
 distance vector state space
 }
-

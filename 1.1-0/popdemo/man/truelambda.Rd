@@ -88,4 +88,3 @@ Other ConvergenceMeasures: \code{\link{convt}},
 \concept{
 asymptotic growth project projection ergodic nonergodic Perron Frobenius
 }
-

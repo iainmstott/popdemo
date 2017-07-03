@@ -45,4 +45,3 @@ Other PerronFrobeniusDiagnostics: \code{\link{isErgodic}},
 \concept{
 primitivity primitive imprimitive Perron Frobenius
 }
-

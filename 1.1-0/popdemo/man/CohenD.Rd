@@ -47,4 +47,3 @@ Other DistanceMeasures: \code{\link{KeyfitzD}},
 \concept{
 distance vector state space
 }
-

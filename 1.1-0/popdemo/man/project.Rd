@@ -37,6 +37,59 @@ from dirichlet.}
 \code{rdirichlet}: used to bias draws towards or away from a certain population
 structure.}
 }
+\value{
+If \code{vector} is specified, a numeric vector of population sizes of length 
+\code{time+1}.\cr
+If \code{vector="n"}, a numeric matrix of population projections: each column 
+represents a single stage-biased projection and each column is of length 
+\code{time+1}.\cr\cr
+If \code{vector="diri"}, a list with components:
+\describe{
+\item{N}{
+a numeric matrix of population projections: each column represents projection of
+a single vector draw and each column is of length \code{time+1}
+}
+item{Bias}{
+the stage-biased projections as above: these represent the outer bounds of the
+dirichlet draws and are used for plotting.
+}
+}
+If \code{return.vec=TRUE}, a list with components:
+\describe{
+\item{N}{
+the numeric vector or matrix of population sizes, as above
+}
+\item{vec}{
+If \code{vector} is specified, a numeric matrix of demographic vectors from 
+projection of \code{vector} through \code{A}.  Each column represents the 
+densities of one life stage in the projection.\cr
+If \code{vector="n"}, a three-dimensional array of demographic vectors from
+projection of the set of stage-biased vectors through \code{A}. The first 
+dimension represents time (and is therefore equal to \code{time+1} in 
+length). The second dimension represents the densities of each stage (and 
+is therefore equal to the dimension of \code{A} in length). The third 
+dimension represents each individual stage-biased projection (and is 
+therefore also equal to the dimension of \code{A} in length). For example, 
+when projecting a 3 by 3 matrix for >10 time intervals (see examples), the 
+density of stage 3 in bias 2 at time 10 is found at element [11,3,2] 
+(note that because element 1 represents t=0, then t=10 is found at element 11); 
+the time series of densities of stage 2 in bias 1 is found using [,2,1]; 
+the matrix of population vectors for bias 2 would be found using [,,2].\cr
+if\code{vector="diri"}, a three-dimensional array of demographic vectors from
+projection of the dirichlet vector draws projected through \code{A}. The first 
+dimension represents time (and is therefore equal to \code{time+1} in 
+length). The second dimension represents the densities of each stage (and 
+is therefore equal to the dimension of \code{A} in length). The third 
+dimension represents projection of each population draw (and is therefore equal
+to \code{draws} in length. For example, when projecting a 3 by 3 matrix for 
+>10 time intervals and 100 population draws (see examples), the 
+density of stage 3 in draw 31 at time 10 is found at element [11,3,31] 
+(note that because element 1 represents t=0, then t=10 is found at element 11); 
+the time series of densities of stage 2 in draw 10 is found using [,2,10]; 
+the matrix of population vectors for draw 99 would be found using [,,99].\cr
+}
+}
+}
 \description{
 Project dynamics of a specified population matrix projection model.
 }
@@ -129,4 +182,3 @@ to enable easy graphing.
 \concept{
 projection project population
 }
-

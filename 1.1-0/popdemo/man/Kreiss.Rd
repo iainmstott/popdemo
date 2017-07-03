@@ -87,4 +87,3 @@ Other TransientIndices: \code{\link{inertia}},
 \concept{
 transient amplification attenuation systems control unstable instability
 }
-

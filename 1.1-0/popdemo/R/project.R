@@ -75,6 +75,7 @@
 #' the stage-biased projections as above: these represent the outer bounds of the
 #' dirichlet draws and are used for plotting.
 #' }
+#' }
 #' If \code{return.vec=TRUE}, a list with components:
 #' \describe{
 #' \item{N}{

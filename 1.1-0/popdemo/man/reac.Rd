@@ -106,4 +106,3 @@ Other TransientIndices: \code{\link{Kreiss}},
 \concept{
 transient dynamics amplification unstable instability structure
 }
-

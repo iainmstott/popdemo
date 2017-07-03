@@ -46,4 +46,3 @@ Other PerronFrobeniusDiagnostics: \code{\link{isErgodic}},
 \concept{
 reducibility reducible irreducible Perron Frobenius
 }
-

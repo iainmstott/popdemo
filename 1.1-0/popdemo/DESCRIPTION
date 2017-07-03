@@ -4,7 +4,7 @@ Version: 1.1-0
 Authors@R: c(person("Iain", "Stott", email = "iainmstott@gmail.com", role = c("aut", "cre")),
              person("Dave", "Hodgson", email = "D.J.Hodgson@exeter.ac.uk", role = "aut"),
              person("Stuart", "Townley", email = "S.B.Townley@exeter.ac.uk", role = "aut"))
-Description:  Tools for modelling populations and demography using matrix projection 
+Description: Tools for modelling populations and demography using matrix projection 
     models (MPMs). Designed to build on similar tools already available in 'popbio'. 
     Specific foci are on indices of transient dynamics and use of control theory 
     approaches, but 'popdemo' may also be useful for other implementations of MPMs, 
@@ -16,4 +16,4 @@ Imports:
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

@@ -60,4 +60,3 @@ Other PerronFrobeniusDiagnostics: \code{\link{isIrreducible}},
 \concept{
 ergodicity ergodic nonergodic Perron Frobenius
 }
-
