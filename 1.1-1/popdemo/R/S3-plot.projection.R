@@ -110,7 +110,7 @@ plot.projection<-function(x, bounds=FALSE, bounds.args=NULL, labs=TRUE,
     wraplines <- function(..., log, axes, frame.plot, panel.first, panel.last){
         graphics::lines(...)
     }
-    wraptext <- function(..., log, axes, frame.plot, panel.first, panel.last){
+    wraptext <- function(..., log, axes, frame.plot, panel.first, panel.last, type){
         graphics::text(...)
     }
     do.call(graphics::plot, gargs)
