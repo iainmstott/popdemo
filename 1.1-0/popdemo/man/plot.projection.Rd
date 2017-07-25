@@ -5,7 +5,7 @@
 \title{Plot population dynamics}
 \usage{
 \method{plot}{projection}(x, labs = TRUE, plottype = "lines",
-  ybreaks = 100, contourlevels = 100, show.bounds = FALSE, ...)
+  ybreaks = 100, shadelevels = 100, show.bounds = FALSE, ...)
 }
 \arguments{
 \item{x}{an object of class 'projection' created using \code{\link{project}}.}
@@ -26,16 +26,16 @@ densities.}
 the y axis for generating the grid for the contour plot. A larger number of
 breaks means a finer resolution grid for the contour plot.}
 
+\item{shadelevels}{if \code{plottype="shady"}, gives the number of
+colour/shading levels to use when generating the contour plot. A larger
+number of levels means a finer resolution colour/shade on the contour
+plot of population density.}
+
 \item{show.bounds}{logical: if \code{vector="diri"}, indicates whether to 
 plot the bounds on population density.}
 
 \item{...}{arguments to be passed to methods: see \code{\link{par}} and
 \code{\link{plot}}.}
-
-\item{shadelevels}{if \code{plottype="shady"}, gives the number of
-colour/shading levels to use when generating the contour plot. A larger
-number of levels means a finer resolution colour/shade on the contour
-plot of population density.}
 }
 \description{
 Plot dynamics of a population matrix projection model

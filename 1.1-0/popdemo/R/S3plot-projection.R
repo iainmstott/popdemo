@@ -72,7 +72,7 @@
 #' @export
 #'
 plot.projection<-function(x,labs=TRUE, plottype = "lines", ybreaks=100, 
-                          contourlevels=100, show.bounds=FALSE,...){
+                          shadelevels=100, show.bounds=FALSE,...){
 if(!is.list(x)){
     if(plottype=="shady") warning('plottype "shady" only valid for projections with vector="diri",\n  defaulting to plottype="lines" instead')
     plottype <- "lines"
@@ -123,7 +123,7 @@ if (length(dim(N)) == 2 & plottype == "shady") {
         pgrid[,i] <- apply(ybr,1,function(x){length(which(N[i,]>=x[1]&N[i,]<x[2]))/dim(N)[2]})
     }
     graphics::plot(TimeInterval, PopulationDensity, type = "n", ...)
-    nlevels <- contourlevels
+    nlevels <- shadelevels
     levels<-seq(min(pgrid),max(pgrid),length.out=nlevels)
     levelcols<-grDevices::colorRampPalette(c("white", "black"))(nlevels)
     graphics::.filled.contour(0:(len-1),apply(ybr,1,mean),t(pgrid),levels=levels,col=levelcols)
