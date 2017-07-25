@@ -1,0 +1,17 @@
+Version 0.1-2: Bugs in demos sorted.
+Version 0.1-3: Tortoise matrix included as data
+Version 0.1-4: Fixed maintainer email address
+Version 0.2-1: Fixed bug in sens and elas functions where 
+               complex conjugates of left eigenvector were 
+               not properly calculated, which would have 
+               resulted in incorrect sensitivity and 
+               elasticity calculations for eigenvalues with 
+               nonzero imaginary components in version 0.1-4 
+               and earlier. This does not affect results for 
+               sensitivity and elasticity analyses of the 
+               dominant eigenvalue of irreducible matrices 
+               (i.e. sensitivity and elasticity of asymptotic 
+               population growth in ergodic models).
+Version 0.2-2: Changed title and description fields in
+               DESCRIPTION file to align more closely with
+               CRAN guidelines

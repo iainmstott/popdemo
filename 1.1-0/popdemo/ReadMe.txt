@@ -1,22 +1,23 @@
 ################################################################################
-CHANGELOG
-
-Version 1.1-1  - Bug fixes to S3 plot method for projections: now fully 
-                 supports user-defined parameters, e.g. points instead of 
-                 lines, colours, log axes, and more (without returning 
-                 warnings).
-               - Fixed bugs which caused certain S3 methods to not register
-                 properly.
-               - Fixed a bug which meant not all deprecated functions
-                 were registering properly. Now all older versions of 
-                 functions will work (with a warning to redirect to the
-                 new function).
-               - Added support for simultaneously projecting multiple
-                 user-specified population vectors, with plotting support.
-               - Small changes to documentation
-Version 1.1-0  Updates to 'project' function and its S3 method to 
-               facilitate projection of dirichlet draws of population 
-               structures.
+Version 0.1-2: Bugs in demos sorted.
+Version 0.1-3: Tortoise matrix included as data
+Version 0.1-4: Fixed maintainer email address
+Version 0.2-1: Fixed bug in sens and elas functions where 
+               complex conjugates of left eigenvector were 
+               not properly calculated, which would have 
+               resulted in incorrect sensitivity and 
+               elasticity calculations for eigenvalues with 
+               nonzero imaginary components in version 0.1-4 
+               and earlier. This does not affect results for 
+               sensitivity and elasticity analyses of the 
+               dominant eigenvalue of irreducible matrices 
+               (i.e. sensitivity and elasticity of asymptotic 
+               population growth in ergodic models).
+Version 0.2-2: Changed title and description fields in
+               DESCRIPTION file to align more closely with
+               CRAN guidelines
+Version 0.2-3: Further changes to DESCRIPTION file to keep
+               CRAN happy
 Version 1.0-0: 'devtools' now used to check and build the package.
                Changes to documentation, renaming of lots of functions.
                DOCUMENTATION
@@ -66,23 +67,6 @@ Version 1.0-0: 'devtools' now used to check and build the package.
                     'reactivity','firststepatt'  now 'reac'
                2. New functions
                   'reac' replaces 'reactivity' and 'firststepatt'.
-Version 0.2-3: Further changes to DESCRIPTION file to keep
-               CRAN happy
-Version 0.2-2: Changed title and description fields in
-               DESCRIPTION file to align more closely with
-               CRAN guidelines
-Version 0.2-1: Fixed bug in sens and elas functions where 
-               complex conjugates of left eigenvector were 
-               not properly calculated, which would have 
-               resulted in incorrect sensitivity and 
-               elasticity calculations for eigenvalues with 
-               nonzero imaginary components in version 0.1-4 
-               and earlier. This does not affect results for 
-               sensitivity and elasticity analyses of the 
-               dominant eigenvalue of irreducible matrices 
-               (i.e. sensitivity and elasticity of asymptotic 
-               population growth in ergodic models).
-Version 0.1-4: Fixed maintainer email address
-Version 0.1-3: Tortoise matrix included as data
-Version 0.1-2: Bugs in demos sorted.
-               
+Version 1.1-0  Updates to 'project' function and its S3 method to 
+               facilitate projection of dirichlet draws of population 
+               structures.
