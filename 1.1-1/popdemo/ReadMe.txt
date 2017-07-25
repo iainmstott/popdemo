@@ -1,4 +1,5 @@
-# CHANGELOG
+################################################################################
+CHANGELOG
 
 Version 0.1-2: Bugs in demos sorted.
 Version 0.1-3: Tortoise matrix included as data
