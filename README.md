@@ -11,7 +11,7 @@ To install: Run these lines of code in R.
 The first line installs some packags from [CRAN](https://cran.r-project.org/): devtools (used to install from github), and some dependencies.  
 The second line installs popdemo from github.
 ```
-install.packages("devtools"); install.packages("expm"); install.packages("MCMCpack")
+install.packages("devtools"); install.packages("expm"); install.packages("MCMCpack"); install.packages("markovchain")
 devtools::install_github("iainmstott/popdemo/x.x-x/popdemo") #x.x-x is the version number
 ```
 
