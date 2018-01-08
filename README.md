@@ -1,6 +1,5 @@
 # *popdemo*
-R Package for Demographic Modelling Using Projection Matrices
-  
+R Package for Demographic Modelling Using Projection Matrices.
 
 **This is the MASTER page for popdemo**. It includes stable, installable versions of the package. 
 
