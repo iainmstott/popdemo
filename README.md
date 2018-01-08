@@ -5,10 +5,10 @@ R Package for Demographic Modelling Using Projection Matrices
 
 **The development package is folder *x.x-x_dev*, where x.x-x is the most recent version number**.
 
-A list of current and possible future changes can be found in *devlist.txt*.
+A list of possible future changes can be found in *devlist.txt*.
 
-To install: Run these lines of code in R.  
-The first line installs some packags from [CRAN](https://cran.r-project.org/): devtools (used to install from GitHub), and some dependencies.  
+To install, run the following lines of R code.  
+The first line installs some packages from CRAN: devtools (used to install from GitHub), and some dependencies.  
 The second line installs popdemo from GitHub.
 ```
 install.packages(c("devtools", "expm", "MCMCpack", "markovchain"))
