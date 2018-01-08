@@ -1,0 +1,20 @@
+IDEAS
+Bypass checking primitivity, reducibility, ergodicity in many many functions
+PREcheck function
+Support multiple line types, colours, etc. in plot.project
+Matlab2R supports reading in multiple matrices
+lambda function which can handle multiple matrices (list, array) and can return subdominant eigenvalues
+right eigenvector function which can handle multiple matrices (list, array) and can return subdominant eigenvectors
+left eigenvector function which can handle multiple matrices (list, array) and can return subdominant eigenvectors
+hidden lambda function which works on single matrices
+S4 class for projections
+Combine documentation for the distance metrics
+Give some functions the option to pass a 'projection' object?
+More background (simple) functions: e.g. basic projection function
+
+TO DO
+Examples on project & plot.project
+keywords tfs_inertia tfsm_inertia
+insert eigs function into many other functions
+
+BUGS
