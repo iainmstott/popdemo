@@ -7,7 +7,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The exercises consist of "core" exercises in normal print, and "extras" in italics. The core exercises follow on from each other, so it's best to finish them first and then move onto the extras afterwards, otherwise the code might break. I encourage you as an "extra extra" exercise to try projecting population dynamics of the matrices you created yourself.
+The exercises consist of "core" exercises in normal print, and "extras" in italics. The core exercises follow on from each other, so it's best to finish them first and then move onto the extras afterwards, otherwise the code might break. 
 
 Install the latest popdemo development package
 ```{r eval = FALSE}
@@ -40,6 +40,11 @@ data(Tort); Tort
 ```
 \  
 
+The numbers ('transitions') describe the probability of moving FROM stages in each column TO stages in each row, within the time interval chosen. For example, for this desert tortoise matrix, in any year a subadult (stage 6) has approimately 24.9% probability of becoming an adult (stage 7): this may be called a growth or progression transition. Likewise, in any year a subadult has about 67.8% chance of staying a subadult: this is called a stasis transition. This means that 100 - (67.8 + 24.9) = 7.3% of subadults die every year. There are different types of transitions: in this matrix there are also fecundity transitions which describe offspring production, and subadults produce on average 1.3 offspring per year. Other species may have different transitions, including skipping stages through fast growth, shrinkage or fission (especially in modular organisms, e.g. most plants, corals), or asexual reproduction.  
+
+Matrix transitions combine underlying 'vital rates' such as survival, growth and reproduction. For example, the subadult to adult transition (24.9%) combines probability of growing to adult size in one year, and probability of surviving the year. The subadult fecundity (1.3) combines the average number of offspring produced by subadults per year, and probability that those offspring survive the year.
+\  
+
 For stochastic population projections, we will use a set of matrices for the polar bear *Ursus maritimus*. The population is found in the southern Beaufort Sea, USA and Canada. There are 6 stages based on age and reproductive status:  
 Stage-1: 2-year-old  
 Stage 2: 3-year-old  
@@ -54,15 +59,18 @@ Load in the data
 data(Pbear); Pbear
 ```
 
-The study also gives the population vector.
+The study also gives the population vector, which is the relative numers of individuals in each stage.
 ```{r comment = "   ", collapse=TRUE}
 Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
 ```
+\  
+
+The polar bear matrices each describe transitions in a *specific* year, from 2001-2005. Due to varying environmental conditions (e.g. weather, resource availability), life cycle transitions may change from year to year. For the polar bear, 2004 and 2005 were "bad" years due to low summer sea ice. 
 
 \newpage
 
 ***
-##The 'project' function
+##Deterministic projections
 
 The core function for understanding population dynamics is the 'project' function. It can be used to understand a number of different types of population dynamics, including deterministic models, stochastic models, long-term dynamics and short-term dynamics.  
 
@@ -81,6 +89,18 @@ It's easy to plot this projection:
 plot(Tortp, log = "y")
 ```
 \  
+
+Population growth in an MPM is geometric: when you plot population size on a log scale (as we have here), it's easy to see that the population settles to a stable rate of decline. (As an aside, the long-term rate of growth/decline 'lambda' is equal to the dominant eigenvalue of the matrix and can be found using `eigs(Tort, "lambda")`). The dynamics that happen before this "stable state" is reached are called transient dynamics. 
+
+Transient dynamics vary according to the population vector. 
+
+
+
+
+There are some basic alterations you can make to projections: change the number of time intervals the projection runs for using the `time` argument. Use the `standard.A` argument to standardise the matrix to have 
+
+
+
 
 *Extras: Try different parameters in the 'project' function: change the amount of time the model is projected, change the population vector, explore some of the extra arguments of the function (e.g. standardising for asymptotic growth). The plot function takes any of the usual graphical parameters: try changing the lines to points, changing their colour, getting rid of the box around the plot, or something similar.*  
 
