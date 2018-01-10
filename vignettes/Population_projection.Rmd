@@ -101,7 +101,7 @@ Transient dynamics vary according to the population vector. If there is an overr
 There are some basic alterations you can make to projections: change the number of time intervals the projection runs for using the `time` argument. Use the `standard.A` argument to standardise the matrix to have a lambda equal to 1 (this can help when comparing transient dynamics between matrices with different lambda values). 
 
 
-
+>>>EDIT FROM HERE
 
 *Extras: Try different parameters in the 'project' function: change the amount of time the model is projected, change the population vector, explore some of the extra arguments of the function (e.g. standardising for asymptotic growth). The plot function takes any of the usual graphical parameters: try changing the lines to points, changing their colour, getting rid of the box around the plot, or something similar.*  
 
