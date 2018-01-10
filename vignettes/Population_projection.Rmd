@@ -65,7 +65,7 @@ Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
 ```
 \  
 
-The polar bear matrices each describe transitions in a *specific* year, from 2001-2005. Due to varying environmental conditions (e.g. weather, resource availability), life cycle transitions may change from year to year. For the polar bear, 2004 and 2005 were "bad" years due to low summer sea ice. 
+The polar bear matrices each describe transitions in a *specific* year, from 2001-2005. Due to varying environmental conditions (e.g. weather, resource availability), life cycle transitions may change from year to year. For the polar bear, 2004 and 2005 were "bad years" due to low summer sea ice. 
 
 \newpage
 
@@ -76,30 +76,29 @@ The core function for understanding population dynamics is the 'project' functio
 
 We'll start with the desert tortoise data. The desert tortoise model is a 'deterministic' model with no density dependence: the vital rates of the model (matrix entries) don't change from timestep to timestep. In the long term, population growth settles to a stable rate and the population structure also becomes stable.  
 
-Population dynamics come from multiplying the matrix and the poulation vector. We have the matrix; let's choose a vector at random.
+Projected population dynamics (time series of population size and structure over time) come from multiplying the matrix and the poulation vector. We have the matrix; let's choose a vector at random.
 ```{r comment = "   ", collapse=TRUE}
-Tortvec <- runif(8)
+Tortvec1 <- runif(8)
 ```
-Now, we'll project this vector.
+Now, we'll project this vector using the `project` function from `popdemo`:
 ```{r comment = "   ", collapse=TRUE}
-( Tortp <- project(Tort, Tortvec, time = 50) )
+( Tortp1.1 <- project(Tort, Tortvec1, time = 50) )
 ```
 It's easy to plot this projection: 
 ```{r comment = "   ", collapse=TRUE}
-plot(Tortp, log = "y")
+plot(Tortp1.1, log = "y")
+```
+It's possible also to return the time series of population vectors, if we wish (in this example, we just take the first 10 time intervals):
+```{r comment = "   ", collapse=TRUE}
+( Tortp1.2 <- project(Tort, Tortvec1, time = 10, return.vec=T) )
 ```
 \  
 
-Population growth in an MPM is geometric: when you plot population size on a log scale (as we have here), it's easy to see that the population settles to a stable rate of decline. (As an aside, the long-term rate of growth/decline 'lambda' is equal to the dominant eigenvalue of the matrix and can be found using `eigs(Tort, "lambda")`). The dynamics that happen before this "stable state" is reached are called transient dynamics. 
+Population growth in an MPM is geometric: when you plot population size on a log scale (as we have here), it's easy to see that the population settles to a stable rate of decline. (As an aside, the long-term stable rate of growth/decline 'lambda' is equal to the dominant eigenvalue of the matrix and can be found using `eigs(Tort, "lambda")`). The short-term dynamics that happen before this stable state is reached are called 'transient dynamics'. 
 
-Transient dynamics vary according to the population vector. 
+Transient dynamics vary according to the population vector. If there is an overrepresentation of individuals in stages with high survival and/or fertility, then the population will grow faster (or decline slower) than the stable rate (this is called 'amplification'). If there is an overrepresentation of individuals in stages with low survival and zero/low fertility, then the population will grow slower (or decline faster) than the stable rate (this is called 'attenuation'). In the "Deterministic population dynamics" vignette, these ideas are explored further.
 
->>>EDIT FROM HERE
-
-
-
-
-There are some basic alterations you can make to projections: change the number of time intervals the projection runs for using the `time` argument. Use the `standard.A` argument to standardise the matrix to have 
+There are some basic alterations you can make to projections: change the number of time intervals the projection runs for using the `time` argument. Use the `standard.A` argument to standardise the matrix to have a lambda equal to 1 (this can help when comparing transient dynamics between matrices with different lambda values). 
 
 
 
@@ -108,6 +107,7 @@ There are some basic alterations you can make to projections: change the number 
 
 \newpage
 
+***
 ***
 ##Asymptotic dynamics
 
@@ -133,15 +133,15 @@ eigs(Tort, c("ss", "rv"))
 
 Before settling to stable growth rate, a population will grow, decline or fluctuate in growth at rates faster and/or slower than asymptotic growth. We can see this in our plot of population dynamics of the desert tortoise. These population dynamics are called "transient dynamics" and are a little harder to characterise than asymptotic dynamics as they're so variable and depend on the population structure. For comparative analyses, we often standardise for overall population size (because sizes of different populations in our dataset may vary), and measure transient dynamics relative to asymptotic growth (because different populations, with different matrices, have different growth rates). We can see this in a "standardised" population projection:
 ```{r comment = "   ", collapse=TRUE}
-Tortps <- project(Tort, Tortvec, time = 50, 
+Tortps <- project(Tort, Tortvec1, time = 50, 
                   standard.A = TRUE, standard.vec = TRUE)
 ```
 Long-term dynamics of a standardised projection are the same as if lambda equals 1 (because growth at each timestep is effectively divided by lambda).  
 
 We can measure transient density at any time along the projection (we say 'density' because a standardised dynamic is no longer directly equivalent to size; not the same thing as spatial density!). But in comparative analysis, to make things comparable between populations, we should use comparable timepoints. Two possibilities are at t = 1 and at $t\to\infty$. These indices are called 'reactivity' and 'inertia' respectively:
 ```{r comment = "   ", collapse=TRUE}
-( r1 <- reac(Tort, Tortvec) )
-( ri <- inertia(Tort, Tortvec) )
+( r1 <- reac(Tort, Tortvec1) )
+( ri <- inertia(Tort, Tortvec1) )
 plot(Tortps, log = "y")
 points(c(1, 50), c(r1, ri), pch = 3, col = "red")
 ```
