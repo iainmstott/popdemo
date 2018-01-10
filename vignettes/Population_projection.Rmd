@@ -94,6 +94,8 @@ Population growth in an MPM is geometric: when you plot population size on a log
 
 Transient dynamics vary according to the population vector. 
 
+>>>EDIT FROM HERE
+
 
 
 
