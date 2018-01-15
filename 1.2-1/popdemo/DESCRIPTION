@@ -10,7 +10,7 @@ Description: Tools for modelling populations and demography using matrix project
     approaches, but 'popdemo' may also be useful for other implementations of MPMs, 
     or matrix models in a more general sense. 
 Depends:
-    R (>= 3.4.0)
+    R (>= 3.4.3)
 Imports:
     expm, graphics, methods, MCMCpack, markovchain
 License: GPL (>= 2)
