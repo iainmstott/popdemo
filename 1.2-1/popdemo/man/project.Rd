@@ -52,16 +52,15 @@ demographic (st)age vectors as well as overall population size.}
  \item "unif" (default), which results in every matrix in \code{A} having an 
  equal, random chance of being chosen at each timestep.
  \item a square, nonnegative left-stochastic matrix describing a 
- first-order markov chain used to choose the matrices. This should have the 
- same dimension as the number of messages in \code{A}. 
+ first-order markov chain used to choose the matrices. The transitions are defined
+ COLUMNWISE: each column j describes the probability of choosing stage (row) i at 
+ time t+1, given that stage (column) j was chosen at time t. \code{Aseq} should have the 
+ same dimension as the number of matrices in \code{A}. 
  \item a numeric vector giving a specific sequence which corresponds to the
  matrices in \code{A}.
  \item a character vector giving a specific sequence which corresponds to the
  names of the matrices in \code{A}.
-}
-
-\code{Aseq="unif"} (default), then each matrix in \code{A} has an equal chance 
-of being chosen at each timestep. If \code{A} is a matrix}
+}}
 
 \item{draws}{if \code{vector="diri"}, the number of population vectors drawn
 from dirichlet.}
