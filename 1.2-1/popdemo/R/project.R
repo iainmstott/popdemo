@@ -338,7 +338,7 @@ if (nmat > 1) {
             stop("Dimensions of Aseq must be equal to number of matrices in A")
         }
         if(!all(colSums(MCtm) == 1)) stop("Columns of Aseq do not sum to 1")
-        MCo <- new("markovchain", transitionMatrix = t(MCtm))
+        MCo <- new("markovchain", transitionMatrix = MCtm, byrow = FALSE)
         MC <- markovchain::rmarkovchain(time, MCo, useRCpp = FALSE)
         MC <- as.numeric(MC)
         names(MC) <- matrixnames[MC]
