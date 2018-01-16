@@ -172,7 +172,7 @@ if(any(Aseq[1] == "unif", is.matrix(Aseq))){
         stop("Dimensions of Aseq must be equal to number of matrices in A")
     }
     if(!all(colSums(MCtm) == 1)) stop("Columns of Aseq do not sum to 1")
-    MCo <- new("markovchain", transitionMatrix = MCtm, byrow = F)
+    MCo <- new("markovchain", transitionMatrix = t(MCtm))
     MC <- markovchain::rmarkovchain(iterations, MCo, useRCpp = FALSE)
     MC <- as.numeric(MC)
     names(MC) <- matrixnames[MC]

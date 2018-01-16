@@ -1,0 +1,205 @@
+---
+title: "Deterministic population dynamics"
+output: 
+  pdf_document:
+    pandoc_args: [
+      "--highlight-style=tango"
+    ]
+geometry: "left=2.5cm,right=2.5cm,top=1.5cm,bottom=1.5cm"
+urlcolor: "cyan"
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, comment = "##  ", collapse = TRUE)
+library(popdemo)
+```
+
+These exercises require `popdemo` version 1.2-1. Head to `popdemo`'s [GitHub](http://github.com/iainmstott/popdemo) (github.com/iainmstott/popdemo) for installation instructions (don't forget also to load the package using `library(popdemo)`!)  
+
+Key terms are in ***bold italic***, and functions or arguments are `fixed width`. Complete the core exercises (in normal print) first, as code in each section continues from the last. Code chunks are shaded, with outputs on lines starting with `##`. Afterward, return to the "extras" sections (in *italics*), and try writing your own code.  
+\  
+
+***
+#Data
+
+![A baby desert tortoise](https://c1.staticflickr.com/8/7349/16490346262_169b5a21ae_b.jpg)  
+
+We will use a matrix projection model (MPM) to explore population dynamics for the desert tortoise *Gopherus agassizzii*, with medium fecundity[^1]. The population is found in the Mojave desert, USA. There are 8 stages are based on age and size (carapace length in mm):  
+- Yearling (age 0-1)  
+- Juvenile 1 (<60 mm)  
+- Juvenile 2 (90-99mm)  
+- Immature 1 (100-139mm)  
+- Immature 2 (140-179mm)  
+- Subadult (180-207mm)  
+- Adult 1 (208-239mm)  
+- Adult 2 (>240mm)  
+
+[^1]: [Doak et al. (1994) Ecol. Appl., 4, 446-460.](http://bio.research.ucsc.edu/~barrylab/classes/climate_change/DoakEcolApp.pdf)
+
+Load in the data:  
+```{r}
+data(Tort); Tort
+```
+
+The numbers in the matrix (called ***matrix elements*** or ***transitions***) describe the probability of moving FROM stages in each column TO stages in each row, within the time interval chosen. For example, for this desert tortoise matrix, in any year a subadult (stage 6) has approimately 24.9% probability of becoming an adult (stage 7): this may be called a growth or progression transition. Likewise, in any year a subadult has about 67.8% chance of staying a subadult: this is called a stasis transition. This means that 100 - (67.8 + 24.9) = 7.3% of subadults die every year. There are different types of transitions: in this matrix there are also fecundity transitions which describe offspring production, and subadults produce on average 1.3 offspring per year. Other species may have different transitions, including skipping stages through fast growth, shrinkage or fission (especially in modular organisms, e.g. most plants, corals), or asexual reproduction.  
+
+Matrix elements combine underlying 'vital rates' such as survival, growth and reproduction. For example, the subadult to adult transition (24.9%) combines probability of growing to adult size in one year, and probability of surviving the year. The subadult fecundity (1.3) combines the average number of offspring produced by subadults per year, and probability that those offspring survive the year.  
+\  
+
+***
+#Deterministic projections
+
+The core function for understanding population dynamics is the 'project' function. It can be used to understand a number of different types of population dynamics, including deterministic models, stochastic models, long-term dynamics and short-term dynamics.  
+
+In a deterministic model, there is no density dependence, and no stochasticity: the vital rates of the model, and therefore the matrix elements, don't change from timestep to timestep (in a density dependent model, they would change according to the size of all or part of the population, and in a stochastic model they would change randomly at each iteration of the model to incorporate random environmental or demographic variation). The projected population dynamics (time series of population size and structure over time) come from multiplying the matrix and the starting poulation vector:  
+
+**n~t~** = **A**^t^**n~0~**  
+
+That is, the population size at time t **n~t~** is equal to projection matrix **A** multiplied by the population size at time 0, **n~0~**. We have the matrix, but not a vector. We will:  
+- choose a vector using a random uniform distribution  
+- project this vector using the `project` function from `popdemo`  
+- plot the projection  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+Tortvec1 <- runif(8)
+Tortvec1 <- Tortvec1/sum(Tortvec1) #scales the vector to sum to 1
+( Tortp1.1 <- project(Tort, Tortvec1, time = 100) )
+plot(Tortp1.1, log = "y")
+```
+
+The `project` function should usually have a matrix passed to the `A` argument, and a `vector`. The `time` argument gives the number of projection intervals, but the output will have length `time` + 1, because the population size at time 0 is included.  
+
+It's possible also to return the time series of population vectors, if we wish (in this example, we just take the first 10 time intervals):  
+```{r}
+( Tortp1.2 <- project(Tort, Tortvec1, time = 10, return.vec = T) )
+```
+
+Population growth in an MPM is geometric: when you plot population size on a log scale (as we have here), it's easy to see that the population settles to a stable geometric rate of decline. At this point, the population also has a fixed structure: the relative numbers of individuals in each stage don't change (although the absolute numbers do; this is what causes the population decline). These stable long-term dynamics are often called ***asymptotic dynamics***. The short-term dynamics that happen before this stable state is reached and are different to asymptotic dynamics are called ***transient dynamics***. In this exercise we'll explore both asymptotic and transient dynamics of deterministic MPM models.  
+\  
+
+*Extras: Try altering the parameters in the `project` function: change the amount of time the model is projected using the `time` argument, or change the population vector using the `vector` argument. Have a look at how the asymptotic dynamics don't change as the vector changes, but observe how the transient dynamics change. See whether changing the vector changes the amount of time taken to reach stable state. The `plot` function takes any of the usual graphical parameters: try changing the lines to points (`type` argument), changing the line colour, type or thickness(`col`, `lty`, `lwd`), changing the box around the plot (`bty`), or any other graphical parameters (see `?par`).*  
+\  
+
+***
+#Asymptotic dynamics
+
+In the long term, the population dynamics are described by the dominant eigendata of the matrix:  
+```{r}
+eigs(Tort, "all")
+```
+
+###Asymptotic growth
+The `eigs` function returns the dominant eigendata (or "eigenstuff") of the matrix[^2]. The growth rate is commonly referred to as ***lambda ($\lambda$)***. In this case, $\lambda$ < 1 which means the population declines. If $\lambda$ = 1 the population neither grows nor declines, and If $\lambda$ > 1, the population grows.  
+
+[^2]: for a detailed introduction to matrix models and eigendata, see Caswell (2001) Matrix Population Models, Sinauer.
+
+###Asymptotic population structure
+The rest of the eigenstuff describes other aspects of stable dynamics. "ss" refers to the stable structure: this is the ratio of numbers of individuals in each stage once the population reaches stable state, and the vector is usually denoted with **w**. A population with this structure, then it will grow/decline at the stable rate from the outset (populations starting with a stable structure will always be shown with dashed lines):  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1); plot(Tortp1.1, log = "y")
+Tortw <- eigs(Tort, "ss")
+Tortpw <- project(Tort, Tortw, time = 100)
+lines(0:100, Tortpw, lty = 2)
+```
+
+###Reproductive value
+"rv" refers to the reproductive value vector, and is usually denoted with **v**. This is the contribution that each stage makes to stable growth (through survival, growth and reproduction). Stages with high current and reproduction and survival have high reproductive value. These vectors are scaled so that ||**w**|| = 1 and **v**^T^**w** = 1.  
+\  
+
+*Extras: the `eigs` function allows you to choose what eigenstuff you want to calculate. Try replacing "all" with one or more of "lambda", "ss", or "rv". If you want to look at subdominant eigenstuff then the base function "eigen" does this, with `eigen(A)` giving the right eigenvectors and `eigen(t(A))` giving the left eigenvectors.*  
+\  
+
+***
+#Transient dynamics
+
+Before settling to stable growth rate, a population will grow, decline or fluctuate in growth at rates faster and/or slower than asymptotic growth. We can see this in our plot of population dynamics of the desert tortoise. These population dynamics are called ***transient dynamics*** and are a little harder to characterise than asymptotic dynamics as they're so variable and depend on the population structure[^3].  
+
+[^3]: [Stott et al. (2011) Ecol. Lett., 14, 959-970](http://onlinelibrary.wiley.com/doi/10.1111/j.1461-0248.2011.01659.x/abstract) contains a review on measuring transient dynamics in MPMs.
+
+###Standardisations
+`popdemo` contains functions that calculate deviations from stable growth at various points along the population projection. These ***transient indices*** make two standardisations: starting population vector **n~0~** is scaled by ||**n~0~**|| so that it sums to 1, and the projection matrix is scaled by $\lambda$, so that lambda of the scaled matrix becomes 1. This allows comparison of transient dynamics between populations with different sizes, and with different long-term dynamics. We can visualise this this in a ***standardised*** population projection:  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+Tortp1.1s <- project(Tort, Tortvec1, time = 100, 
+                     standard.A = TRUE, standard.vec = TRUE)
+Tortpws <- project(Tort, Tortw, time = 100, 
+                   standard.A = TRUE, standard.vec = TRUE)
+plot(Tortp1.1s, log = "y")
+lines(Tortpws, lty = 2)
+```
+
+Transient dynamics vary according to the starting population vector. If there is an overrepresentation of individuals in stages with high survival and/or fertility, then the population will grow faster (or decline slower) than the stable rate (this is called 'amplification'). If there is an overrepresentation of individuals in stages with low survival and zero/low fertility, then the population will grow slower (or decline faster) than the stable rate (this is called 'attenuation'). Indices of amplification are always >1, which means that log-transformed indices of amplification are always >0. Indices of attenuation are always <1 but >0. This means that log-transformed indices of attenuation are always <0.  
+
+###Transient indices
+We can measure transient density at any time along the projection (we say "density" because a standardised dynamic is no longer directly equivalent to size... but this is not the same thing as spatial density!). But in comparative analysis, to make things comparable between populations, we should use comparable timepoints. Two possibilities are at t = 1 and at $t\to\infty$. These indices are called ***reactivity*** and ***inertia*** respectively:  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1); plot(Tortp1.1s, log = "y"); lines(Tortpws, lty = 2)
+( r1 <- reac(Tort, Tortvec1) )
+( i1 <- inertia(Tort, Tortvec1) )
+points(c(1, 100), c(r1, i1), pch = 3, col = "red")
+```
+
+Reactivity is the population size in the first timestep of the projection (one year), relative to a population with stable growth. A reactivity of 2 would mean that in the first timestep, the population grows twice as fast as its stable growth rate.  
+
+Inertia is the ratio of the size of the population in the long-term, relative to a population with stable growth. An inertia of 4 would mean that after the transient period, the population settles to a size 4 times as large as a population that grows with stable rate.  
+
+If we want to compare several different population structures, then it's possible to project several simultaneously. We will:  
+- create two extra vectors; one which amplifies and one which attenuates  
+- bind these with the random vector into a matrix with 3 columns  
+- project the model with this matrix passed to the `vec` argument  
+- calculate reactivity and inertia for the extra vectors  
+- plot these on the graph  
+```{r echo = -1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+Tortamp <- c(1,1,2,3,5,8,13,21) #a population that amplifies
+Tortatt <- c(21,13,8,5,3,2,1,1) #a population that attenuates
+Tortvec3 <- cbind(RAND = Tortvec1, 
+                  AMP = Tortamp, 
+                  ATT = Tortatt)
+Tortp3.1 <- project(Tort, Tortvec3, time = 100, 
+                    standard.A = TRUE, standard.vec = TRUE)
+plot(Tortp3.1, log = "y"); lines(Tortpws, lty = 2)
+( ramp <- reac(Tort, Tortamp) )
+( ratt <- reac(Tort, Tortatt) )
+( iamp <- inertia(Tort, Tortamp) )
+( iatt <- inertia(Tort, Tortatt) )
+points(c(rep(1, 3), rep(100, 3)), 
+       c(r1, ramp, ratt, i1, iamp, iatt), 
+       pch = 3, col = "red")
+```  
+\  
+
+*Extras: there's further functionality offered by the `reac` and `inertia` functions. Try using, for example, `return.N = TRUE` to give the transient population size (including influences of initial population size and asymptotic population growth).*  
+
+*Lots of transient dynamics happen in between the reactivity and the inertia. Explore the `maxamp`, `maxatt` and `Kreiss` functions to calculate maximum amplification, maximum attenuation and the Kreiss bounds, respectively.*  
+\  
+
+***
+#Transient bounds
+
+Transient dynamics are very variable, and there are an infinite number of different starting population vectors. Sometimes we don't know what the population structure is (making a fair census of plants and animals is difficult!), but it is possible to get an idea of what the transient dynamics will be like. ***Transient bounds*** capture the outer extremes of transient dynamics; all population trajectories lie within the bounds. It's easy to plot the bounds by adding `bounds = TRUE` when plotting a population projection. When calculating transient indices, use `bound = "upper"` or `bound = "lower"` to calculate bounds on the indices. Let's try this with our 3 vectors:  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+plot(Tortp3.1, log = "y", bounds = TRUE)
+lines(Tortpws, lty = 2)
+( rupr <- reac(Tort, bound = "upper") )
+( rlwr <- reac(Tort, bound = "lower") )
+( iupr <- inertia(Tort, bound = "upper") )
+( ilwr <- inertia(Tort, bound = "lower") )
+points(c(rep(1, 5), rep(100, 5)), 
+       c(r1, ramp, ratt, rupr, rlwr, i1, iamp, iatt, iupr, ilwr), 
+       pch = 3, col = "red", 
+       lwd = rep(c(1, 1, 1, 2, 2), 2) )
+```
+\  
+
+*Extras: we've seen a little bit of the diversity of different transient dynamics that can be shown by a model. But there are an infinite number of different possible starting population vectors. If population vectors are drawn at random, it is possible to shade in the space within the transient bounds to work out the likelihood of different transient densities. This can be done by using `vector = "diri"` in the `project` function, which draws populations at random from a dirichlet distribution and projects them. Plot this using `plottype = "shady"`:*  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+Tortpd <- project(Tort, "diri", time = 31,
+                  standard.A = TRUE)
+plot(Tortpd, plottype = "shady", bounds = T, log = "y")
+```
+
+*Dirichlet projections have their own options within the `project` and `plot` functions.*
