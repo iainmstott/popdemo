@@ -55,7 +55,11 @@ Matrix elements combine underlying ***vital rates*** such as survival, growth an
 ***
 #Stochastic projections
 
-It's a big assumption that over decades, the vital rates of a population won't change. One reason that they may change is because of environmental stochasticity, where environmental conditions, which change from year to year, impact ***vital rates*** such as survival, reproduction and growth. This could be due to many things, such as changes in weather or extreme weather events, disease outbreaks, varying resource availability, changes in predation or parasitism, and so on.  
+It's a big assumption that over decades, the vital rates of a population won't change. One reason that they may change is because of environmental stochasticity, where environmental conditions, which change from year to year, impact ***vital rates*** such as survival, reproduction and growth. This could be due to many things, such as changes in weather or extreme weather events, disease outbreaks, varying resource availability, changes in predation or parasitism, and so on. If the vital rates change each year, then the matrix changes each year. This means that the projection equation is:
+
+$$\textbf{n}_{t+1} = \textbf{A}_t\textbf{n}_t $$
+
+This is slightly different to the projection equation for deterministic models, because A changes at each timestep.  
 
 In the polar bear data, there are 5 matrices from 2001-2005. If you pass the `project` function a single matrix then it does a deterministic projection (see the "Deterministic Population Dynamics" vignette), but if you pass it a list of matrices as we have for the Polar bear, then it will do a stochastic projection:
 ```{r}
