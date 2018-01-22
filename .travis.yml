@@ -2,9 +2,11 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 language: r
 
-env:
-  global:
-    TRAVIS_BUILD_DIR: levisc8/popdemo/1.2-1/popdemo
+install:
+  - Rscript -e 'install.packages(c("devtools")); devtools::install_deps("1.2-1/popdemo")'
+script:
+  - Rscript -e 'devtools::check("1.2-1/popdemo")'
+
 
 # R versions
 r:
