@@ -21,7 +21,7 @@ Key terms are in ***bold italic***, and functions or arguments are `fixed width`
 \  
 
 ***
-#Data
+#1. Data
 
 ![A baby desert tortoise](https://c1.staticflickr.com/8/7349/16490346262_169b5a21ae_b.jpg)  
 
@@ -49,7 +49,7 @@ Matrix elements combine underlying 'vital rates' such as survival, growth and re
 \  
 
 ***
-#Deterministic projections
+#2. Deterministic projections
 
 The core function for understanding population dynamics is the 'project' function. It can be used to understand a number of different types of population dynamics, including deterministic models, stochastic models, long-term dynamics and short-term dynamics.  
 
@@ -81,12 +81,12 @@ It's possible also to return the time series of population vectors, if we wish (
 Population growth in an MPM is geometric: when you plot population size on a log scale (as we have here), it's easy to see that the population settles to a stable geometric rate of decline. At this point, the population also has a fixed structure: the relative numbers of individuals in each stage don't change (although the absolute numbers do; this is what causes the population decline). These stable long-term dynamics are often called ***asymptotic dynamics***. The short-term dynamics that happen before this stable state is reached and are different to asymptotic dynamics are called ***transient dynamics***. In this exercise we'll explore both asymptotic and transient dynamics of deterministic MPM models.  
 \  
 
-*EXTRAS...*  
+*ii. EXTRAS...*  
 *Try altering the parameters in the `project` function: change the amount of time the model is projected using the `time` argument, or change the population vector using the `vector` argument. Have a look at how the asymptotic dynamics don't change as the vector changes, but observe how the transient dynamics change. See whether changing the vector changes the amount of time taken to reach stable state. The `plot` function takes any of the usual graphical parameters: try changing the lines to points (`type` argument), changing the line colour, type or thickness(`col`, `lty`, `lwd`), changing the box around the plot (`bty`), or any other graphical parameters (see `?par`).*  
 \  
 
 ***
-#Asymptotic dynamics
+#3. Asymptotic dynamics
 
 In the long term, the population dynamics are described by the dominant eigendata of the matrix:  
 ```{r}
@@ -94,12 +94,12 @@ eigs(Tort, "all")
 
 ```
 
-###Asymptotic growth
+###3.1 Asymptotic growth
 The `eigs` function returns the dominant eigendata (or "eigenstuff") of the matrix[^2]. The growth rate is commonly referred to as ***lambda ($\lambda$)***. In this case, $\lambda$ < 1 which means the population declines. If $\lambda$ = 1 the population neither grows nor declines, and If $\lambda$ > 1, the population grows.  
 
 [^2]: for a detailed introduction to matrix models and eigendata, see Caswell (2001) Matrix Population Models, Sinauer.
 
-###Asymptotic population structure
+###3.2 Asymptotic population structure
 The rest of the eigenstuff describes other aspects of stable dynamics. "ss" refers to the stable structure: this is the ratio of numbers of individuals in each stage once the population reaches stable state, and the vector is usually denoted with **w**. A population with this structure, then it will grow/decline at the stable rate from the outset (populations starting with a stable structure will always be shown with dashed lines):  
 ```{r echo=-1}
 par(mar = c(5, 4, 2, 2) + 0.1); plot(Tortp1.1, log = "y")
@@ -112,25 +112,25 @@ lines(0:100, Tortpw, lty = 2)
 
 [^3]: ||**w**||~1~ is the one-norm of **w**, which is equal to its sum.
 
-###Reproductive value
+###3.3 Reproductive value
 "rv" refers to the reproductive value vector, and is usually denoted with **v**. This is the contribution that each stage makes to stable growth (through survival, growth and reproduction). Stages with high current and reproduction and survival have high reproductive value. **v** is scaled so that **v**^T^**w** = 1[^4] when ||**w**||~1~ = 1.
 
 [^4]: **v**^T^ is the transpose of **v**: not to be confused with an exponent!
 
 \  
 
-*EXTRAS...*  
+*iii. EXTRAS...*  
 *The `eigs` function allows you to choose what eigenstuff you want to calculate. Try replacing "all" with one or more of "lambda", "ss", or "rv". If you want to look at subdominant eigenstuff then the base function "eigen" does this, with `eigen(A)` giving the right eigenvectors and `eigen(t(A))` giving the left eigenvectors.*  
 \  
 
 ***
-#Transient dynamics
+#4. Transient dynamics
 
 Before settling to stable growth rate, a population will grow, decline or fluctuate in growth at rates faster and/or slower than asymptotic growth. We can see this in our plot of population dynamics of the desert tortoise. These population dynamics are called ***transient dynamics*** and are a little harder to characterise than asymptotic dynamics as they're so variable and depend on the population structure[^5].  
 
 [^5]: [Stott et al. (2011) Ecol. Lett., 14, 959-970](http://onlinelibrary.wiley.com/doi/10.1111/j.1461-0248.2011.01659.x/abstract) contains a review on measuring transient dynamics in MPMs.
 
-###Standardisations
+###4.1 Standardisations
 `popdemo` contains functions that calculate deviations from stable growth at various points along the population projection. These ***transient indices*** make two standardisations: starting population vector **n**~0~ is scaled by ||**n**~0~||~1~ so that it sums to 1: 
 
 $$\hat{\textbf{n}_0} = \frac{\textbf{n}_0}{||\textbf{n}_0||_1}$$ 
@@ -152,7 +152,7 @@ lines(Tortpws, lty = 2)
 
 Transient dynamics vary according to the starting population vector. If there is an overrepresentation of individuals in stages with high survival and/or fertility, then the population will grow faster (or decline slower) than the stable rate (this is called 'amplification'). If there is an overrepresentation of individuals in stages with low survival and zero/low fertility, then the population will grow slower (or decline faster) than the stable rate (this is called 'attenuation'). Indices of amplification are always >1, which means that log-transformed indices of amplification are always >0. Indices of attenuation are always <1 but >0. This means that log-transformed indices of attenuation are always <0.  
 
-###Transient indices
+###4.2 Transient indices
 We can measure transient density at any time along the projection (we say "density" because a standardised dynamic is no longer directly equivalent to size... but this is not the same thing as spatial density!). But in comparative analysis, to make things comparable between populations, we should use comparable timepoints. Two possibilities are at t = 1 and at $t\to\infty$. These indices are called ***reactivity*** and ***inertia*** respectively:  
 ```{r echo=-1}
 par(mar = c(5, 4, 2, 2) + 0.1); plot(Tortp1.1s, log = "y"); lines(Tortpws, lty = 2)
@@ -205,14 +205,14 @@ points(c(rep(1, 3), rep(100, 3)),
 ```  
 \  
 
-*EXTRAS...*  
+*iv. EXTRAS...*  
 There's further functionality offered by the `reac` and `inertia` functions. Try using, for example, `return.N = TRUE` to give the transient population size (including influences of initial population size and asymptotic population growth).*  
 
 *Lots of transient dynamics happen in between the reactivity and the inertia. Explore the `maxamp`, `maxatt` and `Kreiss` functions to calculate maximum amplification, maximum attenuation and the Kreiss bounds, respectively.*  
 \  
 
 ***
-#Transient bounds
+#5. Transient bounds
 
 Transient dynamics are very variable, and there are an infinite number of different starting population vectors. Sometimes we don't know what the population structure is (making a fair census of plants and animals is difficult!), but it is possible to get an idea of what the transient dynamics will be like. ***Transient bounds*** capture the outer extremes of transient dynamics; all population trajectories lie within the bounds. It's easy to plot the bounds by adding `bounds = TRUE` when plotting a population projection. When calculating transient indices, use `bound = "upper"` or `bound = "lower"` to calculate bounds on the indices. Let's try this with our 3 vectors:  
 ```{r echo=-1}
@@ -245,7 +245,7 @@ $$\bar{\rho}_1 = ||\hat{\textbf{A}}||_1, \hspace{0.75cm}
 When **w** and **v** are scaled as decribed in the "Asymptotic dynamics" section, then $\bar{\rho}_\infty = v_max$ and $\bar{\rho}_\infty = v_min$.  
 \  
 
-*EXTRAS...*  
+*v. EXTRAS...*  
 *We've seen a little bit of the diversity of different transient dynamics that can be shown by a model. But there are an infinite number of different possible starting population vectors. If population vectors are drawn at random, it is possible to shade in the space within the transient bounds to work out the likelihood of different transient densities. This can be done by using `vector = "diri"` in the `project` function, which draws populations at random from a dirichlet distribution and projects them. Plot this using `plottype = "shady"`:*  
 ```{r echo=-1}
 par(mar = c(5, 4, 2, 2) + 0.1)

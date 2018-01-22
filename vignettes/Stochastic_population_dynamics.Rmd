@@ -21,7 +21,7 @@ Key terms are in ***bold italic***, and functions or arguments are `fixed width`
 \  
 
 ***
-#Data
+#1. Data
 
 ![Polar bear (photo by NASA Goddard Space Flight Center from Greenbelt, MD, USA)](https://upload.wikimedia.org/wikipedia/commons/b/b2/Polar_Bears_Across_the_Arctic_Face_Shorter_Sea_Ice_Season_%2829664357826%29.jpg)
 
@@ -53,7 +53,7 @@ Matrix elements combine underlying ***vital rates*** such as survival, growth an
 \  
 
 ***
-#Stochastic projections
+#2. Stochastic projections
 
 It's a big assumption that over decades, the vital rates of a population won't change. One reason that they may change is because of environmental stochasticity, where environmental conditions, which change from year to year, impact ***vital rates*** such as survival, reproduction and growth. This could be due to many things, such as changes in weather or extreme weather events, disease outbreaks, varying resource availability, changes in predation or parasitism, and so on. If the vital rates change each year, then the matrix changes each year. This means that the projection equation is:
 
@@ -69,7 +69,7 @@ plot(Pbearp1.1, log = "y")
 
 For a stochastic projection, the `project` function should usually have a list of matrices passed to the `A` argument, and a `vector`. The function will check that all the matrices have the same dimensions. The `time` argument gives the number of projection intervals, but the output will have length `time` + 1, because the population size at time 0 is included. There is one further important argument called `Aseq`, which determines the sequence of matrices chosen for the projection. By default, `Aseq = "unif"`, which gives an equal (uniform) probability of being selected at every timestep.  
 
-###Matrix selection using Markov processes
+###2.1 Matrix selection using Markov processes
 By default, the projection selects each matrix with an equal probability at each time interval. This process can be considered a ***Markov process*** with the following transition matrix:
 ```{r}
 p1 <- 0.4
@@ -143,7 +143,7 @@ plot(Pbearp2.5, log = "y")
 
 In this case, whilst there are still long strings of bad years, the strings of good years are much shorter.  
 
-###Nonrandom matrix selection
+###2.2 Nonrandom matrix selection
 The final option for matrix selection is to give exactly the sequence of matrices to use. It's possible to force `project` to use a specific sequence of matrices, simply by passing a sequence of numbers or names to `Aseq`. These numbers or names must correspond to the elements of your list of matrices.  
 
 (so for the final projection of the polar bear model we could have instead specified c(1, 2, 3, 4, 5, 1, 2, 3,...) or c("2001", "2002", "2003", "2004", "2005", "2001", "2002", "2003",...) ).
@@ -159,7 +159,7 @@ plot(Pbearp3.1, log = "y")
 You would get the same result using `Aseq = rep(c("Y2001", "Y2002", "Y2003", "Y2004", "Y2005"), 10)`. The projection shows there's still a decline in overall population size, but with a clear cyclic dynamic to the trend.  
 \  
 
-*EXTRAS...*  
+*ii. EXTRAS...*  
 *The type of population projection we've used is called **matrix selection**: at each timestep a matrix is selected at random from a list. These are usually parameterised by collecting data under multiple different environmental conditions (these are often replications through time, but may also be replications through space or different experimental treatments).*  
 
 *Another common form of stochastic projection is using **element selection**. In this case, one or more of the matrix elements are selected at random from a statistical distribution. Projections using element selection are possible in `popdemo` by generating a list of matrices using element selection procedures and passing all of these to `project`. In this example, we'll use a matrix for the thistle Carlina vulgaris[^1]. There are 3 stages based on size and reproductive status:*  
@@ -217,7 +217,7 @@ lines(0:30, project(Thistle, Thistlevec, time = 30), lty = 3)
 \  
 
 ***
-#Stochastic dynamics
+#3. Stochastic dynamics
 
 Stochastic projections are a random process. Perhaps the best way to understand stochastic population growth is to project the model and calculate growth from the results. We can calculate long-term growth of a stochastic model by averaging per-timestep growth rates over a long projection time. Every stochastic projection has a mean growth and a variance in growth. Let's calculate stochastic dynamics for the five polar bear examples from the Markov processes section above:
 ```{r}
