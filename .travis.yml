@@ -4,7 +4,7 @@ language: r
 
 env:
   global:
-    TRAVIS_BUILD_DIR: 1.2-1/popdemo/
+    TRAVIS_BUILD_DIR: /levisc8/popdemo/1.2-1/popdemo/
 
 # R versions
 r:
