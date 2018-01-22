@@ -2,6 +2,10 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 language: r
 
+env:
+  global:
+    TRAVIS_BUILD_DIR: 1.2-1/popdemo
+
 # R versions
 r:
   - oldrel
