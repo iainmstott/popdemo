@@ -3,7 +3,7 @@
 language: r
 
 install:
-  - Rscript -e 'install.packages(c("devtools", "roxygen")); devtools::install_deps("1.2-1/popdemo")'
+  - Rscript -e 'install.packages(c("devtools", "roxygen2")); devtools::install_deps("1.2-1/popdemo")'
 script:
   - Rscript -e 'devtools::check("1.2-1/popdemo")'
 
