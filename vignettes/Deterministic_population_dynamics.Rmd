@@ -17,7 +17,7 @@ library(popdemo)
 
 These exercises require `popdemo` version 1.2-1. Head to `popdemo`'s [GitHub](http://github.com/iainmstott/popdemo) (github.com/iainmstott/popdemo) for installation instructions (don't forget also to load the package using `library(popdemo)`!)  
 
-Key terms are in ***bold italic***, and functions or arguments are `fixed width`. Complete the core exercises (in normal print) first, as code in each section continues from the last. Code chunks are shaded, with outputs on lines starting with `##`. Afterward, return to the "extras" sections (in *italics*), and try writing your own code.  
+Key terms are in _**bold italic**_, and functions or arguments are `fixed width`. Complete the core exercises (in normal print) first, as code in each section continues from the last. Code chunks are shaded, with outputs on lines starting with `##`. Afterward, return to the "extras" sections (in *italics*), and try writing your own code.  
 \  
 
 ***
