@@ -1,3 +1,5 @@
+### Session stuff
+
 # History files
 .Rhistory
 .Rapp.history
@@ -5,6 +7,9 @@
 # Session Data files
 .RData
 .Ruserdata
+
+
+### Build stuff
 
 # Example code in package build process
 *-Ex.R
@@ -15,12 +20,21 @@
 # Output files from R CMD check
 /*.Rcheck/
 
-# RStudio files
+
+### Rstudio project stuff
+
+# RStudio project files
 .Rproj.user/
 .Rproj.user
 *.Rproj
 
-# produced vignettes
+# Windows shortcuts
+*.lnk
+
+
+### Rmarkdown stuff
+
+# vignette knits (but not .md files)
 vignettes/*.html
 vignettes/*.pdf
 
