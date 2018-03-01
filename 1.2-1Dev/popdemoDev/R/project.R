@@ -10,17 +10,15 @@
 #' \code{project} performs a 'stochastic' projection where the matrix varies 
 #' with each timestep. The sequence of matrices is determined using \code{Aseq}. 
 #' Matrices must be square, non-negative and numeric. If \code{A} is a list, 
-#' all matrices must have the same dimension. 'projection' objects inherit
-#' names from \code{A}: if \code{A} is a matrix, stage names are inherited from 
-#' its column names. If \code{A} is a list, stage names are inherited from the 
-#' column names of the first matrix, and matrix names are inherited from the 
-#' names of the list elements.
+#' all matrices must have the same dimension. 'Projection' objects inherit
+#' names from \code{A}: if \code{A} is a matrix, stage names (in mat and 
+#' vec slots) are inherited from its column names..
 #'
 #' @param vector (optional) a numeric vector or matrix describing 
 #' the age/stage distribution(s) used to calculate the projection. Single
 #' population vectors can be given either as a numeric vector or 
 #' one-column matrix. Multiple vectors are specified as a matrix, where 
-#' each column describes a single population vector, so the number
+#' each column describes a single population vector. Therefore the number
 #' of rows of the matrix should be equal to the matrix dimension, whilst the 
 #' number of columns gives the number of vectors to project. \code{vector} may
 #' also take either "n" (default) to calculate the set of stage-biased projections 
@@ -41,22 +39,27 @@
 #' @param return.vec (optional) if \code{TRUE}, returns the time series of 
 #' demographic (st)age vectors as well as overall population size.
 #' 
-#' @param Aseq (optional) the sequence of matrices in a stochastic projection. 
+#' @param Aseq (optional, for stochastic projections only) the sequence of 
+#' matrices in a stochastic projection. 
 #' \code{Aseq} may be either:
 #' \itemize{
 #'  \item "unif" (default), which results in every matrix in \code{A} having an 
 #'  equal, random chance of being chosen at each timestep.
-#'  \item a square, nonnegative left-stochastic matrix describing a 
-#'  first-order markov chain used to choose the matrices. This should have the 
-#'  same dimension as the number of messages in \code{A}. 
+#'  \item a square, nonnegative left-stochastic matrix describing a first-order 
+#'  Markov chain used to choose the matrices. The transitions are defined COLUMNWISE: 
+#'  each column j describes the probability of choosing stage (row) i at time t+1, 
+#'  given that stage (column) j was chosen at time t. \code{Aseq}  should have the 
+#'  same dimension as the number of matrices in \code{A}. 
 #'  \item a numeric vector giving a specific sequence which corresponds to the
 #'  matrices in \code{A}.
 #'  \item a character vector giving a specific sequence which corresponds to the
 #'  names of the matrices in \code{A}.
 #' }
 #' 
-#' \code{Aseq="unif"} (default), then each matrix in \code{A} has an equal chance 
-#' of being chosen at each timestep. If \code{A} is a matrix
+#' @param Astart (optional) in a stochastic projection, the matrix with which to
+#' initialise the projection (either numeric, corresponding to the matrices in 
+#' \code{A}, or character, corresponding to the names of matrices in \code{A}). 
+#' When \code{Astart = NULL} (the default), a random initial matrix is chosen.
 #' 
 #' @param draws if \code{vector="diri"}, the number of population vectors drawn
 #' from dirichlet.
@@ -98,51 +101,29 @@
 #' structure.\cr\cr
 #' Projections returned are of length \code{time+1}, as the first element 
 #' represents the population at \code{t=0}.\cr\cr
-#' Projections have their own S3 plotting method \code{\link{plot.projection}}
+#' Projections have their own plotting method (see \code{\link{Projection-class}})
 #' to enable easy graphing.
 #'
 #' @return 
-#' If \code{vector} is specified, a numeric vector of population sizes of 
-#' length \code{time+1} (if a single vector is given), or a numeric matrix 
-#' of population projections where each column represents a single population 
-#' projection and is of length \code{time+1} (if multiple vectors are given).\cr\cr
-#' If \code{vector="n"}, a numeric matrix of population projections where each column 
-#' represents a single stage-biased projection and is of length \code{time+1}.\cr\cr
-#' If \code{vector="diri"}, a numeric matrix of population projections where each 
-#' column represents projection of a single vector draw and each column is of 
-#' length \code{time+1}\cr\cr
-#' If \code{return.vec=TRUE}, a list with components:
-#' \describe{
-#' \item{N}{
-#' the numeric vector or matrix of population sizes, as above
-#' }
-#' \item{vec}{
-#' If a single \code{vector} is specified, a numeric matrix of demographic 
-#' vectors from projection of \code{vector} through \code{A}. Each column 
-#' represents the densities of one life stage in the projection.\cr
-#' If multiple \code{vector}s are specified, a three-dimensional array of
-#' demographic vectors from projection of the set of initial vectors through
-#' \code{A}. The first dimension represents time (and is therefore equal to 
-#' \code{time+1}). The second dimension represents the densities of 
-#' each stage (and is therefore equal to the dimension of \code{A}). 
-#' The third dimension represents each individual projection (and is 
-#' therefore equal to the number of initial vectors given).\cr
-#' If \code{vector="n"}, a three-dimensional array of demographic vectors from
-#' projection of the set of stage-biased vectors through \code{A}. The first 
-#' dimension represents time (and is therefore equal to \code{time+1}). The 
-#' second dimension represents the densities of each stage (and 
-#' is therefore equal to the dimension of \code{A}). The third 
-#' dimension represents each individual stage-biased projection (and is 
-#' therefore also equal to the dimension of \code{A}). \cr
-#' if\code{vector="diri"}, a three-dimensional array of demographic vectors from
-#' projection of the dirichlet vector draws projected through \code{A}. The first 
-#' dimension represents time (and is therefore equal to \code{time+1}). The second 
-#' dimension represents the densities of each stage (and 
-#' is therefore equal to the dimension of \code{A}). The third 
-#' dimension represents projection of each population draw (and is therefore equal
-#' to \code{draws}).
-#' }
-#' }
+#' A \code{\link{Projection-class}} item. 
+#' 'Projection' objects inherit from a standard array, and can be treated as 
+#' such. Therefore, if if \code{vector} is specified, the 'Projection' object will 
+#' behave as: 
+#' \itemize{
+#'  \item if a single \code{vector} is given, a numeric vector of population sizes 
+#'  of length \code{time+1}
+#'  \item if multiple \code{vector}s are given, a numeric matrix of population 
+#'  projections where each column represents a single population projection and 
+#'  is of length \code{time+1}
+#'  \item if \code{vector="n"}, a numeric matrix of population projections where each column 
+#'  represents a single stage-biased projection and is of length \code{time+1}.
+#'  \item if \code{vector="diri"}, a numeric matrix of population projections where each 
+#'  column represents projection of a single vector draw and each column is of 
+#'  length \code{time+1}
+#' }\cr\cr
+#' See documentation on \code{\link{Projection-class}} objects to understand how 
+#' to access other slots (e.g. (st)age vectors through the population projection) 
+#' and for S4 methods (e.g. plotting projections).
 #' Some examples for understanding the structure of 3D arrays returned when 
 #' \code{return.vec=TRUE}: when projecting a 3 by 3 matrix for >10 time intervals 
 #' (see examples), element [11,3,2] represents the density of stage 3 at time 10 
@@ -155,43 +136,52 @@
 #' Note that the projections inherit the labelling from \code{A} and \code{vector}, if
 #' it exists. Both stage and vector names are taken from the COLUMN names of \code{A} 
 #' and \code{vector} respectively. These may be useful for selecting from the
-#' \code{projection} object, and are passed to \code{\link{plot.projection}} for 
-#' labelling graphs.
-#' }
+#' \code{projection} object, and for labelling graphs when plotting Projection
+#' objects.
 #'
 #' @seealso
-#' \code{\link{plot.projection}}
+#' \code{\link{Projection-class}}
 #'
 #' @examples
+#' 
+#'   ### USING PROJECTION OBJECTS
+#' 
 #'   # Create a 3x3 PPM
 #'   ( A <- matrix(c(0,1,2,0.5,0.1,0,0,0.6,0.6), byrow=TRUE, ncol=3) )
-#'
-#'   # Create an initial stage structure
-#'   ( initial <- c(1,3,2) )
 #'
 #'   # Project stage-biased dynamics of A over 70 intervals
 #'   ( pr <- project(A, vector="n", time=70) )
 #'   plot(pr)
+#' 
+#'   # Access other slots
+#'   vec(pr)
+#'   bounds(pr)
+#'   mat(pr)
+#'   Aseq(pr)
+#'   projtype(pr)
+#'   vectype(pr)
 #'
 #'   # Select the projection of stage 2 bias
 #'   pr[,2]
 #'
-#'   # Project stage-biased dynamics of standardised A over 30 
-#'   # intervals and return demographic vectors
-#'   ( pr2 <- project(A, vector="n", time=30, standard.A=TRUE, return.vec=TRUE) )
+#'   # Project stage-biased dynamics of standardised A over 30 intervals
+#'   ( pr2 <- project(A, vector="n", time=30, standard.A=TRUE) )
 #'   plot(pr2)
 #'
 #'   #Select the projection of stage 2 bias
-#'   pr2$N[,2]
+#'   pr2[,2]
 #'
 #'   # Select the density of stage 3 in bias 2 at time 10
-#'   pr2$vec[11,3,2]
+#'   vec(pr2)[11,3,2]
 #'
 #'   # Select the time series of densities of stage 2 in bias 1
-#'   pr2$vec[,2,1]
+#'   vec(pr2)[,2,1]
 #'
 #'   #Select the matrix of population vectors for bias 2
-#'   pr2$vec[,,2]
+#'   vec(pr2)[,,2]
+#'
+#'   # Create an initial stage structure
+#'   ( initial <- c(1,3,2) )
 #'
 #'   # Project A over 50 intervals using a specified population structure
 #'   ( pr3 <- project(A, vector=initial, time=50) )
@@ -204,37 +194,75 @@
 #'   plot(pr4)
 #'
 #'   # Select the time series for stage 1
-#'   pr4$vec[,1]
+#'   vec(pr4)[,1]
 #'
+#'   ### DETERMINISTIC PROJECTIONS
+#' 
 #'   # Load the desert Tortoise matrix
 #'   data(Tort)
 #'
-#'   # Project 500 population vectors from a uniform dirichlet 
-#'   # distribution, and plot the density of population sizes
-#'   # within the bounds of population density
-#'   pr5 <- project(Tort, time=30, vector="diri", draws=500, alpha.draws="unif",
-#'                  standard.A=TRUE)
-#'   plot(pr5)
-#'                  
-#
+#'   # Create an initial stage structure
+#'   Tortvec1 <- c(8, 7, 6, 5, 4, 3, 2, 1)
+#'   
+#'   # Create a projection over 30 time intervals
+#'   ( Tortp1 <- project(Tort, vector = Tortvec1, time = 10) )
+#'
+#'   # plot p1
+#'   plot(Tortp1)
+#'   plot(Tortp1, bounds = TRUE) #with bounds
+#'  
+#'   # new display parameters
+#'   plot(Tortp1, bounds = TRUE, col = "red", bty = "n", log = "y", 
+#'        ylab = "Number of individuals (log scale)",
+#'        bounds.args = list(lty = 2, lwd = 2) )
+#' 
+#'   # multiple vectors
+#'   Tortvec2 <- cbind(Tortvec1, c(1, 2, 3, 4, 5, 6, 7, 8))
+#'   plot(project(Tort, vector = Tortvec2), log = "y")
+#'   plot(project(Tort, vector = Tortvec2), log = "y", labs = FALSE) #no labels
+#' 
+#'   # dirichlet distribution 
+#'   # darker shading indicates more likely population size
+#'   plot(project(Tort, time = 30, vector = "diri", standard.A = TRUE,
+#'                draws = 500, alpha.draws = "unif"),
+#'        plottype = "shady", bounds = TRUE)
+#'   
+#'   ### STOCHASTIC PROJECTIONS
+#'   # load polar bear data
+#'   data(Pbear)
+#'   
+#'   # project over 50 years with uniform matrix selection
+#'   Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
+#'   p2 <- project(Pbear, Pbearvec, time = 50, Aseq = "unif")
+#' 
+#'   # stochastic projection slots
+#'   Aseq(p2)
+#'   projtype(p2)
+#'   
+#'   # plot
+#'   plot(p2, log = "y")
 #'   
 #' @concept 
 #' projection project population
-#'
-#' @export project
-#' @importClassesFrom markovchain markovchain
+#' 
 #' @import methods
-#'
+#' @export project
+#' 
+#' @name project
+#' 
 project<-
 function (A, vector = "n", time = 100, 
-          standard.A = FALSE, standard.vec = FALSE, return.vec = FALSE,
-          Aseq = "unif", 
+          standard.A = FALSE, standard.vec = FALSE, 
+          return.vec = TRUE,
+          Aseq = "unif", Astart = NULL,
           draws = 1000, alpha.draws = "unif", PREcheck = TRUE){
+# stop if A isn't a matrix or list of matrices (or array of matrices)
 if(!any(is.matrix(A), 
         (is.list(A) & all(sapply(A, is.matrix))), 
         (is.array(A) & length(dim(A)) == 3)) ){
     stop("A must be a matrix or list of matrices")
 }
+# if there's only one matrix, put it in an array by itself (for continuity)
 if(is.list(A) & length(A) == 1) A <- A[[1]]
 if(is.matrix(A)){
     M1 <- A
@@ -243,6 +271,7 @@ if(is.matrix(A)){
     dimnames(A)[[2]] <- dimnames(M1)[[2]]
     dimnames(A)[[3]] <- NULL
 }
+# if there's more than one matrix in a list, put them in an array
 if (is.list(A) & length(A) > 1) {
     numA <- length(A)
     alldim <- sapply(A, dim)
@@ -259,6 +288,7 @@ if (is.list(A) & length(A) > 1) {
     dimnames(A)[[2]] <- dimnames(L[[1]])[[2]]
     dimnames(A)[[3]] <- names(L)
 }
+# do the PREcheck
 if(is.array(A) & dim(A)[3] == 1){
     if (dim(A)[1] != dim(A)[2]) stop("A must be a square matrix")
     if(PREcheck){
@@ -301,27 +331,32 @@ if (is.array(A) & dim(A)[3] > 1) {
         }
     }
 }
+# extract some info about matrices
 order <- dim(A)[1]
 stagenames <- dimnames(A)[[2]]
 if(is.null(stagenames)) stagenames <- paste("S", as.character(1:order), sep = "")
 nmat <- dim(A)[3]
 matrixnames <- dimnames(A)[[3]]
+# standardisations
 if (standard.A == TRUE) {
-    MS <- A
-    eigvals <- apply(MS, 3, function(x){ eigen(x)$values } )
-    lmax <- apply(eigvals, 2, function(x){ which.max(Re(x)) })
-    lambda <- numeric(nmat)
-    A <- numeric(order * order * nmat); dim(A) <- c(order, order, nmat)
-    for(i in 1:nmat){
-        lambda[i] <- Re(eigvals[,i][lmax[i]])
-        A[,,i] <- MS[,,i]/lambda[i]
+    if(nmat != 1) warning("Ignoring standard.A = TRUE: only valid when A is a single matrix.")
+    # just for single matrices but maybe extend to stochastic projections some day
+    if(nmat == 1){
+        MS <- A
+        lambda <- apply(MS, 3, eigs, what = "lambda")
+        A <- numeric(order * order * nmat); dim(A) <- c(order, order, nmat)
+        for(i in 1:nmat){
+            A[,,i] <- MS[,,i]/lambda[i]
+        }
     }
 }
+# if there's only 1 matrix, the sequence of matrices is 1L repeated
 if (nmat == 1) {
-    if(Aseq != "unif") warning("Only 1 matrix in A: ignoring Aseq")
+    if(Aseq != "unif") warning("Ignoring Aseq: only 1 matrix in A")
     MC <- rep(1L, time)
     names(MC) <- matrixnames[MC]
 }
+# if >1 matrix, generate sequence of matrices using random Markov chain
 if (nmat > 1) {
     if(!any(Aseq[1] == "unif", 
             is.matrix(Aseq), 
@@ -329,21 +364,36 @@ if (nmat > 1) {
             is.character(Aseq) & is.null(dim(Aseq)))){
         stop('Aseq must take "unif", a numeric matrix, a numeric vector, or a character vector')
     }
-#add support for specifying a markovchain object
+    # make sure Astart is OK
+    if(!any(is.numeric(Astart),
+            is.character(Astart),
+            is.null(Astart))) stop("Astart should be numeric, character or NULL")
+    if(is.numeric(Astart)){
+        if(length(Astart) > 1) stop("Astart should be length 1")
+        if(Astart < 1) stop("Astart must be greater than 0")
+        if(Astart > nmat) stop("Astart cannot be greater than the number of matrices in A")
+        if(Astart%%1 != 0) stop("Astart must be an integer")
+        MCstart <- Astart
+    }
+    if(is.character(Astart)){
+        if(length(Astart) > 1) stop("Astart should be length 1")
+        if(!(Astart %in% matrixnames)) stop("Astart is not found in names of matrices in A")
+        MCstart <- match(Astart, matrixnames)
+    }
+    if(is.null(Astart)) MCstart <- NULL
+    # uniform probability or transition matrix
     if(any(Aseq[1] == "unif", is.matrix(Aseq))){
         if(Aseq[1] == "unif") MCtm <- matrix(rep(1/nmat, nmat^2), nmat, nmat)
         if(is.matrix(Aseq)) MCtm <- Aseq
-        dimnames(MCtm) <- NULL
         if(dim(MCtm)[1] != dim(MCtm)[2]) stop("Aseq is not a square matrix")
         if(dim(MCtm)[1] != nmat){
             stop("Dimensions of Aseq must be equal to number of matrices in A")
         }
         if(!all(colSums(MCtm) == 1)) stop("Columns of Aseq do not sum to 1")
-        MCo <- new("markovchain", transitionMatrix = MCtm, byrow = F)
-        MC <- markovchain::rmarkovchain(time, MCo, useRCpp = FALSE)
-        MC <- as.numeric(MC)
+        MC <- .rmc(MCtm, time, MCstart)
         names(MC) <- matrixnames[MC]
     }
+    # numeric sequence
     if(is.numeric(Aseq) & is.null(dim(Aseq))){
         if(min(Aseq) < 1) stop("Entries in Aseq are not all greater than 0")
         if(max(Aseq) > nmat) stop("One or more entries in Aseq are greater than the number of matrices in A")
@@ -352,64 +402,66 @@ if (nmat > 1) {
         MC <- Aseq
         names(MC) <- matrixnames[MC]
     }
+    # character sequence (convert to numeric)
     if(Aseq[1] != "unif" & is.character(Aseq) & is.null(dim(Aseq))){
-        if(!all(Aseq %in% dimnames(A)[[3]])) stop("Names of Aseq aren't all found in A")
+        if(!all(Aseq %in% matrixnames)) stop("Names of Aseq aren't all found in A")
         if(length(Aseq) != time) time <- length(Aseq)
-        MC <- match(Aseq, dimnames(A)[[3]])
+        MC <- match(Aseq, matrixnames)
         names(MC) <- matrixnames[MC]
     }
 }
-I <- diag(order)
-VecBias <- numeric((time + 1) * order * order)
-dim(VecBias) <- c(time + 1, order, order)
-dimnames(VecBias)[[2]] <- stagenames
-dimnames(VecBias)[[3]] <- paste("bias", stagenames, sep = "")
-PopBias <- numeric((time + 1) * order)
-dim(PopBias) <- c(time + 1, order)
-dimnames(PopBias)[[2]] <- paste("bias", stagenames, sep = "")
-for (i in 1:order) {
-    VecBias[1, , i] <- I[, i]
-    PopBias[1, i] <- 1
-    for (j in 1:time) {
-        VecBias[j + 1, , i] <- A[, , MC[j]] %*% VecBias[j, , i]
-        PopBias[j + 1, i] <- sum(VecBias[j + 1, , i])
+# prepare object to return
+out <- Projection()
+# stage-biased projections
+#(run also for deterministic projections, to get bounds)
+if(nmat == 1 | vector[1] == "n"){
+    # empty objects
+    VecBias <- numeric((time + 1) * order * order)
+    dim(VecBias) <- c(time + 1, order, order)
+    dimnames(VecBias)[[2]] <- stagenames
+    dimnames(VecBias)[[3]] <- paste("bias", stagenames, sep = "")
+    PopBias <- numeric((time + 1) * order)
+    dim(PopBias) <- c(time + 1, order)
+    dimnames(PopBias)[[2]] <- paste("bias", stagenames, sep = "")
+    # initial vectors come from identity matrix
+    I <- diag(order)
+    VecBias[1, ,] <- I
+    # initial population size is always 1
+    PopBias[1,] <- 1
+    for (i in 1:order) {
+        for (j in 1:time) {
+            VecBias[j + 1, , i] <- A[, , MC[j]] %*% VecBias[j, , i]
+            PopBias[j + 1, i] <- sum(VecBias[j + 1, , i])
+        }
     }
-}
-bounds <- t(apply(PopBias,1,range))
-if(vector[1] == "n"){
+    # for deterministic projections, calculate the bounds
     if(nmat == 1){
-        attr(PopBias, "bounds") <- bounds
-        attr(PopBias, "proj") <- "deterministic"
+        bounds <- t(apply(PopBias,1,range))
     }
-    if(nmat > 1){
-        attr(PopBias, "bounds") <- NA
-        attr(PopBias, "proj") <- "stochastic"
-    }
-    attr(PopBias, "seq") <- MC
-    attr(PopBias, "vec") <- "bias"
-    attr(PopBias, "class") <- c("projection", "matrix")
-    if (return.vec) {
-        final <- list(N = PopBias, vec = VecBias)
+    # return stage-biased vectors if nothing passed to vector
+    if(vector[1] == "n"){
+        if(is.null(dim(PopBias))) dim(PopBias) <- time + 1
+        out@.Data <- PopBias
+        if(return.vec) out@vec <- VecBias
+        out@mat <- A
+        out@Aseq <- MC
         if(nmat == 1){
-            attr(final, "bounds") <- bounds
-            attr(final, "proj") <- "deterministic"
+            out@bounds <- bounds
+            out@projtype <- "deterministic"
         }
         if(nmat > 1){
-            attr(final, "bounds") <- NA
-            attr(final, "proj") <- "stochastic"
+            out@projtype <- "stochastic"
         }
-        attr(final, "seq") <- MC
-        attr(final, "vec") <- "bias"
-        attr(final, "class") <- c("projection", "list")
-        return(final)
-    } else {
-        final <- PopBias
-        return(final)
+        out@vectype <- "bias"
+        return(out)
     }
 }
+# dirichlet projections
 if(vector[1] == "diri") {
+    # dirichlet parameters
     if(alpha.draws[1] == "unif") alpha.draws<-rep(1,order)
     if(length(alpha.draws) != order) stop("length of alpha.draws must be equal to matrix dimension")
+    # empty objects
     VecDraws <- numeric((time + 1) * order * draws)
     dim(VecDraws) <- c(time + 1, order, draws)
     dimnames(VecDraws)[[2]] <- stagenames
@@ -417,51 +469,46 @@ if(vector[1] == "diri") {
     PopDraws <- numeric((time + 1) * draws)
     dim(PopDraws) <- c(time + 1, draws)
     dimnames(PopDraws)[[2]] <- paste("draw", as.character(1:draws), sep = "")
+    # initial stage vectors come from dirichlet
     VecDraws[1, , ] <- t(MCMCpack::rdirichlet(draws,alpha.draws))
+    # initial population size is always 1
     PopDraws[1,] <- 1
+    #project
     for (i in 1:draws) {
         for (j in 1:time) {
             VecDraws[j + 1, , i] <- A[, , MC[j]] %*% VecDraws[j, ,i]
             PopDraws[j + 1, i] <- sum(VecDraws[j + 1, ,i])
         }
     }
+    # choose stuff to return
+    if(is.null(dim(PopDraws))) dim(PopDraws) <- time + 1
+    out@.Data <- PopDraws
+    if(return.vec) out@vec <- VecDraws
+    out@mat <- A
+    out@Aseq <- MC
     if(nmat == 1){
-        attr(PopDraws, "bounds") <- bounds
-        attr(PopDraws, "proj") <- "deterministic"
+        out@bounds <- bounds
+        out@projtype <- "deterministic"
     }
     if(nmat > 1){
-        attr(PopDraws, "bounds") <- NA
-        attr(PopDraws, "proj") <- "stochastic"
+        out@projtype <- "stochastic"
     }
-    attr(PopDraws, "seq") <- MC
-    attr(PopDraws, "vec") <- "diri"
-    attr(PopDraws, "class") <- c("projection", "matrix")
-    if (return.vec) {
-        final <- list(N = PopDraws, vec = VecDraws)
-        if(nmat == 1){
-            attr(final, "bounds") <- bounds
-            attr(final, "proj") <- "deterministic"
-        }
-        if(nmat > 1){
-            attr(final, "bounds") <- NA
-            attr(final, "proj") <- "stochastic"
-        }
-        attr(final, "seq") <- MC
-        attr(final, "vec") <- "diri"
-        attr(final, "class") <- c("projection", "list")
-        return(final)
-    } else {
-        final <- PopDraws
-        return(final)
-    }        
+    out@vectype <- "diri"
+    return(out)
 }
+# specific vector(s)...
+# make sure vector is the correct size
 if(vector[1]!="n"&vector[1]!="diri"&(length(vector)%%order)!=0) stop("vector has the wrong dimension(s)")
+# multiple vectors projections
 if(length(vector) > order){
+    # get information from vectors
     nvec <- dim(vector)[2]
     vectornames <- dimnames(vector)[[2]]
     if(is.null(vectornames)) vectornames <- paste("V", as.character(1:nvec), sep="")
     n0 <- vector
+    # standardisations
     if (standard.vec) vector <- apply(n0, 2, function(x){x/sum(x)})
+    # empty objects
     Vec <- numeric((time + 1) * order * nvec)
     dim(Vec) <- c(time + 1, order, nvec)
     dimnames(Vec)[[2]] <- stagenames
@@ -469,83 +516,61 @@ if(length(vector) > order){
     Pop <- numeric((time + 1) * nvec)
     dim(Pop) <- c(time + 1, nvec)
     dimnames(Pop)[[2]] <- vectornames
+    # initialise
     Vec[1, , ] <- vector
     Pop[1,] <- colSums(vector)
+    # project
     for (i in 1:nvec) {
         for (j in 1:time) {
             Vec[j + 1, , i] <- A[, , MC[j]] %*% Vec[j, ,i]
             Pop[j + 1, i] <- sum(Vec[j + 1, ,i])
         }
     }
+    # choose stuff to return
+    if(is.null(dim(Pop))) dim(Pop) <- time + 1
+    out@.Data <- Pop
+    if(return.vec) out@vec <- Vec
+    out@mat <- A
+    out@Aseq <- MC
     if(nmat == 1){
-        attr(Pop, "bounds") <- bounds
-        attr(Pop, "proj") <- "deterministic"
+        out@bounds <- bounds
+        out@projtype <- "deterministic"
     }
     if(nmat > 1){
-        attr(Pop, "bounds") <- NA
-        attr(Pop, "proj") <- "stochastic"
+        out@projtype <- "stochastic"
     }
-    attr(Pop, "seq") <- MC
-    attr(Pop, "vec") <- "multiple"
-    attr(Pop, "class") <- c("projection", "matrix")
-    if (return.vec) {
-        final <- list(N = Pop, vec = Vec)
-        if(nmat == 1){
-            attr(final, "bounds") <- bounds
-            attr(final, "proj") <- "deterministic"
-        }
-        if(nmat > 1){
-            attr(final, "bounds") <- NA
-            attr(final, "proj") <- "stochastic"
-        }
-        attr(final, "seq") <- MC
-        attr(final, "vec") <- "multiple"
-        attr(final, "class") <- c("projection", "list")
-        return(final)
-    } else {
-        final <- Pop
-        return(final)
-    }        
+    out@vectype <- "multiple"
+    return(out)
 }
+# single vector projection
 if(length(vector)==order){
     n0 <- vector
+    # standardisation
     if (standard.vec) vector <- n0/sum(n0)
+    # empty objects
     Vec <- matrix(0, ncol = order, nrow = time + 1)
     Pop <- numeric(time + 1)
     dimnames(Vec)[[2]] <- stagenames
     Vec[1, ] <- vector
     Pop[1] <- sum(vector)
+    # project
     for (i in 1:time) {
         Vec[(i + 1), ] <- A[, , MC[i]] %*% Vec[i, ]
         Pop[i + 1] <- sum(Vec[(i + 1), ])
     }
+    # choose stuff to return
+    if(is.null(dim(Pop))) dim(Pop) <- time + 1
+    out@.Data <- Pop
+    if(return.vec) out@vec <- Vec
+    out@mat <- A
+    out@Aseq <- MC
     if(nmat == 1){
-        attr(Pop, "bounds") <- bounds
-        attr(Pop, "proj") <- "deterministic"
+        out@bounds <- bounds
+        out@projtype <- "deterministic"
     }
     if(nmat > 1){
-        attr(Pop, "bounds") <- NA
-        attr(Pop, "proj") <- "stochastic"
+        out@projtype <- "stochastic"
     }
-    attr(Pop, "seq") <- MC
-    attr(Pop, "vec") <- "single"
-    attr(Pop, "class") <- c("projection", "numeric")
-    if (return.vec) {
-        final <- list(N = Pop, vec = Vec)
-        if(nmat == 1){
-            attr(final, "bounds") <- bounds
-            attr(final, "proj") <- "deterministic"
-        }
-        if(nmat > 1){
-            attr(final, "bounds") <- NA
-            attr(final, "proj") <- "stochastic"
-        }
-        attr(final, "seq") <- MC
-        attr(final, "vec") <- "single"
-        attr(final, "class") <- c("projection", "list")
-        return(final)
-    } else {
-        final <- Pop
-        return(final)
-    }
+    out@vectype <- "single"
+    return(out)
 }}

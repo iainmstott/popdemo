@@ -18,7 +18,7 @@
 #' @param ...  arguments to be passed to methods: see \code{\link{par}} and
 #' \code{\link{plot}}.
 #'
-#' @details 
+#' @details
 #' \code{plot.tfam} plots matrices of transfer functions (class 
 #' \code{tfam}) created using \code{\link{tfam_lambda}} or 
 #' \code{\link{tfam_inertia}}. The plot is laid out to correspond with 
@@ -55,45 +55,44 @@
 #' @concept 
 #' transfer function systems control nonlinear perturbation population viability
 #' PVA ecology demography PPM MPM
-#'
-#' @export
 #' 
-plot.tfam <-
-function(x,xvar=NULL,yvar=NULL,mar=c(1.1,1.1,0.1,0.1),...){
-order<-dim(x$p)[1]
-lay<-rbind(rep(max(x$layout)+1,order),x$layout)
-graphics::layout(lay)
-graphics::par(mar=mar)
-if(is.null(xvar)){
-    xv<-x$p
-    xvar<-"p"
-}
-else{
-    if(xvar=="p") xv<-x$p
-    if(xvar=="lambda") xv<-x$lambda
-    if(xvar=="inertia") xv<-x$inertia
-}
-if(is.null(yvar)){
-    yv<-x[[length(x)-1]]
-    yvar<-names(x)[length(x)-1]
-}
-else{
-    if(yvar=="p") yv<-x$p
-    if(yvar=="lambda") yv<-x$lambda
-    if(yvar=="inertia") yv<-x$inertia
-}
-elementrow<-x$rows
-elementcol<-x$cols
-for(i in 1:order){
-    for(j in 1:order){
-        if(x$layout[i,j]!=0){
-            graphics::plot(xv[i,j,],yv[i,j,],type="l",xaxt="n",yaxt="n",...)
-            graphics::axis(side=1,tck=0.05,padj=-1.7,cex.axis=0.9)
-            graphics::axis(side=2,tck=0.05,padj=1.4,cex.axis=0.9)
+#' @method plot tfam
+#' @export
+plot.tfam <- function(x,xvar=NULL,yvar=NULL,mar=c(1.1,1.1,0.1,0.1),...){
+    order<-dim(x$p)[1]
+    lay<-rbind(rep(max(x$layout)+1,order),x$layout)
+    graphics::layout(lay)
+    graphics::par(mar=mar)
+    if(is.null(xvar)){
+        xv<-x$p
+        xvar<-"p"
+    }
+    else{
+        if(xvar=="p") xv<-x$p
+        if(xvar=="lambda") xv<-x$lambda
+        if(xvar=="inertia") xv<-x$inertia
+    }
+    if(is.null(yvar)){
+        yv<-x[[length(x)-1]]
+        yvar<-names(x)[length(x)-1]
+    }
+    else{
+        if(yvar=="p") yv<-x$p
+        if(yvar=="lambda") yv<-x$lambda
+        if(yvar=="inertia") yv<-x$inertia
+    }
+    elementrow<-x$rows
+    elementcol<-x$cols
+    for(i in 1:order){
+        for(j in 1:order){
+            if(x$layout[i,j]!=0){
+                graphics::plot(xv[i,j,],yv[i,j,],type="l",xaxt="n",yaxt="n",...)
+                graphics::axis(side=1,tck=0.05,padj=-1.7,cex.axis=0.9)
+                graphics::axis(side=2,tck=0.05,padj=1.4,cex.axis=0.9)
+            }
         }
     }
-}
-graphics::par(mar=c(0,0,0,0))
-graphics::plot(0,type="n",bty="n",xaxt="n",yaxt="n",xlab="",ylab="")
-graphics::text(1,0,paste(yvar,"~",xvar),cex=2)
+    graphics::par(mar=c(0,0,0,0))
+    graphics::plot(0,type="n",bty="n",xaxt="n",yaxt="n",xlab="",ylab="")
+    graphics::text(1,0,paste(yvar,"~",xvar),cex=2)
 }

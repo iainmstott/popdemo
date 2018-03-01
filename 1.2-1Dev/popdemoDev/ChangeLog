@@ -1,5 +1,6 @@
 ################################################################################
 CHANGELOG
+Version 1.2-1  Bug fix ('project' function markov chain simulation not working)
 Version 1.2-0  Added functionality to 'project' function to perform stochastic
                projections
                Added 'eigs' function for calculating dominant eigendata

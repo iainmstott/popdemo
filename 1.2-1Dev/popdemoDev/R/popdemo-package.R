@@ -23,7 +23,7 @@
 #' Population projection:\cr
 #' \code{popdemo} provides a simple means of projecting and plotting PPM models.
 #' \code{\link{project}} will project population dynamics and a plotting method
-#' is available via \code{\link{plot.projection}}.\cr\cr
+#' is available.\cr\cr
 #' Indices of transient density:\cr
 #' Transient dynamics are important to study in PPM models, and \code{popdemo}
 #' provides the means to work with transient indices of PPM models.

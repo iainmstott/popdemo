@@ -22,10 +22,6 @@
 #' reactivity reactivity-deprecated 
 #' firststepatt firststepatt-deprecated 
 #'
-#' @rdname popdemo-deprecated
-#' @name popdemo-deprecated
-#' @docType package
-#'
 #' @description
 #' Deprecated functions in the popdemo package
 #' 
@@ -120,6 +116,9 @@
 #' @export reactivity
 #' @export firststepatt
 #'
+#' @docType package
+#' @name popdemo-deprecated
+#' 
 Cohen.cumulative <- function(...) {
 .Deprecated(msg=paste("'Cohen.cumulative' has been renamed and is deprecated.",
                       "The old name will continue to work for now, but may be removed in later versions.",

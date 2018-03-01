@@ -4,8 +4,8 @@
 \alias{stoch}
 \title{Project population dynamics}
 \usage{
-stoch(A, what = "all", Aseq = "unif", vector = NULL, iterations = 10000,
-  discard = 1000, PREcheck = TRUE)
+stoch(A, what = "all", Aseq = "unif", vector = NULL, Astart = NULL,
+  iterations = 10000, discard = 1000, PREcheck = FALSE)
 }
 \arguments{
 \item{A}{a list of matrices. \code{stoch} uses \code{\link{project}} to 
@@ -36,6 +36,11 @@ distribution used to calculate the projection. If \code{vector} is not
 specified, a random vector is drawn. Long-term stochastic dynamics should 
 usually be the same for any vector, although if all the matrices in A are 
 reducible (see \code{\link{isIrreducible}}), that may not be the case.}
+
+\item{Astart}{(optional) in a stochastic projection, the matrix with which to
+initialise the projection (either numeric, corresponding to the matrices in 
+\code{A}, or character, corresponding to the names of matrices in \code{A}). 
+When \code{Astart = NULL}, a random initial matrix is chosen.}
 
 \item{iterations}{the number of projection intervals. The default is 1e+5.}
 

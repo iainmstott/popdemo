@@ -1,5 +1,5 @@
 ################################################################################
-#' Project population dynamics
+#' Project population dynamics 
 #'
 #' @description
 #' Analyse long-term dynamics of a stochastic population matrix projection model.
@@ -32,6 +32,11 @@
 #'  \item a character vector giving a specific sequence which corresponds to the
 #'  names of the matrices in \code{A}.
 #' }
+#' 
+#' @param Astart (optional) in a stochastic projection, the matrix with which to
+#' initialise the projection (either numeric, corresponding to the matrices in 
+#' \code{A}, or character, corresponding to the names of matrices in \code{A}). 
+#' When \code{Astart = NULL}, a random initial matrix is chosen.
 #' 
 #' @param iterations the number of projection intervals. The default is 1e+5.
 #' 
@@ -77,27 +82,18 @@
 #' stochastic growth variance projection project population
 #'
 #' @export stoch
-#' @importClassesFrom markovchain markovchain
 #' @import methods
 #'
 stoch<-
-function (A, what = "all", Aseq = "unif", 
-          vector = NULL, iterations = 1e+4, discard = 1e+3, 
-          PREcheck = TRUE){
-##what should be calculated?
-ifelse("lambda" %in% what, growth <- TRUE, growth <- FALSE)
-ifelse("var" %in% what, variance <- TRUE, variance <- FALSE)
-if("all" %in% what){
-    growth <- TRUE
-    variance <- TRUE
-}
-if(!growth & !variance) stop('"what" does not contain the right information')
+function (A, what = "all", Aseq = "unif", vector = NULL, 
+          Astart = NULL, iterations = 1e+4, discard = 1e+3, 
+          PREcheck = FALSE){
 ## check structure of A and rearrange into an array
 if(!any((is.list(A) & all(sapply(A, is.matrix))), 
         (is.array(A) & length(dim(A)) == 3)) ){
     stop("A must be a list of matrices")
 }
-if(is.list(A) & length(A) == 1) stop("A must contain two or more matrices")
+if(is.list(A) & length(A) == 1) stop("A must contain more than one matrix")
 if (is.list(A) & length(A) > 1) {
     numA <- length(A)
     alldim <- sapply(A, dim)
@@ -114,88 +110,28 @@ if (is.list(A) & length(A) > 1) {
     dimnames(A)[[2]] <- dimnames(L[[1]])[[2]]
     dimnames(A)[[3]] <- names(L)
 }
-## do PREcheck
-if (is.array(A) & dim(A)[3] > 1) {
-    if (dim(A)[1] != dim(A)[2]) stop("all matrices in A must be square")
-    if (PREcheck) {
-        red <- numeric(0)
-        imp <- numeric(0)
-        for(i in 1:dim(A)[3]){
-            if (!isIrreducible(A[,,i])) {
-                red <- c(red, i)
-            } else {
-                if (!isPrimitive(A[,,i])) {
-                    imp <- c(imp, i)
-                }
-            }
-        }
-        if (length(red) > 0){
-            if(is.null(dimnames(A)[[3]])) red <- as.character(red)
-            if(!is.null(dimnames(A)[[3]])) red <- dimnames(A)[[3]][red]
-            red <- paste(red, collapse=", ")
-            warning(paste(c("One or more matrices are reducible (", red, ")"), 
-                          collapse=""))
-        }
-        if (length(imp) > 0){
-            if(is.null(dimnames(A)[[3]])) imp <- as.character(imp)
-            if(!is.null(dimnames(A)[[3]])) imp <- dimnames(A)[[3]][imp]
-            imp <- paste(imp, collapse=", ")
-            warning(paste(c("One or more matrices are imprimitive (", imp, ")"), 
-                          collapse=""))
-        }
-    }
-}
-## get important info from A
+## extract some info about matrices
 order <- dim(A)[1]
-stagenames <- dimnames(A)[[2]]
-if(is.null(stagenames)) stagenames <- paste("S", as.character(1:order), sep = "")
-nmat <- dim(A)[3]
-matrixnames <- dimnames(A)[[3]]
+##what should be calculated?
+ifelse("lambda" %in% what, growth <- TRUE, growth <- FALSE)
+ifelse("var" %in% what, variance <- TRUE, variance <- FALSE)
+if("all" %in% what){
+    growth <- TRUE
+    variance <- TRUE
+}
+if(!growth & !variance) stop('"what" does not contain the right information')
 ## check vector
-if(!is.null(vector) & length(vector) != order) stop("vector has the wrong dimension")
+if(!is.null(vector) & any(length(vector) != order,
+                          vector == "diri", 
+                          vector = "n")){
+    stop("vector must be equal to dimension of A")
+}
 if(is.null(vector)) vector <- stats::runif(order)
 vector <- vector / sum(vector)
-## generate the Markov Chain for projection
-if(!any(Aseq[1] == "unif", 
-        is.matrix(Aseq), 
-        is.numeric(Aseq) & is.null(dim(Aseq)),
-        is.character(Aseq) & is.null(dim(Aseq)))){
-    stop('Aseq must take "unif", a numeric matrix, a numeric vector, or a character vector')
-} #maybe add support for specifying a markovchain object
-# uniform probability or transition matrix
-if(any(Aseq[1] == "unif", is.matrix(Aseq))){
-    if(Aseq[1] == "unif") MCtm <- matrix(rep(1/nmat, nmat^2), nmat, nmat)
-    if(is.matrix(Aseq)) MCtm <- Aseq
-    dimnames(MCtm) <- NULL
-    if(dim(MCtm)[1] != dim(MCtm)[2]) stop("Aseq is not a square matrix")
-    if(dim(MCtm)[1] != nmat){
-        stop("Dimensions of Aseq must be equal to number of matrices in A")
-    }
-    if(!all(colSums(MCtm) == 1)) stop("Columns of Aseq do not sum to 1")
-    MCo <- new("markovchain", transitionMatrix = MCtm, byrow = F)
-    MC <- markovchain::rmarkovchain(iterations, MCo, useRCpp = FALSE)
-    MC <- as.numeric(MC)
-    names(MC) <- matrixnames[MC]
-}
-# numeric sequence
-if(is.numeric(Aseq) & is.null(dim(Aseq))){
-    if(min(Aseq) < 1) stop("Entries in Aseq are not all greater than 0")
-    if(max(Aseq) > nmat) stop("One or more entries in Aseq are greater than the number of matrices in A")
-    if(!all(Aseq%%1 == 0)) stop("One or more entries in Aseq are not integers")
-    if(length(Aseq) != time) time <- length(Aseq)
-    MC <- Aseq
-    names(MC) <- matrixnames[MC]
-}
-#character sequence (convert to numeric)
-if(Aseq[1] != "unif" & is.character(Aseq) & is.null(dim(Aseq))){
-    if(!all(Aseq %in% dimnames(A)[[3]])) stop("Names of Aseq aren't all found in A")
-    if(length(Aseq) != time) time <- length(Aseq)
-    MC <- match(Aseq, dimnames(A)[[3]])
-    names(MC) <- matrixnames[MC]
-}
 ##project the model
-pr <- project(A = A, vector = vector, time = iterations, Aseq = MC, 
-              PREcheck = FALSE)
+pr <- project(A = A, vector = vector, time = iterations, standard.A = FALSE,
+              standard.vec = FALSE, return.vec = FALSE, 
+              Aseq = Aseq, PREcheck = PREcheck)
 ##calculate the stuff
 #work out per-timestep growth
 gr <- pr[(discard:iterations) + 1] / pr[discard:iterations]
@@ -203,7 +139,6 @@ gr <- pr[(discard:iterations) + 1] / pr[discard:iterations]
 if(growth) gr_mean <- mean(gr)
 #find the per-timestep variance in growth
 if(variance) gr_var <- stats::var(gr)
-#decompose the growth
 if(growth & variance) final <- data.frame(lambda = gr_mean,
                                           var = gr_var)
 if(growth & !variance) final <- gr_mean
@@ -211,6 +146,7 @@ if(!growth & variance) final <- gr_var
 return(final)
 }
 
+# decompose growth into lambda vs transient
 # if(decomp){
 #     #find the per-timestep growth decomposition
 #     gr_a <- apply(A[, , MC], 3, eigs, what = "lambda")
