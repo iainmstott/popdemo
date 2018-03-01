@@ -12,7 +12,7 @@ urlcolor: "cyan"
 ```{r setup, include=FALSE}
 library(knitr)
 knitr::opts_chunk$set(echo = TRUE, comment = "##  ", collapse = TRUE)
-library(popdemo)
+library(popdemoDev)
 ```
 
 These exercises require `popdemo` version 1.2-1. Head to `popdemo`'s [GitHub](http://github.com/iainmstott/popdemo) (github.com/iainmstott/popdemo) for installation instructions (don't forget also to load the package using `library(popdemo)`!)  
