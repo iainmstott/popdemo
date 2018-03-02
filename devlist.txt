@@ -13,7 +13,6 @@ Give some functions the option to pass a 'projection' object?
 More background (simple) functions: e.g. basic projection function
 
 TO DO
-Examples on project & plot.project
 keywords tfs_inertia tfsm_inertia
 insert eigs function into many other functions
 

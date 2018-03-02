@@ -172,7 +172,7 @@ You would get the same result using `Aseq = rep(c("Y2001", "Y2002", "Y2003", "Y2
 #we'll use a random vector for the models
 Thistlevec <- runif(3); Thistlevec <- Thistlevec / sum(Thistlevec)
 ```
-[^1]: [Löfgren et al. (2000) Ann. Bot. Fennici, 37, 183–192.](http://www.sekj.org/PDF/anbf37/anbf37-183p.pdf)
+[^1]: [L�fgren et al. (2000) Ann. Bot. Fennici, 37, 183-192.](http://www.sekj.org/PDF/anbf37/anbf37-183p.pdf)
 
 *In any given year, 88.9% of stage 2 individuals survive, with 75% of these survivors flowering and 25% not flowering. At the moment these parameters are fixed, but they don't have to be. A beta distribution with $\alpha$ = 12 and $\beta$ = 5 would puts some variability around this 75% flowering probability:*
 ```{r}
