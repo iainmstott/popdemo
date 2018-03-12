@@ -39,7 +39,7 @@
 #*
 #'   # Calculate sensitivities of first subdominant eigenvalue,
 #'   # only for observed transitions
-#'   sens(A, eval=2, all=FALSE)
+#'   sens(A, eval=2, all=FALSE) 
 #'
 #' @concept 
 #' perturbation sensitivity elasticity 

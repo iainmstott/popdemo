@@ -101,8 +101,11 @@
 #' structure.\cr\cr
 #' Projections returned are of length \code{time+1}, as the first element 
 #' represents the population at \code{t=0}.\cr\cr
-#' Projections have their own plotting method (see \code{\link{Projection-class}})
-#' to enable easy graphing.
+#' Projections have their own plotting method (see \code{\link{Projection-plots}})
+#' to enable easy graphing.\cr\cr
+#' In addition to the examples below, see the "Deterministic population dynamics" 
+#' and "Stochastic population dynamics" vignettes for worked examples that use 
+#' the \code{project} function.
 #'
 #' @return 
 #' A \code{\link{Projection-class}} item. 
@@ -140,10 +143,9 @@
 #' objects.
 #'
 #' @seealso
-#' \code{\link{Projection-class}}
+#' \code{\link{Projection-class}} \code{\link{Projection-plots}} 
 #'
 #' @examples
-#' 
 #'   ### USING PROJECTION OBJECTS
 #' 
 #'   # Create a 3x3 PPM
@@ -154,13 +156,18 @@
 #'   plot(pr)
 #' 
 #'   # Access other slots
-#'   vec(pr)
-#'   bounds(pr)
-#'   mat(pr)
-#'   Aseq(pr)
-#'   projtype(pr)
-#'   vectype(pr)
+#'   vec(pr)  #time sequence of population vectors
+#'   bounds(pr)  #bounds on population dynamics
+#'   mat(pr)  #matrix used to create projection
+#'   Aseq(pr)  #sequence of matrices (more useful for stochastic projections)
+#'   projtype(pr)  #type of projection
+#'   vectype(pr)  #type of vector(s) initiating projection
 #'
+#'   # Extra information on the projection
+#'   nproj(pr)  #number of projections
+#'   nmat(pr)  #number of matrices (more usefulk for stochastic projections)
+#'   ntime(pr)  #number of time intervals
+#'   
 #'   # Select the projection of stage 2 bias
 #'   pr[,2]
 #'
@@ -235,9 +242,10 @@
 #'   Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
 #'   p2 <- project(Pbear, Pbearvec, time = 50, Aseq = "unif")
 #' 
-#'   # stochastic projection slots
+#'   # stochastic projection information
 #'   Aseq(p2)
 #'   projtype(p2)
+#'   nmat(p2)
 #'   
 #'   # plot
 #'   plot(p2, log = "y")

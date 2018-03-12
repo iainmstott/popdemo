@@ -33,7 +33,7 @@ stochastic growth) and/or "all" (to calculate both).}
 
 \item{vector}{(optional) a numeric vector describing the age/stage 
 distribution used to calculate the projection. If \code{vector} is not 
-specified, a random vector is drawn. Long-term stochastic dynamics should 
+specified, a random vector is generated. Long-term stochastic dynamics should 
 usually be the same for any vector, although if all the matrices in A are 
 reducible (see \code{\link{isIrreducible}}), that may not be the case.}
 

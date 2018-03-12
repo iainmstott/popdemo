@@ -17,11 +17,13 @@
 \alias{projtype,Projection-method}
 \alias{vectype}
 \alias{vectype,Projection-method}
+\alias{nproj}
+\alias{nproj,Projection-method}
 \alias{nmat}
 \alias{nmat,Projection-method}
-\alias{show,Projection-method}
-\alias{plot,Projection-method}
-\title{S4 class describing a 'Projection' object}
+\alias{ntime}
+\alias{ntime,Projection-method}
+\title{'Projection' object S4 class}
 \usage{
 vec(object)
 
@@ -47,75 +49,55 @@ vectype(object)
 
 \S4method{vectype}{Projection}(object)
 
+nproj(object)
+
+\S4method{nproj}{Projection}(object)
+
 nmat(object)
 
 \S4method{nmat}{Projection}(object)
 
-\S4method{show}{Projection}(object)
+ntime(object)
 
-\S4method{plot}{Projection}(x, bounds = FALSE, bounds.args = NULL,
-  labs = TRUE, plottype = "lines", ybreaks = 20, shadelevels = 100, ...)
+\S4method{ntime}{Projection}(object)
 }
 \arguments{
-\item{object}{an object of class "Projection" generated using \code{\link{project}}}
+\item{object}{an object of class "Projection" generated using \code{\link{project}}
+vec: access population vectors}
 
-\item{...}{arguments to be passed to methods: see \code{\link{par}} and
-\code{\link{plot}}.}
+\item{...}{further arguments (see method, below)}
 
 \item{return}{either "simple", "list", or "array": used for accessing the 'mat'
 slot from a Projection object. Note that only list or array can be used for 
-stochastic projections, which have more than one matrix.
-Access population vectors (slot "vec")}
-
-\item{x}{a Projection object created using \code{\link{project}}}
-
-\item{bounds}{logical: indicates whether to plot the bounds on population density.}
-
-\item{bounds.args}{A list of graphical parameters for plotting the bounds if
-\code{bounds=T}. The name of each list element indicates the name of the argument.
-Could include, e.g. \code{list(lwd=2,lty=3,col="darkred")}.}
-
-\item{labs}{logical: if \code{TRUE}, the plot includes more than one projection
-and \code{plottype="lines"}, then lines are automatically labelled according to 
-the names contained in the 'projection' object.}
-
-\item{plottype}{for projections generated from dirichlet draws (see 
-\code{\link{project}}), \code{plottype} has two options. \code{"lines"}
-will plot each projection as a separate line. \code{"shady"} will 
-plot shaded contours showing the probabilities of population 
-densities over over time, calculated across the set of projections from 
-dirichlet draws. By default this shaded plot is a gradient of black to
-white (with black representing higher probabilities), but this can be
-overridden by using the 'col' argument (see examples).}
-
-\item{ybreaks}{if \code{plottype="shady"}, gives the number of breaks on
-the y axis for generating the grid for the shade plot. A larger number of
-breaks means a finer resolution grid for the shading.}
-
-\item{shadelevels}{if \code{plottype="shady"} and a palette of colours
-is not specified using 'col', then \code{shadelevels} gives the number of
-colour/shading levels to use when generating the black and white shade plot. 
-A larger number of levels means a finer resolution on the shade
-plot of population density (see examples).}
+stochastic projections, which have more than one matrix.}
 }
 \description{
 Projection objects are created using the \code{\link{project}} function. 
-The slots of Projection objects are described with reference to arguments 
-passed to the \code{project} function.
-
-Access bounds on population dynamics (slot "bounds")
-
-Access population vectors (slot "vec")
-
-Access projection matrix sequence (slot "Aseq")
-
-Access projection type (slot "projtype")
-
-Access initial vector type (slot "vectype")
-
-Access number of projection matrices
-
-Plot method for Projection class
+Primarily, they contain overall population size over time: they can be 
+treated as a vector (single population projection) or matrix (multiple 
+population projections; see information on slot ".Data" below). They also 
+contain further information on the population projection. These extra pieces 
+of information are described below in the "Slots" section, and the methods 
+for accessing them appear below. These are:
+\itemize{
+ \item vec: access population vectors
+ \item bounds: access bounds on population dynamics
+ \item mat: access projection matrix/matrices used to create projection(s)
+ \item Aseq: access projection matrix sequence used to create projection(s)
+ \item projtype: find out projection type
+ \item vectype: access type of vector used to initiate population projection(s)
+}
+Other methods for accessing basic information from the projection are:
+\itemize{
+ \item nproj: access projection matrix/matrices used to create projection
+ \item nmat: number of projection matrices used to create projection(s)
+ \item ntime: number of time intervals
+}
+Plotting and display methods for 'Projection' objects can be found on the 
+\code{\link{Projection-plots}} page.\cr\cr
+In addition to the examples below, see the "Deterministic population dynamics" 
+and "Stochastic population dynamics" vignettes for worked examples that use 
+the 'Projection' objects.
 }
 \section{Slots}{
 
@@ -216,14 +198,112 @@ several population projections), "bias" (stage-biased vectors;
 distribution; \code{vector = "diri"}).}
 }}
 
-\section{Generics & Methods}{
+\examples{
+  ### USING PROJECTION OBJECTS
+
+  # Create a 3x3 PPM
+  ( A <- matrix(c(0,1,2,0.5,0.1,0,0,0.6,0.6), byrow=TRUE, ncol=3) )
+
+  # Project stage-biased dynamics of A over 70 intervals
+  ( pr <- project(A, vector="n", time=70) )
+  plot(pr)
+
+  # Access other slots
+  vec(pr)  #time sequence of population vectors
+  bounds(pr)  #bounds on population dynamics
+  mat(pr)  #matrix used to create projection
+  Aseq(pr)  #sequence of matrices (more useful for stochastic projections)
+  projtype(pr)  #type of projection
+  vectype(pr)  #type of vector(s) initiating projection
+
+  # Extra information on the projection
+  nproj(pr)  #number of projections
+  nmat(pr)  #number of matrices (more usefulk for stochastic projections)
+  ntime(pr)  #number of time intervals
+  
+  # Select the projection of stage 2 bias
+  pr[,2]
+
+  # Project stage-biased dynamics of standardised A over 30 intervals
+  ( pr2 <- project(A, vector="n", time=30, standard.A=TRUE) )
+  plot(pr2)
+
+  #Select the projection of stage 2 bias
+  pr2[,2]
+
+  # Select the density of stage 3 in bias 2 at time 10
+  vec(pr2)[11,3,2]
+
+  # Select the time series of densities of stage 2 in bias 1
+  vec(pr2)[,2,1]
+
+  #Select the matrix of population vectors for bias 2
+  vec(pr2)[,,2]
+
+  # Create an initial stage structure
+  ( initial <- c(1,3,2) )
+
+  # Project A over 50 intervals using a specified population structure
+  ( pr3 <- project(A, vector=initial, time=50) )
+  plot(pr3)
+
+  # Project standardised dynamics of A over 10 intervals using 
+  # standardised initial structure and return demographic vectors
+  ( pr4 <- project(A, vector=initial, time=10, standard.vec=TRUE, 
+                   standard.A=TRUE, return.vec=TRUE) )
+  plot(pr4)
+
+  # Select the time series for stage 1
+  vec(pr4)[,1]
+
+  ### DETERMINISTIC PROJECTIONS
+
+  # Load the desert Tortoise matrix
+  data(Tort)
+
+  # Create an initial stage structure
+  Tortvec1 <- c(8, 7, 6, 5, 4, 3, 2, 1)
+  
+  # Create a projection over 30 time intervals
+  ( Tortp1 <- project(Tort, vector = Tortvec1, time = 10) )
+
+  # plot p1
+  plot(Tortp1)
+  plot(Tortp1, bounds = TRUE) #with bounds
  
-Accessing slots and other information from a Projection object
+  # new display parameters
+  plot(Tortp1, bounds = TRUE, col = "red", bty = "n", log = "y", 
+       ylab = "Number of individuals (log scale)",
+       bounds.args = list(lty = 2, lwd = 2) )
+
+  # multiple vectors
+  Tortvec2 <- cbind(Tortvec1, c(1, 2, 3, 4, 5, 6, 7, 8))
+  plot(project(Tort, vector = Tortvec2), log = "y")
+  plot(project(Tort, vector = Tortvec2), log = "y", labs = FALSE) #no labels
+
+  # dirichlet distribution 
+  # darker shading indicates more likely population size
+  plot(project(Tort, time = 30, vector = "diri", standard.A = TRUE,
+               draws = 500, alpha.draws = "unif"),
+       plottype = "shady", bounds = TRUE)
+  
+  ### STOCHASTIC PROJECTIONS
+  # load polar bear data
+  data(Pbear)
+  
+  # project over 50 years with uniform matrix selection
+  Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
+  p2 <- project(Pbear, Pbearvec, time = 50, Aseq = "unif")
+
+  # stochastic projection information
+  Aseq(p2)
+  projtype(p2)
+  nmat(p2)
+  
+  # plot
+  plot(p2, log = "y")
+  
 }
-
-\section{Display Methods}{
-
-Printing and plotting Projection objects
-Print method for Projection class
+\seealso{
+\code{\link{project}} \code{\link{Projection-plots}}
 }
-

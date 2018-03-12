@@ -49,6 +49,9 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
+# Temporary directories created by R markdown
+tex2pdf*/
+
 ###VS Code stuff
 /.vs/
 /.vscode/
