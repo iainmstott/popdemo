@@ -56,10 +56,13 @@ The numbers in the matrix (called _**matrix elements**_ or _**transitions**_) de
 Matrix elements combine underlying _**vital rates**_ such as survival, growth and reproduction. For example, the subadult to adult transition (24.9%) combines probability of growing to adult size in one year, and probability of surviving the year. The subadult fecundity (1.3) combines the average number of offspring produced by subadults per year, and probability that those offspring survive the year.  
 \  
 
-```{r echo = FALSE}
-knitr::include_graphics("_Tort.jpg")
-```
-_A baby desert tortoise_  
+---
+# ```{r echo = FALSE}
+# knitr::include_graphics("_Tort.jpg")
+# ```
+# _A baby desert tortoise_  
+---
+
 
 ***
 # 2. Deterministic projections

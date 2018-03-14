@@ -60,10 +60,12 @@ The numbers in the matrix (called _**matrix elements**_ or _**transitions**_) de
 Matrix elements combine underlying _**vital rates**_ such as survival, growth and reproduction. For example, the stasis transition of adults without cubs (72.25%) combines probability of not breeding successfully, and the probability of surviving the year.  
 \  
 
-```{r echo = FALSE}
-knitr::include_graphics("_Pbear.jpg")
-```
-_Polar bear (photo by NASA Goddard Space Flight Center from Greenbelt, MD, USA)_
+---
+# ```{r echo = FALSE}
+# knitr::include_graphics("_Pbear.jpg")
+# ```
+# _Polar bear (photo by NASA Goddard Space Flight Center from Greenbelt, MD, USA)_
+---
 
 
 ***
