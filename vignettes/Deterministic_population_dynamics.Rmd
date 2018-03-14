@@ -1,28 +1,33 @@
 ---
 title: "Deterministic population dynamics"
 output: 
-  pdf_document:
-    pandoc_args: [
-      "--highlight-style=tango"
-    ]
+  html_document:
+      theme: cosmo
+      highlight: tango
+#  pdf_document:
+#    highlight: tango
 geometry: "left=2.5cm,right=2.5cm,top=1.5cm,bottom=1.5cm"
 urlcolor: "cyan"
 ---
 
-```{r setup, include=FALSE}
-library(knitr)
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, comment = "##  ", collapse = TRUE)
 library(popdemoDev)
+options(digits = 4)
 ```
 
 These exercises require the latest version of `popdemo`. Head to `popdemo`'s [GitHub](http://github.com/iainmstott/popdemo) (github.com/iainmstott/popdemo) for installation instructions (don't forget also to load the package using `library(popdemo)`!)  
 
-Key terms are in _**bold italic**_, and functions or arguments are `fixed width`. Complete the core exercises (in normal print) first, as code in each section continues from the last. Code chunks are shaded, with outputs on lines starting with `##`. Afterward, return to the "extras" sections (in *italics*), and try writing your own code.  
-\  
+Complete the core exercises (in normal print) first, as code in each section continues from the last. Afterward, return to the "extras" sections (in *italics*), and try writing your own code. Code to be run is in chunks:
+```{r example, echo = -1}
+an_input <- function() cat("an output")
+# a comment
+an_input()
+```
+Key terms in the text are in _**bold italic**_, and functions or arguments are `fixed width`.  
 
-![A baby desert tortoise](https://c1.staticflickr.com/8/7349/16490346262_169b5a21ae_b.jpg)  
-
-# 1. Data  
+***
+# 1. Data
 
 We will use a matrix projection model (MPM) to explore population dynamics for the desert tortoise *Gopherus agassizzii*, with medium fecundity[^1]. The population is found in the Mojave desert, USA. There are 8 stages are based on age and size (carapace length in mm):  
 - Yearling (age 0-1)  
@@ -33,7 +38,6 @@ We will use a matrix projection model (MPM) to explore population dynamics for t
 - Subadult (180-207mm)  
 - Adult 1 (208-239mm)  
 - Adult 2 (>240mm)  
-
 
 [^1]: [Doak et al. (1994) Ecol. Appl., 4, 446-460.](http://bio.research.ucsc.edu/~barrylab/classes/climate_change/DoakEcolApp.pdf)
 
@@ -46,7 +50,9 @@ data(Tort); Tort
 The numbers in the matrix (called _**matrix elements**_ or _**transitions**_) describe the probability of moving FROM stages in each column TO stages in each row, within the time interval chosen. For example, for this desert tortoise matrix, in any year a subadult (stage 6) has approimately 24.9% probability of becoming an adult (stage 7): this may be called a growth or progression transition. Likewise, in any year a subadult has about 67.8% chance of staying a subadult: this is called a stasis transition. This means that 100 - (67.8 + 24.9) = 7.3% of subadults die every year. There are different types of transitions: in this matrix there are also fecundity transitions which describe offspring production, and subadults produce on average 1.3 offspring per year. Other species may have different transitions, including skipping stages through fast growth, shrinkage or fission (especially in modular organisms, e.g. most plants, corals), or asexual reproduction.  
 
 Matrix elements combine underlying _**vital rates**_ such as survival, growth and reproduction. For example, the subadult to adult transition (24.9%) combines probability of growing to adult size in one year, and probability of surviving the year. The subadult fecundity (1.3) combines the average number of offspring produced by subadults per year, and probability that those offspring survive the year.  
-\  
+
+![A baby desert tortoise](https://c1.staticflickr.com/8/7349/16490346262_169b5a21ae_b.jpg)  
+
 
 ***
 # 2. Deterministic projections
@@ -147,7 +153,7 @@ Before settling to stable growth rate, a population will grow, decline or fluctu
 ## 4.1 Standardisations
 `popdemo` contains functions that calculate deviations from stable growth at various points along the population projection. These _**transient indices**_ make two standardisations: starting population vector **n**~0~ is scaled by ||**n**~0~||~1~ so that it sums to 1: 
 
-$$\hat{\textbf{n}_0} = \frac{\textbf{n}_0}{||\textbf{n}_0||_1}$$ 
+$$\hat{\textbf{n}}_0 = \frac{\textbf{n}_0}{||\textbf{n}_0||_1}$$ 
 
 The projection matrix is scaled by $\lambda$, so that lambda of the scaled matrix becomes 1: 
 
@@ -182,16 +188,16 @@ points(c(1, 100), c(r1, i1), pch = 3, col = "red")
 ### 4.2.1 Reactivity
 Reactivity (`r1`) is the population size in the first timestep of the projection (one year), relative to a population with stable growth. A reactivity of 2 would mean that in the first timestep, the population grows twice as fast as its stable growth rate. Reactivity is calculated using:  
 
-$$\textit{reactivity} = P_1 = ||\hat{\textbf{A}} \hat{\textbf{n}_0}||_1$$ 
+$$\textit{reactivity} = P_1 = ||\hat{\textbf{A}} \hat{\textbf{n}}_0||_1$$ 
 
 As we can see, measurements of transient dynamics use the standardisations we encountered earlier. These "standardisations" mean that transient indices are measured relative to long-term population growth, and initial population size. The interpretation of this is that transient indices measure the ratio of population size compared to a population growing at a stable rate.  
 
 ### 4.2.2 Inertia
 Inertia (`i1`) is the ratio of the size of the population in the long-term, relative to a population with stable growth. An inertia of 4 would mean that after the transient period, the population settles to a size 4 times as large as a population that grows with stable rate. Inertia is calculated using:  
 
-$$\textit{inertia} = P_\infty = \frac{\textbf{v}^\text{T}\hat{\textbf{n}_0}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}$$  
+$$\textit{inertia} = P_\infty = \frac{\textbf{v}^\text{T}\hat{\textbf{n}}_0||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}$$  
 
-**w** and **v** are the right and left eigenvectors as described in the "Asymptotic dynamics" section above. If **w** and **v** are scaled as described, then $\textit{inertia} = \textbf{v}^\text{T}\hat{\textbf{n}_0}$.  
+**w** and **v** are the right and left eigenvectors as described in the "Asymptotic dynamics" section above. If **w** and **v** are scaled as described, then $\textit{inertia} = \textbf{v}^\text{T}\hat{\textbf{n}}_0$.  
 
 ### 4.2.3 Maximum amplification and attenuation
 Comparable points at which to measure transient dynamics don't have to be at the same time of the projection. _**maximum amplification**_ and _**maximum attenuation**_ describe the largest and smallest population sizes (relative to long-term growth $\lambda$). Maximum amplification and maximum attenuation can occur at any point along the projection. Use `return.t = TRUE` to return the time at which they occur, as well as their value.  
@@ -288,11 +294,11 @@ points(c(rep(1, 5), rep(100, 5), max3t, maxB$t, min3t, minB$t),
 
 Using $\rho_1$ to refer to reactivity bounds, $\rho_\infty$ to refer to inertia bounds, $\rho_{max}$ to refer to the maxmimum amplification bound, $\rho_{min}$ to refer to the maximum attenuation bound, and with overbars to refer to upper bounds and underbars to refer to lower bounds[^6]:  
 
-$$\bar{\rho}_1 = ||\hat{\textbf{A}}||_1, \hspace{0.75cm} 
+$$\bar{\rho}_1 = ||\hat{\textbf{A}}||_1 \hspace{0.75cm} and  \hspace{0.75cm} 
   \underline{\rho}_1 = minCS(\hat{\textbf{A}})$$ 
-$$\bar{\rho}_\infty = \frac{v_{max}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}, \hspace{0.75cm} and  \hspace{0.75cm} 
+$$\bar{\rho}_\infty = \frac{v_{max}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}} \hspace{0.75cm} and  \hspace{0.75cm} 
   \underline{\rho}_\infty = \frac{v_{min}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}.$$
-$$\bar{\rho}_{max} = \max_{t > 0}||\hat{\textbf{A}}^t||_1, \hspace{0.75cm} 
+$$\bar{\rho}_{max} = \max_{t > 0}||\hat{\textbf{A}}^t||_1 \hspace{0.75cm} and  \hspace{0.75cm} 
   \underline{\rho}_{min} = \min_{t > 0}(minCS(\hat{\textbf{A}}^t))$$
 
 [^6]: $||\hat{\textbf{A}}||_1$ is the one-norm of $\hat{\textbf{A}}$, is equal to its maximum column sum. $minCS$ describes the minimum column sum. $v_{max}$ and $v_{min}$ are the maximum and minimum entries of **v**, respectively. 
