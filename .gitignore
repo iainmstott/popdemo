@@ -34,9 +34,9 @@
 
 ### Rmarkdown stuff
 
-# vignette knits (but not .md files)
-vignettes/*.html
-vignettes/*.pdf
+# vignette knits (if desired)
+# vignettes/*.html
+# vignettes/*.pdf
 
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
