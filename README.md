@@ -12,7 +12,7 @@ devtools::install_github("iainmstott/popdemo/x.x-x/popdemo") #x.x-x is the desir
 ```
   
   
-## development branch
+### *development branch*
 The [development](https://github.com/iainmstott/popdemo/tree/development) branch includes a development version of the package source code with new files and features currently being worked on. The development package may or may not be installable.  
 
 The development package is in the *Dev* folder. The package is called *popdemoDev*. A list of possible future changes can be found in *devlist.txt*.  
