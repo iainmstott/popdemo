@@ -2,12 +2,16 @@
 title: "Stochastic population dynamics"
 output: 
   html_document:
-      theme: cosmo
-      highlight: tango
+    theme: cosmo
+    highlight: tango
 #  pdf_document:
 #    highlight: tango
-geometry: "left=2.5cm,right=2.5cm,top=1.5cm,bottom=1.5cm"
-urlcolor: "cyan"
+#geometry: "left=2.5cm,right=2.5cm,top=1.5cm,bottom=1.5cm"
+#urlcolor: "cyan"
+vignette: >
+  %\VignetteIndexEntry{Stochastic population dynamics}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, include = FALSE}
@@ -54,8 +58,13 @@ The polar bear matrices have a mixed age-stage definition: the stages 1-3 are de
 The numbers in the matrix (called _**matrix elements**_ or _**transitions**_) describe the probability of moving FROM stages in each column TO stages in each row, within the time interval chosen. For example, for the 2005 polar bear matrix, an adult (stage 4) has 7.18% probability of breeding and becoming an adult with a cub (stage 5). Likewise, in any year an adult without a cub has about 72.25% chance of not breeding (therefore remaining in stage 4): this is called a stasis transition. This means that 100 - (72.25 + 7.18) = 20.57% of adults without cubs die every year. Contrast these numbers with "good" years, where reproduction is high and mortality is lower. There are different types of transitions: in this matrix there are also fecundity transitions which describe recruitment of offspring (at an age of 2 years; this is the top-right transition in the matrix). Other species may have different transitions, including skipping stages through fast growth, shrinkage or fission (especially in modular organisms, e.g. most plants, corals), or asexual reproduction.  
 
 Matrix elements combine underlying _**vital rates**_ such as survival, growth and reproduction. For example, the stasis transition of adults without cubs (72.25%) combines probability of not breeding successfully, and the probability of surviving the year.  
+\  
 
-![Polar bear (photo by NASA Goddard Space Flight Center from Greenbelt, MD, USA)](https://upload.wikimedia.org/wikipedia/commons/b/b2/Polar_Bears_Across_the_Arctic_Face_Shorter_Sea_Ice_Season_%2829664357826%29.jpg)
+```{r echo = FALSE}
+knitr::include_graphics("_Pbear.jpg")
+```
+_Polar bear (photo by NASA Goddard Space Flight Center from Greenbelt, MD, USA)_
+
 
 ***
 # 2. Stochastic projections

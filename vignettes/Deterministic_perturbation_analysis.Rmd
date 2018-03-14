@@ -2,12 +2,16 @@
 title: "Perturbation analysis (deterministic models)"
 output: 
   html_document:
-      theme: cosmo
-      highlight: tango
+    theme: cosmo
+    highlight: tango
 #  pdf_document:
 #    highlight: tango
-geometry: "left=2.5cm,right=2.5cm,top=1.5cm,bottom=1.5cm"
-urlcolor: "cyan"
+#geometry: "left=2.5cm,right=2.5cm,top=1.5cm,bottom=1.5cm"
+#urlcolor: "cyan"
+vignette: >
+  %\VignetteIndexEntry{Deterministic perturbation analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, include = FALSE}
@@ -50,8 +54,12 @@ data(Tort); Tort
 The numbers in the matrix (called _**matrix elements**_ or _**transitions**_) describe the probability of moving FROM stages in each column TO stages in each row, within the time interval chosen. For example, for this desert tortoise matrix, in any year a subadult (stage 6) has approimately 24.9% probability of becoming an adult (stage 7): this may be called a growth or progression transition. Likewise, in any year a subadult has about 67.8% chance of staying a subadult: this is called a stasis transition. This means that 100 - (67.8 + 24.9) = 7.3% of subadults die every year. There are different types of transitions: in this matrix there are also fecundity transitions which describe offspring production, and subadults produce on average 1.3 offspring per year. Other species may have different transitions, including skipping stages through fast growth, shrinkage or fission (especially in modular organisms, e.g. most plants, corals), or asexual reproduction.  
 
 Matrix elements combine underlying _**vital rates**_ such as survival, growth and reproduction. For example, the subadult to adult transition (24.9%) combines probability of growing to adult size in one year, and probability of surviving the year. The subadult fecundity (1.3) combines the average number of offspring produced by subadults per year, and probability that those offspring survive the year.  
+\  
 
-![A baby desert tortoise](https://c1.staticflickr.com/8/7349/16490346262_169b5a21ae_b.jpg)  
+```{r echo = FALSE}
+knitr::include_graphics("_Tort.jpg")
+```
+_A baby desert tortoise_  
 
 
 ***
