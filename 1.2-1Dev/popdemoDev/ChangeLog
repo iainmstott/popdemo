@@ -1,5 +1,17 @@
 ################################################################################
 CHANGELOG
+Version 1.3-0  Added S4 class, methods and generics for projections. This does
+               everything the S3 classes used to do, and more, but with a 
+               stricter and more accessible structure. See ?Projection-class
+               for methods for handling the new classes and ?Projection-plot
+               for display and plot methods.
+               Changes to 'project' function: 
+               - removed dependency on markovchain
+                 package and added a bespoke markov chain simulation function 
+                 (.rmc) to handle that (thanks to Steve Ellner).
+               - Changes to output new S4 Projection object
+               Added a package Vignette which runs through (most) of the 
+               functionality of the package. See browseVignettes("popdemo")
 Version 1.2-1  Bug fix ('project' function markov chain simulation not working)
 Version 1.2-0  Added functionality to 'project' function to perform stochastic
                projections

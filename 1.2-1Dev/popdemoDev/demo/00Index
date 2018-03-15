@@ -1,6 +1,0 @@
-popdemo      Demonstrates the full functionality of the R package
-matrixtools  Demonstrates a set of tools useful for working with matrices
-projection   Demonstrates how to create and plot population projections
-transient    Demonstrates the calculation of indices of transient dynamics
-transfer     Demonstrates the use of transfer function perturbation analysis
-convergence  Demonstrates the use of indices of model convergence
