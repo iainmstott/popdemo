@@ -52,7 +52,8 @@ Matrix elements combine underlying _**vital rates**_ such as survival, growth an
 \  
 
 ```{r echo = FALSE}
-knitr::include_graphics("_Tort.jpg")
+Tortpic <- magick::image_read("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Baby_Desert_Tortoise_%2816490346262%29.jpg/640px-Baby_Desert_Tortoise_%2816490346262%29.jpg")
+plot(as.raster(Tortpic))
 ```
 _A baby desert tortoise_  
 
