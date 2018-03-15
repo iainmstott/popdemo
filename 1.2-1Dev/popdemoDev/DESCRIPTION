@@ -18,7 +18,8 @@ Imports:
     MCMCpack, 
     stats
 Suggests:
-    knitr
+    knitr,
+    magick
 VignetteBuilder: knitr
 License: GPL (>= 2)
 Encoding: UTF-8
