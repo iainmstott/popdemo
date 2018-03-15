@@ -149,7 +149,8 @@ When a Projection object contains multiple projections, the vectors are containe
 Population growth in an MPM is geometric: when you plot population size on a log scale (as we have here), it's easy to see that the population settles to a stable geometric rate of decline. At this point, the population also has a fixed structure: the relative numbers of individuals in each stage don't change (although the absolute numbers do; this is what causes the population decline). These stable long-term dynamics are often called _**asymptotic dynamics**_. The short-term dynamics that happen before this stable state is reached and are different to asymptotic dynamics are called _**transient dynamics**_. In this exercise we'll explore both asymptotic and transient dynamics of deterministic MPM models.  
 \  
 
-*ii. EXTRAS...*  
+
+## *i. EXTRAS*  
 *'Projection objects contain further information that can be accessed in similar ways to the  `vec()` function. Type `?Projection-class` to see further options.*  
 
 *Try altering the parameters in the `project` function: change the amount of time the model is projected using the `time` argument, or change the population vector using the `vector` argument. Have a look at how the asymptotic dynamics don't change as the vector changes, but observe how the transient dynamics change. See whether changing the vector changes the amount of time taken to reach stable state. Type `?project` to see further options (some of them will be covered in this vignette).*  
@@ -195,7 +196,7 @@ lines(0:100, Tortpw, lty = 2)
 
 \  
 
-*iii. EXTRAS...*  
+## *ii. EXTRAS*  
 *The `eigs` function allows you to choose what eigenstuff you want to calculate. Try replacing "all" with one or more of "lambda", "ss", or "rv". If you want to look at subdominant eigenstuff then the base function "eigen" does this, with `eigen(A)` giving the right eigenvectors and `eigen(t(A))` giving the left eigenvectors.*  
 \  
 
@@ -307,7 +308,7 @@ points(c(r3t, i3t, max3t, min3t),
 ```  
 \  
 
-*iv. EXTRAS...*  
+## *iii. EXTRAS*  
 *Some further functionality offered by the `reac`, `inertia`, `maxamp` and `maxatt` functions. Try using, for example, `return.N = TRUE` to give the transient population size (including influences of initial population size and asymptotic population growth), and use this to plot transient indices on non-standardised population projections.*  
 \  
 
@@ -377,7 +378,7 @@ $$\bar{\rho}_{max} = \max_{t > 0}||\hat{\textbf{A}}^t||_1 \hspace{0.75cm} and  \
 When **w** and **v** are scaled as decribed in the "Asymptotic dynamics" section, then $\bar{\rho}_\infty = v_{max}$ and $\bar{\rho}_\infty = v_{min}$.  
 \  
 
-*v. EXTRAS...*  
+## *iv. EXTRAS*  
 *We've seen a little bit of the diversity of different transient dynamics that can be shown by a model. But there are an infinite number of different possible starting population vectors. If population vectors are drawn at random, it is possible to shade in the space within the transient bounds to work out the likelihood of different transient densities. This can be done by using `vector = "diri"` in the `project` function, which draws populations at random from a dirichlet distribution and projects them. Plot this using `plottype = "shady"`:*  
 ```{r echo=-1}
 par(mar = c(5, 4, 2, 2) + 0.1)
@@ -488,7 +489,7 @@ plot(tfml)
 ``` 
 \  
 
-*iii. EXTRAS...*  
+## *v. EXTRAS*  
 *Transfer functions don't have to be limited to single matrix elements. By choosing the __d__ and __e__ vectors carefully, it's possible to calculate more complex management strategies. For example, by choosing `d <- c(1, 0, 0, 0, 0, 0, 0, 0)` and `e <- c(0, 0, 0, 0, 0, 1, 1, 1)`, the transfer function perturbs all fecundity values simultaneously. Trade-offs in management can also be modelled: using `d <- c(0, 0, 0, 0, 0, -1, 1, 0)` and `e <- c(0, 0, 0, 0, 0, 1, 0, 0)` would model increases in the rate of growth of subadults to adults whilst simultaneously decreasing stasis of subadults, so keeping overall survival the same. Try using these perturbation structures, or exploring other possibilities (not all combinations of elements are possible, as outlined in Hodgson & Townley 2004).*  
 \  
 
@@ -554,7 +555,7 @@ plot(tfmi_lwr)
 These can be incredibly nonlinear, because there can be breaks in the function where a different stage-biased population structure takes over as achieving the bound on inertia. Note where there are kinks in the lines, or switches in the direction of the slope.  
 \  
 
-*iv. EXTRAS...*  
+## *vi. EXTRAS*  
 
 *In the same way that inertia depends strongly on the population vector, perturbation analysis of inertia does as well: try passing different numbers to `vector`.*  
 
@@ -615,7 +616,7 @@ _Polar bear (photo by NASA Goddard Space Flight Center from Greenbelt, MD, USA)_
 > Topics: 
 > 
 > * Functions: `project`
-> * Classes: Projection¨
+> * Classes: Projection
 > * Methods:
 >     + Projection: `plot`, `Aseq`
 
@@ -735,7 +736,7 @@ plot(Pbearp3.1, log = "y")
 You would get the same result using `Aseq = rep(c("Y2001", "Y2002", "Y2003", "Y2004", "Y2005"), 10)`. The projection shows there's still a decline in overall population size, but with a clear cyclic dynamic to the trend.  
 \  
 
-*ii. EXTRAS...*  
+## *vii. EXTRAS*  
 *The type of population projection we've used is called **matrix selection**: at each timestep a matrix is selected at random from a list. These are usually parameterised by collecting data under multiple different environmental conditions (these are often replications through time, but may also be replications through space or different experimental treatments).*  
 
 *Another common form of stochastic projection is using **element selection**. In this case, one or more of the matrix elements are selected at random from a statistical distribution. Projections using element selection are possible in `popdemo` by generating a list of matrices using element selection procedures and passing all of these to `project`. In this example, we'll use a matrix for the thistle Carlina vulgaris[^11]. There are 3 stages based on size and reproductive status:*  
@@ -787,9 +788,10 @@ lines(0:30, project(Thistle, Thistlevec, time = 30), lty = 3)
 *The dotted line shows the deterministc projection for comparison. The stochastic projection should look similar, but with variation in the timestep-by-timestep growth.*  
 
 *The underlying biology should drive decisions about how to sample transitions in element selection. For example:*  
-*- Something like a Gamma distribution could be used to model fecundity transitions, as these should be truncated at 0 and $+\infty$*  
-*- More than one distribution can model a certain type of transition; for example, probabilities (such as flowering, survival, etc.) can be drawn from beta distributions, but other possibilities exist, e.g. truncated normal.*  
-*- Transitions are composed of underlying vital rates and they may correlate with one another, so it may be important to model stochasticity in underlying vital rates and contruct matrices from these. The example here is a simple version of this: two elements correlate perfectly negatively with one another. However, if the underlying elements are calculated from other distributions such as survival or growth kernels, or different life cycle transitions depend on things such as resource allocation trade-offs, the correlations can get much more complex.*  
+
+* _Something like a Gamma distribution could be used to model fecundity transitions, as these should be truncated at 0 and $+\infty$_  
+* _More than one distribution can model a certain type of transition; for example, probabilities (such as flowering, survival, etc.) can be drawn from beta distributions, but other possibilities exist, e.g. truncated normal._  
+* _Transitions are composed of underlying vital rates and they may correlate with one another, so it may be important to model stochasticity in underlying vital rates and contruct matrices from these. The example here is a simple version of this: two elements correlate perfectly negatively with one another. However, if the underlying elements are calculated from other distributions such as survival or growth kernels, or different life cycle transitions depend on things such as resource allocation trade-offs, the correlations can get much more complex._  
 \  
 
 ***
