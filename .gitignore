@@ -1,3 +1,5 @@
+### Session stuff
+
 # History files
 .Rhistory
 .Rapp.history
@@ -5,6 +7,9 @@
 # Session Data files
 .RData
 .Ruserdata
+
+
+### Build stuff
 
 # Example code in package build process
 *-Ex.R
@@ -15,14 +20,26 @@
 # Output files from R CMD check
 /*.Rcheck/
 
-# RStudio files
+
+### Rstudio project stuff
+
+# RStudio project files
 .Rproj.user/
 .Rproj.user
 *.Rproj
 
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
+# Windows shortcuts
+*.lnk
+
+
+### Rmarkdown stuff
+
+## vignette knits (if desired)
+# vignettes/*.html
+# vignettes/*.pdf
+
+# vignette pictures
+vignettes/*.jpg
 
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
@@ -34,3 +51,10 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+
+# Temporary directories created by R markdown
+tex2pdf*/
+
+###VS Code stuff
+/.vs/
+/.vscode/
