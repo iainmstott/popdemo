@@ -21,7 +21,8 @@ accuracy, this may need to be increased.}
 }
 \value{
 If \code{vector} is specified, the convergence time of \code{vector} projected
-through \code{A}.\cr
+through \code{A}.
+
 If \code{vector} is not specified, a numeric vector of convergence times for 
 corresponding stage-biased projections: the length of the vector is equal to 
 the dimension of \code{A}; the first entry is the convergence time of 
@@ -40,7 +41,8 @@ growth of the model stays within the window determined by \code{accuracy} for
 example, projection of an 8 by 8 matrix with convergence accuracy of 1e-2 is 
 deemed to have converged on asymptotic growth when 10*8=80 consecutive 
 iterations of the model have a growth within 1-1e-2=0.99 (i.e. 99\%) and 
-1+1e-2=1.01 (i.e. 101\%) of each other.\cr\cr
+1+1e-2=1.01 (i.e. 101\%) of each other.
+
 If \code{vector} is specified, the convergence time of the projection of 
 \code{vector} through \code{A} is returned. If \code{vector="n"} then 
 asymptotic growths of the set of 'stage-biased' vectors are calculated. These 
@@ -48,7 +50,8 @@ projections are achieved using a set of standard basis vectors equal in number
 to the dimension of \code{A}. These have every element equal to 0, except for 
 a single element equal to 1, i.e. for a matrix of dimension 3, the set of 
 stage-biased vectors are: \code{c(1,0,0)}, \code{c(0,1,0)} and 
-\code{c(0,0,1)}.\cr\cr
+\code{c(0,0,1)}.
+
 Due to the way in which convergence is defined, \code{convt} can 
 only properly work for strongly ergodic models. Therefore, it will not 
 function for imprimitive (therefore potentially weakly ergodic) or reducible 
@@ -71,7 +74,9 @@ function for imprimitive (therefore potentially weakly ergodic) or reducible
 
 }
 \references{
-Stott et al. (2011) Ecol. Lett., 14, 959-970.
+\itemize{
+ \item Stott et al. (2011) Ecol. Lett., 14, 959-970.
+}
 }
 \seealso{
 Other ConvergenceMeasures: \code{\link{dr}},

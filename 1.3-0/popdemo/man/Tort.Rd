@@ -29,7 +29,9 @@ Stage 8: Adult 2 (>240mm).
 
 }
 \references{
-Doak et al. (1994) Ecol. Appl., 4, 446-460.
+\itemize{
+ \item Doak et al. (1994) Ecol. Appl., 4, 446-460.
+}
 }
 \concept{
 data desert tortoise matrix Gopherus agassizzii

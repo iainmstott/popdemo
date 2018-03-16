@@ -13,7 +13,6 @@
 #' all matrices must have the same dimension. 'Projection' objects inherit
 #' names from \code{A}: if \code{A} is a matrix, stage names (in mat and 
 #' vec slots) are inherited from its column names..
-#'
 #' @param vector (optional) a numeric vector or matrix describing 
 #' the age/stage distribution(s) used to calculate the projection. Single
 #' population vectors can be given either as a numeric vector or 
@@ -24,21 +23,16 @@
 #' also take either "n" (default) to calculate the set of stage-biased projections 
 #' (see details), or "diri" to project random population vectors drawn from a 
 #' dirichlet distribution (see details). 
-#'
 #' @param time the number of projection intervals.
-#'
 #' @param standard.A (optional) if \code{TRUE}, scales each matrix in \code{A}
 #' by dividing all elements by the dominant eigenvalue. This standardises 
 #' asymptotic dynamics: the dominant eigenvalue of the scaled matrix is 1. 
 #' Useful for assessing transient dynamics.
-#'
 #' @param standard.vec (optional) if \code{TRUE}, standardises each \code{vector} 
 #' to sum to 1, by dividing each vector by its sum. Useful for assessing projection
 #' relative to initial population size.
-#'
 #' @param return.vec (optional) if \code{TRUE}, returns the time series of 
 #' demographic (st)age vectors as well as overall population size.
-#' 
 #' @param Aseq (optional, for stochastic projections only) the sequence of 
 #' matrices in a stochastic projection. 
 #' \code{Aseq} may be either:
@@ -55,7 +49,6 @@
 #'  \item a character vector giving a specific sequence which corresponds to the
 #'  names of the matrices in \code{A}.
 #' }
-#' 
 #' @param Astart (optional) in a stochastic projection, the matrix with which to
 #' initialise the projection (either numeric, corresponding to the matrices in 
 #' \code{A}, or character, corresponding to the names of matrices in \code{A}). 
@@ -63,22 +56,20 @@
 #' 
 #' @param draws if \code{vector="diri"}, the number of population vectors drawn
 #' from dirichlet.
-#'
 #' @param alpha.draws if \code{vector="diri"}, the alpha values passed to 
 #' \code{rdirichlet}: used to bias draws towards or away from a certain population
 #' structure.
-#' 
 #' @param PREcheck many functions in \code{popdemo} first check Primitivity, 
 #' Reducibility and/or Ergodicity of matrices, with associated warnings and/or 
 #' errors if a matrix breaks any assumptions. Set \code{PREcheck=FALSE} if you
 #' want to bypass these checks.
 #' 
-#'
 #' @details 
 #' If \code{vector} is specified, \code{project} will calculate population 
 #' dynamics through time by projecting this vector / these vectors through 
 #' \code{A}. If multiple vectors are specified, a separate population projection
-#' is calculated for each.\cr\cr 
+#' is calculated for each.
+#'  
 #' If \code{vector="n"}, \code{project} will automatically project the set of 
 #' 'stage-biased' vectors of \code{A}. Effectively, each vector is a population
 #' consisting of all individuals in one stage. These projections are achieved using a 
@@ -86,7 +77,8 @@
 #' The vectors have every element equal to 0, except for a single element equal to 1,  
 #' i.e. for a matrix of dimension 3, the set of stage-biased vectors are: 
 #' \code{c(1,0,0)}, \code{c(0,1,0)} and \code{c(0,0,1)}. Stage-biased projections are 
-#' useful for seeing how extreme transient dynamics can be.\cr\cr
+#' useful for seeing how extreme transient dynamics can be.
+#' 
 #' If \code{vector="diri"}, \code{project} draws random population vectors from 
 #' the dirichlet distribution. \code{draws} gives the number of population vectors
 #' to draw. \code{alpha.draws} gives the parameters for the dirichlet and can be
@@ -98,11 +90,14 @@
 #' entries (and their sum) gives the strength of the distribution: values greater
 #' than 1 make it more likely to draw from nearby that population structure, 
 #' whilst values less than 1 make it less likely to draw from nearby that population
-#' structure.\cr\cr
+#' structure.
+#' 
 #' Projections returned are of length \code{time+1}, as the first element 
-#' represents the population at \code{t=0}.\cr\cr
+#' represents the population at \code{t=0}.
+#' 
 #' Projections have their own plotting method (see \code{\link{Projection-plots}})
-#' to enable easy graphing.\cr\cr
+#' to enable easy graphing.
+#' 
 #' In addition to the examples below, see the "Deterministic population dynamics" 
 #' and "Stochastic population dynamics" vignettes for worked examples that use 
 #' the \code{project} function.
@@ -123,7 +118,8 @@
 #'  \item if \code{vector="diri"}, a numeric matrix of population projections where each 
 #'  column represents projection of a single vector draw and each column is of 
 #'  length \code{time+1}
-#' }\cr\cr
+#' }
+#' 
 #' See documentation on \code{\link{Projection-class}} objects to understand how 
 #' to access other slots (e.g. (st)age vectors through the population projection) 
 #' and for S4 methods (e.g. plotting projections).
@@ -135,7 +131,8 @@
 #' is found at element 11. The vector [,3,2] represents the time series of densities 
 #' of stage 3 in the projection of vector 2 / stage-bias 2 / draw 2. The matrix [,,2] 
 #' represents the time series of all stages in the projection of vector 2 / stage-bias 
-#' 2 / draw 2.\cr\cr
+#' 2 / draw 2.
+#' 
 #' Note that the projections inherit the labelling from \code{A} and \code{vector}, if
 #' it exists. Both stage and vector names are taken from the COLUMN names of \code{A} 
 #' and \code{vector} respectively. These may be useful for selecting from the

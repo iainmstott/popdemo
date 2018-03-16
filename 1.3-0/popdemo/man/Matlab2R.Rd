@@ -24,7 +24,8 @@ once, amongst other applications. This notation is by row, with "[" and "]"
 to specify the beginning and end of the matrix respectively, ";" to specify a 
 new row and a space between each matrix element. Thus, the \R matrix created 
 using \code{matrix(c(0,1,2,0.5,0.1,0,0,0.6,0.6), byrow=TRUE, ncol=3)} is 
-equivalent to [0 1 2;0.5 0.1 0;0 0.6 0.6].\cr\cr
+equivalent to [0 1 2;0.5 0.1 0;0 0.6 0.6].
+
 \code{Matlab2R} takes a Matlab-coded matrix expressed as a character string 
 and converts it into an \R object of class matrix. As well as providing a 
 simpler means of matrix notation in \R, it also enables simultaneous import of 

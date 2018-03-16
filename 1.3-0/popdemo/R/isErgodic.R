@@ -5,17 +5,16 @@
 #' Determine whether a matrix is ergodic or nonergodic
 #'
 #' @param A a square, non-negative numeric matrix of any dimension.
-#'
 #' @param digits the number of digits that the dominant left eigenvector should 
 #' be rounded to.
-#'
 #' @param return.eigvec (optional) logical argument determining whether or not 
 #' the dominant left eigenvector should be returned.
 #'
 #' @details 
 #' \code{isErgodic} works on the premise that a matrix is ergodic if 
 #' and only if the dominant left eigenvector (the reproductive value vector) of 
-#' the matrix is positive (Stott et al. 2010).\cr\cr
+#' the matrix is positive (Stott et al. 2010).
+#' 
 #' In rare cases, \R may calculate that the dominant left eigenvector of a 
 #' nonergodic matrix contains very small entries that are approximate to (but 
 #' not equal to) zero.  Rounding the dominant eigenvector using \code{digits} 
@@ -23,7 +22,8 @@
 #'
 #' @return 
 #' If \code{return.eigvec=FALSE}, either \code{TRUE} (for an ergodic matrix) or 
-#' \code{FALSE} (for a nonergodic matrix).\cr\cr
+#' \code{FALSE} (for a nonergodic matrix).
+#' 
 #' If \code{return.eigvec=TRUE}, a list containing elements:
 #' \describe{
 #' \item{\code{ergodic}}{ \code{TRUE} or \code{FALSE}, as above }
@@ -31,7 +31,9 @@
 #' }
 #'
 #' @references
-#' Stott et al. (2010) Methods Ecol. Evol., 1, 242-252.
+#' \itemize{
+#'  \item Stott et al. (2010) Methods Ecol. Evol., 1, 242-252.
+#' }
 #'
 #' @family PerronFrobeniusDiagnostics
 #'

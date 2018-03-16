@@ -43,12 +43,14 @@ Calculate population inertia for a population matrix projection model.
 A nonstable population, when it achieves asymptotic growth following transient 
 dynamics, is a fixed ratio of the size of a population projected with the same
 initial size but stable structure. \code{inertia} calculates the value of this
-ratio (Koons et al. 2007)\cr\cr
+ratio (Koons et al. 2007)
+
 If \code{vector="n"} then either \code{bound="upper"} or \code{bound="lower"}
 must be specified, which calculate the upper or lower bound on population 
 inertia (i.e. the largest and smallest values that inertia may take) 
 respectively. Specifying \code{vector} overrides calculation of a bound, and 
-will yield a 'case-specific' value for inertia.\cr\cr
+will yield a 'case-specific' value for inertia.
+
 \code{inertia} will not work with imprimitive or reducible matrices.
 }
 \examples{
@@ -73,8 +75,10 @@ will yield a 'case-specific' value for inertia.\cr\cr
 
 }
 \references{
-Koons et al. (2007) Ecology, 88, 2867-2867.\cr
-Stott et al. (2011) Ecol. Lett., 14, 959-970.\cr
+\itemize{
+ \item Koons et al. (2007) Ecology, 88, 2867-2867.
+ \item Stott et al. (2011) Ecol. Lett., 14, 959-970.
+}
 }
 \seealso{
 Transfer function methods for inertia: \code{\link{inertia.tfa}}, 

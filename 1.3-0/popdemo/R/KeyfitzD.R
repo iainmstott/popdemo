@@ -5,7 +5,6 @@
 #' Calculate Keyfitz's delta for a population matrix projection model.
 #'
 #' @param A a square, irreducible, non-negative numeric matrix of any dimension.
-#'
 #' @param vector a numeric vector or one-column matrix describing the age/stage 
 #' distribution used to calculate the distance.
 #'
@@ -21,8 +20,10 @@
 #' Keyfitz's delta.
 #'
 #' @references
-#' Keyfitz (1968) Introduction to the Mathematics of Populations. Addison-Wesley.\cr
-#' Stott et al. (2010) Ecol. Lett., 14, 959-970.
+#' \itemize{
+#'  \item Keyfitz (1968) Introduction to the Mathematics of Populations. Addison-Wesley.
+#'  \item Stott et al. (2010) Ecol. Lett., 14, 959-970.
+#' }
 #'
 #' @family DistanceMeasures
 #'

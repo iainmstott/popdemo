@@ -5,37 +5,33 @@
 #' Calculate maximal amplification for a population matrix projection model.
 #'
 #' @param A a square, primitive, non-negative numeric matrix of any dimension
-#'
 #' @param vector (optional) a numeric vector or one-column matrix describing 
 #' the age/stage distribution ('demographic structure') used to calculate a 
 #' 'case-specific' maximal amplification.
-#'
 #' @param return.N (optional) if \code{TRUE}, returns population size at the 
 #' point of maximal amplification (including effects of asymptotic growth and 
 #' initial population size), alongside standardised maximal amplification.
-#'
 #' @param return.t (optional) if \code{TRUE}, returns the time at which maximal 
 #' amplification occurs in the population projection.
-#'
 #' @param return.stage (optional) if \code{TRUE} and \code{vector="n"}, returns 
 #' the stage that achieves the bound on maximal amplification.
-#'
 #' @param conv.iterations the maximum number of iterations allowed when calulating 
 #' convergence time (see details). Please see \code{iterations} in 
 #' \code{\link{convt}}.
-#'
 #' @param conv.accuracy the accuracy of convergence (see details). Please see 
 #' \code{accuracy} in \code{\link{convt}}.
 #'
 #' @details 
 #' \code{maxamp} returns a standardised measure of maximal amplification, 
 #' discounting the effects of both initial population size and asymoptotic growth 
-#' (Stott et al. 2011).\cr\cr  
+#' (Stott et al. 2011).
+#'   
 #' If \code{vector} is not specified then the bound on maximal amplification (the 
 #' largest maximal amplification that may be achieved) is returned, otherwise a 
 #' 'case-specific' maximal amplification for the specified matrix and demographic 
 #' structure is calculated. Note that not all demographic structures will yield a 
-#' maximal amplification: if the model does not amplify then an error is returned.\cr\cr
+#' maximal amplification: if the model does not amplify then an error is returned.
+#' 
 #' Setting \code{return.N=T}, \code{return.t=T} and \code{return.stage=T} results in 
 #' the function returning realised population size at maximal amplification 
 #' (including the effects of asymptotic growth and initial population size), the 
@@ -43,12 +39,14 @@
 #' the stage-bias that results in the bound on maximal amplification, respectively.
 #' NOTE that \code{N} is not indicative of maximum possible population size for a 
 #' non-standardised model: merely the population size at the point of maximal 
-#' amplification (i.e. largest positive deviation from lambda-max).\cr\cr
+#' amplification (i.e. largest positive deviation from lambda-max).
+#' 
 #' \code{max.amp} uses a simulation technique, using \code{\link{project}} to project 
 #' the dynamics of the model before evaluating maximum projected density over all t. 
 #' \code{conv.accuracy} and \code{conv.iterations} are passed to 
 #' \code{\link{convt}}, which is used to find the point of model convergence 
-#' in order to ensure maximal amplification is correctly captured in model projection.\cr\cr
+#' in order to ensure maximal amplification is correctly captured in model projection.
+#' 
 #' \code{maxamp} will not work for imprimitive or reducible matrices.
 #'
 #' @return 
@@ -69,9 +67,11 @@
 #' }
 #'
 #' @references
-#' Neubert & Caswell (1997) Ecology, 78, 653-665.\cr
-#' Stott et al. (2011) Ecol. Lett., 14, 959-970.\cr
-#' Townley & Hodgson (2008) J. Appl. Ecol., 45, 1836-1839.
+#' \itemize{
+#'  \item Neubert & Caswell (1997) Ecology, 78, 653-665.
+#'  \item Stott et al. (2011) Ecol. Lett., 14, 959-970.
+#'  \item Townley & Hodgson (2008) J. Appl. Ecol., 45, 1836-1839.
+#' }
 #'
 #' @family TransientIndices
 #'

@@ -6,14 +6,11 @@
 #' attenuation for a population matrix projection model.
 #'
 #' @param A a square, non-negative numeric matrix of any dimension
-#'
 #' @param vector (optional) a numeric vector or one-column matrix describing 
 #' the age/stage distribution used to calculate a 'case-specific' reactivity/
 #' first-timestep attenuation
-#'
 #' @param bound (optional) specifies whether an upper or lower bound should be 
 #' calculated (see details).
-#'
 #' @param return.N (optional) if \code{TRUE}, returns population size in the 
 #' first time interval (including effects of asymptotic growth and initial 
 #' population size), alongside standardised reactivity/first-timestep attenuation.
@@ -21,17 +18,21 @@
 #' @details 
 #' \code{reac} returns a standardised measure of first-timestep 
 #' amplification or attenuation, discounting the effects of both initial 
-#' population size and asymoptotic growth (Stott et al. 2011).\cr\cr
+#' population size and asymoptotic growth (Stott et al. 2011).
+#' 
 #' If \code{vector}="n" then either \code{bound="upper"} or \code{bound="lower"}
 #' must be specified, which calculate the upper or lower bound on first-timestep
 #' amplification and attenuation (i.e. the largest and smallest values that 
 #' reactivity and first-timestep attenuation may take) respectively.
 #' Specifying \code{vector} overrides calculation of a bound, and will yield 
-#' a 'case-specific' reactivity/first-timestep attenuation.\cr\cr
+#' a 'case-specific' reactivity/first-timestep attenuation.
+#' 
 #' If \code{return.N=T} then the function also returns realised population size 
-#' (including the effects of asymptotic growth and initial population size).\cr\cr
+#' (including the effects of asymptotic growth and initial population size).
+#' 
 #' \code{reac} works with imprimitive and irreducible matrices, but 
-#' returns a warning in these cases.\cr\cr
+#' returns a warning in these cases.
+#' 
 #' NOTE: \code{reac} replaces \code{reactivity} and \code{firststepatt} as of 
 #' version 1.0-0. Although semantically 'reactivity' and 'first-timestep 
 #' attenuation' are different (the former is an amplification in the first timestep
@@ -45,7 +46,8 @@
 #' \code{bound="upper"} and the lower bound on first-timestep attenuation of 
 #' \code{A} if \code{bound="lower"}.\cr
 #' If \code{vector} is specified, the 'case-specific' reactivity or first-timestep 
-#' attenuation of the model.\cr\cr
+#' attenuation of the model.
+#' 
 #' If \code{return.N=TRUE}, a list with components:
 #' \describe{
 #' \item{reac}{the bound on or case-specific reactivity or first-timestep 
@@ -55,9 +57,11 @@
 #' }
 #'
 #' @references
-#' Neubert & Caswell (1997) Ecology, 78, 653-665.\cr
-#' Stott et al. (2011) Ecol. Lett., 14, 959-970.\cr
-#' Townley & Hodgson (2008) J. Appl. Ecol., 45, 1836-1839.
+#' \itemize{
+#'  \item Neubert & Caswell (1997) Ecology, 78, 653-665.
+#'  \item Stott et al. (2011) Ecol. Lett., 14, 959-970.
+#'  \item Townley & Hodgson (2008) J. Appl. Ecol., 45, 1836-1839.
+#' }
 #'
 #' @family TransientIndices
 #'

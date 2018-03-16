@@ -8,17 +8,14 @@
 #' perform a stochastic' projection where the matrix varies with each timestep. 
 #' The sequence of matrices is determined using \code{Aseq}. Matrices must be 
 #' square, non-negative and numeric, and all matrices must have the same dimension. 
-#' 
 #' @param what what should be returned. A character vector with possible entries
 #' "lambda" (to calcualate stochastic growth), "var" (to calculate variance in 
 #' stochastic growth) and/or "all" (to calculate both).
-#'
 #' @param vector (optional) a numeric vector describing the age/stage 
 #' distribution used to calculate the projection. If \code{vector} is not 
 #' specified, a random vector is generated. Long-term stochastic dynamics should 
 #' usually be the same for any vector, although if all the matrices in A are 
 #' reducible (see \code{\link{isIrreducible}}), that may not be the case.
-#'
 #' @param Aseq the sequence of matrices in a stochastic projection. 
 #' \code{Aseq} may be either:
 #' \itemize{
@@ -32,18 +29,14 @@
 #'  \item a character vector giving a specific sequence which corresponds to the
 #'  names of the matrices in \code{A}.
 #' }
-#' 
 #' @param Astart (optional) in a stochastic projection, the matrix with which to
 #' initialise the projection (either numeric, corresponding to the matrices in 
 #' \code{A}, or character, corresponding to the names of matrices in \code{A}). 
 #' When \code{Astart = NULL}, a random initial matrix is chosen.
-#' 
 #' @param iterations the number of projection intervals. The default is 1e+5.
-#' 
 #' @param discard the number of initial projection intervals to discard, to 
 #' discount near-term effects arising from the choice of vector. The default is
 #' 1e+3
-#'
 #' @param PREcheck many functions in \code{popdemo} first check Primitivity, 
 #' Reducibility and/or Ergodicity of matrices, with associated warnings and/or 
 #' errors if a matrix breaks any assumptions. Set \code{PREcheck=FALSE} if you
@@ -76,7 +69,6 @@
 #'   prob_seq <- c(rep(1-q,3)/3, rep(q,2)/2)
 #'   Pbear_seq <- matrix(rep(prob_seq,5), 5, 5)
 #'   ( var_unif <- stoch(Pbear, what = "var", Aseq = Pbear_seq) )
-#
 #'   
 #' @concept 
 #' stochastic growth variance projection project population

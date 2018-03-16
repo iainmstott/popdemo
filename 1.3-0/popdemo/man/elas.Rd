@@ -40,7 +40,9 @@ subdominant eigenvalues.
 
 }
 \references{
-Caswell (2001) Matrix Population Models 2nd ed. Sinauer.
+\itemize{
+ \item Caswell (2001) Matrix Population Models 2nd ed. Sinauer.
+}
 }
 \seealso{
 Other PerturbationAnalyses: \code{\link{sens}},

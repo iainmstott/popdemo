@@ -53,7 +53,8 @@ projection model using differentiation of the transfer function.
 find sensitivity of the dominant eigenvalue of \code{A} to perturbations. 
 This provides an alternative method to using matrix eigenvectors to 
 calculate the sensitivity matrix and is useful as it may incorporate a 
-greater diversity of perturbation structures.\cr\cr
+greater diversity of perturbation structures.
+
 \code{tfs_lambda} evaluates the transfer function of a specific perturbation 
 structure. The perturbation structure is determined by \code{d\%*\%t(e)}. 
 Therefore, the rows to be perturbed are determined by \code{d} and the 
@@ -65,12 +66,14 @@ magnitude of perturbation to [3,2] half that of [3,3] then \code{d = c(0,0,1)}
 and \code{e = c(0,0.5,1)}. \code{d} and \code{e} may also be expressed as 
 numeric one-column matrices, e.g. \code{d = matrix(c(0,0,1), ncol=1)}, 
 \code{e = matrix(c(0,0.5,1), ncol=1)}. See Hodgson et al. (2006) for more 
-information on perturbation structures.\cr\cr
+information on perturbation structures.
+
 \code{tfsm_lambda} returns a matrix of sensitivity values for observed
 transitions (similar to that obtained when using \code{\link{sens}} to
 evaluate sensitivity using eigenvectors), where a separate transfer function 
 for each nonzero element of \code{A} is calculated (each element perturbed 
-independently of the others).\cr\cr
+independently of the others).
+
 The formula used by \code{tfs_lambda} and \code{tfsm_lambda} cannot be
 evaluated at lambda-max, therefore it is necessary to find the limit of the
 formula as lambda approaches lambda-max. This is done using a bisection
@@ -81,7 +84,8 @@ of one another, determined by \code{tolerance}: a \code{tolerance} of 1e-10
 means that the sensitivity calculation should be accurate to 10 decimal
 places. However, as the limit approaches lambda-max, matrices are no longer
 invertible (singular): if matrices are found to be singular then
-\code{tolerance} should be relaxed and made larger.\cr\cr
+\code{tolerance} should be relaxed and made larger.
+
 For \code{tfs_lambda}, there is an extra option to return and/or plot the above
 fitting process using \code{return.fit=TRUE} and \code{plot.fit=TRUE}
 respectively.
@@ -104,7 +108,9 @@ respectively.
 
 }
 \references{
-Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+\itemize{
+ \item Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+}
 }
 \seealso{
 Other TransferFunctionAnalyses: \code{\link{tfa_inertia}},

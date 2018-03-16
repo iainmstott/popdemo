@@ -6,20 +6,15 @@
 #' projection model using a specified perturbation structure.
 #'
 #' @param A a square, primitive, nonnegative numeric matrix of any dimension
-#'
 #' @param d,e numeric vectors that determine the perturbation structure 
 #' (see details).
-#'
 #' @param vector (optional) a numeric vector or one-column matrix describing 
 #' the age/stage distribution ('demographic structure') used to calculate the
 #' transfer function of a 'case-specific' inertia
-#'
 #' @param bound (optional) specifies whether the transfer funciton of an upper 
 #' or lower bound on inertia should be calculated (see details).
-#'
 #' @param prange a numeric vector giving the range of perturbation magnitude
 #' (see details)
-#'
 #' @param digits specifies which values of lambda should be excluded from 
 #' analysis to avoid a computationally singular system (see details).
 #'
@@ -28,13 +23,15 @@
 #' population matrix projection model given a perturbation structure 
 #' (specified using \code{d} and \code{e}), and a range of desired perturbation
 #' magnitude (\code{prange}). Currently \code{tfa_inertia} can only work with 
-#' rank-one, single-parameter perturbations (see Hodgson & Townley 2006).\cr\cr
+#' rank-one, single-parameter perturbations (see Hodgson & Townley 2006).
+#' 
 #' If \code{vector="n"} then either \code{bound="upper"} or \code{bound="lower"}
 #' must be specified, which calculate the transfer function of the upper or 
 #' lower bound on population inertia (i.e. the largest and smallest values that 
 #' inertia may take) respectively.  Specifying \code{vector} overrides 
 #' calculation of a bound, and will yield a transfer function of a 'case-specific'
-#' inertia.\cr\cr
+#' inertia.
+#' 
 #' The perturbation structure is determined by \code{d\%*\%t(e)}. Therefore, 
 #' the rows to be perturbed are determined by \code{d} and the columns to be 
 #' perturbed are determined by \code{e}. The specific values in d and e will 
@@ -45,7 +42,8 @@
 #' and \code{e = c(0,0.5,1)}. \code{d} and \code{e} may also be expressed as 
 #' numeric one-column matrices, e.g. \code{d = matrix(c(0,0,1), ncol=1)}, 
 #' \code{e = matrix(c(0,0.5,1), ncol=1)}. See Hodgson et al. (2006) for more 
-#' information on perturbation structures.\cr\cr
+#' information on perturbation structures.
+#' 
 #' The perturbation magnitude is determined by \code{prange}, a numeric vector 
 #' that gives the continuous range of perterbation magnitude to evaluate over. 
 #' This is usually a sequence (e.g. \code{prange=seq(-0.1,0.1,0.001)}), but 
@@ -55,7 +53,8 @@
 #' range of lambda from which the perturbation magnitudes are back-calculated, 
 #' and matched to their orresponding inertia, so the output perturbation
 #' magnitude \code{p} will match \code{prange} in length and range but not in
-#' numerical value (see Stott et al. 2012 for more information).\cr\cr
+#' numerical value (see Stott et al. 2012 for more information).
+#' 
 #' \code{tfa_inertia} uses the resolvent matrix in its calculation, which
 #' cannot be computed if any lambda in the equation are equal to the dominant
 #' eigenvalue of \code{A}. \code{digits} specifies the values of lambda that 
@@ -63,8 +62,10 @@
 #' Any values equal to the dominant eigenvalue of \code{A} rounded to an 
 #' accuracy of \code{digits} are excluded. \code{digits} should only need to 
 #' be changed when the system is found to be computationally singular, in 
-#' which case increasing \code{digits} should help to solve the problem.\cr\cr
-#' \code{tfa_inertia} will not work for reducible matrices.\cr\cr
+#' which case increasing \code{digits} should help to solve the problem.
+#' 
+#' \code{tfa_inertia} will not work for reducible matrices.
+#' 
 #' There is an S3 plotting method available (see \code{\link{plot.tfa}} 
 #' and examples below)
 #' 
@@ -81,14 +82,16 @@
 #' max, min and number of lambda values to evaluate.)
 #'
 #' @references
-#' Stott et al. (2012) Methods Ecol. Evol., 3, 673-684.
-#' Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+#' \itemize{
+#'  \item Stott et al. (2012) Methods Ecol. Evol., 3, 673-684.
+#'  \item Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+#' }
 #'
 #' @family TransferFunctionAnalyses
 #' @family PerturbationAnalyses
 #'
 #' @seealso
-#' S3 plotting method: \code{\link{plot.tfa}}\cr
+#' S3 plotting method: \code{\link{plot.tfa}}
 #'
 #' @examples
 #'   # Create a 3x3 matrix

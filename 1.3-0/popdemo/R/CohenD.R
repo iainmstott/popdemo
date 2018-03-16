@@ -6,10 +6,9 @@
 #' projection model.
 #'
 #' @param A a square, irreducible, non-negative numeric matrix of any dimension.
-#'
 #' @param vector a numeric vector or one-column matrix describing the age/stage 
 #' distribution used to calculate the distance.
-#'
+#' 
 #' @details 
 #' Calculates the cumulative distance metric as outlined in Cohen (1979). 
 #' Will not work for reducible matrices and returns a warning for imprimitive 
@@ -20,8 +19,10 @@
 #' Cohen's D1.
 #'
 #' @references
-#' Cohen (1979) SIAM J. Appl. Math., 36, 169-175.\cr
-#' Stott et al. (2011) Ecol. Lett., 14, 959-970.
+#' \itemize{
+#'  \item Cohen (1979) SIAM J. Appl. Math., 36, 169-175.
+#'  \item Stott et al. (2011) Ecol. Lett., 14, 959-970.
+#' }
 #'
 #' @family DistanceMeasures
 #'

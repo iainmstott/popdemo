@@ -6,7 +6,6 @@
 #' matrix in a Matlab style
 #'
 #' @param A a numeric matrix of any dimension
-#'
 #' @param noquote (optional) if \code{noquote=TRUE} then the returned character 
 #' vector is printed without quotes.
 #'
@@ -17,7 +16,8 @@
 #' to specify the beginning and end of the matrix respectively, ";" to specify a 
 #' new row and a space between each matrix element. Thus, the \R matrix created 
 #' using \code{matrix(c(0,1,2,0.5,0.1,0,0,0.6,0.6), byrow=TRUE, ncol=3)} is 
-#' equivalent to [0 1 2;0.5 0.1 0;0 0.6 0.6].\cr\cr
+#' equivalent to [0 1 2;0.5 0.1 0;0 0.6 0.6].
+#' 
 #' \code{R2Matlab} takes an \R object of class matrix converts it into a 
 #' Matlab-style character string that may be useful for exporting into databases.
 #'

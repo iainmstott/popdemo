@@ -6,13 +6,11 @@
 #' using eigenvectors.
 #'
 #' @param A a square, non-negative numeric matrix of any dimension
-#'
 #' @param eval the eigenvalue to evaluate. Default is \code{eval="max"}, which 
 #' evaluates the dominant eigenvalue (the eigenvalue with largest REAL value: 
 #' for imprimitive or reducible matrices this may not be the first eigenvalue). 
 #' Otherwise, specifying e.g. \code{eval=2} will evaluate sensitivity of the 
 #' eigenvalue with second-largest modulus.
-#'
 #' @param all (optional) if \code{FALSE}, then only sensitivity values for 
 #' observed transitions (nonzero entries in \code{A}) are returned.
 #'
@@ -26,7 +24,9 @@
 #' A numeric (real or complex) matrix of equal dimension to \code{A}.
 #'
 #' @references
-#' Caswell (2001) Matrix Population Models 2nd ed. Sinauer.
+#' \itemize{
+#'  \item Caswell (2001) Matrix Population Models 2nd ed. Sinauer.
+#' }
 #'
 #' @family PerturbationAnalyses
 #'

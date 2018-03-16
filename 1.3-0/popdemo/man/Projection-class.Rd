@@ -79,22 +79,24 @@ population projections; see information on slot ".Data" below). They also
 contain further information on the population projection. These extra pieces 
 of information are described below in the "Slots" section, and the methods 
 for accessing them appear below. These are:
-\itemize{
- \item vec: access population vectors
- \item bounds: access bounds on population dynamics
- \item mat: access projection matrix/matrices used to create projection(s)
- \item Aseq: access projection matrix sequence used to create projection(s)
- \item projtype: find out projection type
- \item vectype: access type of vector used to initiate population projection(s)
+\describe{
+ \item{\code{vec}}{ access population vectors}
+ \item{\code{bounds}}{ access bounds on population dynamics}
+ \item{\code{mat}}{ access projection matrix/matrices used to create projection(s)}
+ \item{\code{Aseq}}{ access projection matrix sequence used to create projection(s)}
+ \item{\code{projtype}}{ find out projection type}
+ \item{\code{vectype}}{ access type of vector used to initiate population projection(s)}
 }
 Other methods for accessing basic information from the projection are:
-\itemize{
- \item nproj: access projection matrix/matrices used to create projection
- \item nmat: number of projection matrices used to create projection(s)
- \item ntime: number of time intervals
+\describe{
+ \item{\code{nproj}}{ access projection matrix/matrices used to create projection}
+ \item{\code{nmat}}{ number of projection matrices used to create projection(s)}
+ \item{\code{ntime}}{ number of time intervals}
 }
 Plotting and display methods for 'Projection' objects can be found on the 
-\code{\link{Projection-plots}} page.\cr\cr
+\code{\link{Projection-plots}} page.
+}
+\details{
 In addition to the examples below, see the "Deterministic population dynamics" 
 and "Stochastic population dynamics" vignettes for worked examples that use 
 the 'Projection' objects.
@@ -146,7 +148,7 @@ will be:
  is therefore equal to the dimension of \code{A}). The third 
  dimension represents projection of each population draw (and is therefore equal
  to \code{draws}).
-}\cr
+}
 
 Some examples for understanding the structure of 3D arrays returned when 
 \code{return.vec=TRUE}: when projecting a 3 by 3 matrix for >10 time intervals, 
@@ -156,13 +158,15 @@ for either vector 2 (multiple vectors), stage-bias 2 (\code{vector="n"}) or draw
 is found at element 11. The vector [,3,2] represents the time series of densities 
 of stage 3 in the projection of vector 2 / stage-bias 2 / draw 2. The matrix [,,2] 
 represents the time series of all stages in the projection of vector 2 / stage-bias 
-2 / draw 2.\cr\cr
+2 / draw 2.
+
 
 Note that the projections inherit the labelling from \code{A} and \code{vector}, if
 it exists. Both stage and vector names are taken from the COLUMN names of \code{A} 
 and \code{vector} respectively. These may be useful for selecting from the
 \code{projection} object, and are used when labelling plots of Projection 
-objects containing multiple population projections.\cr\cr
+objects containing multiple population projections.
+
 
 Set \code{return.vec = FALSE} when calling \code{project} to prevent population
 vectors from being saved: in this case, \code{vec} is equal to 

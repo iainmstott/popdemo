@@ -37,8 +37,10 @@ imaginary components in the dominant eigenpair).
 
 }
 \references{
-Cohen (1979) SIAM J. Appl. Math., 36, 169-175.\cr
-Stott et al. (2011) Ecol. Lett., 14, 959-970.
+\itemize{
+ \item Cohen (1979) SIAM J. Appl. Math., 36, 169-175.
+ \item Stott et al. (2011) Ecol. Lett., 14, 959-970.
+}
 }
 \seealso{
 Other DistanceMeasures: \code{\link{KeyfitzD}},

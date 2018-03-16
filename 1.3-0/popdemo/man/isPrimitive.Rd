@@ -36,7 +36,9 @@ of \strong{A} (Caswell 2001).
 
 }
 \references{
-Caswell (2001) matrix Population Models, 2nd. ed. Sinauer.
+\itemize{
+ \item Caswell (2001) matrix Population Models, 2nd. ed. Sinauer.
+}
 }
 \seealso{
 Other PerronFrobeniusDiagnostics: \code{\link{isErgodic}},
