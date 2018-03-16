@@ -5,10 +5,11 @@ Authors@R: c(person("Iain", "Stott", email = "iainmstott@gmail.com", role = c("a
              person("Dave", "Hodgson", email = "D.J.Hodgson@exeter.ac.uk", role = "aut"),
              person("Stuart", "Townley", email = "S.B.Townley@exeter.ac.uk", role = "aut"),
              person("Stephen", "Ellner", email = "spe2@cornell.edu", role = "ctb"))
-Description: Tools for modelling populations and demography using matrix projection models, 
-  with deterministic and stochastic model implementations. Includes population projection, 
-  indices of short- and long-term population size and growth, perturbation analysis, 
-  convergence to stability or stationarity, and diagnostic and manipulation tools. 
+Maintainer: Iain Stott <iainmstott@gmail.com>
+Description: Tools for modelling populations and demography using matrix projection models,
+ with deterministic and stochastic model implementations. Includes population projection,
+ indices of short- and long-term population size and growth, perturbation analysis,
+ convergence to stability or stationarity, and diagnostic and manipulation tools.
 Depends:
     R (>= 3.4.3)
 Imports:
