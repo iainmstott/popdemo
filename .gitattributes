@@ -1,2 +1,3 @@
 # Stop github from thinking that the repo is mostly html because of vignettes
 */vignettes/*.html linguist-vendored
+vignettes/*.html linguist-vendored
