@@ -12,6 +12,7 @@ Version 1.3-0  Added S4 class, methods and generics for projections. This does
                - Changes to output new S4 Projection object
                Added a package Vignette which runs through (most) of the 
                functionality of the package. See browseVignettes("popdemo")
+               - new Polar bear data included for stochastics examples.
 Version 1.2-1  Bug fix ('project' function markov chain simulation not working)
 Version 1.2-0  Added functionality to 'project' function to perform stochastic
                projections
