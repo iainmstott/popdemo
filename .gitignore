@@ -27,7 +27,7 @@
 # origin/development: Travis checks Dev/popdemo.
 # Future changes to Travis can be commited through GitHub.
 # No need to keep Travis files locally.
-.travis.yml
+
 
 
 ### Rstudio project stuff
