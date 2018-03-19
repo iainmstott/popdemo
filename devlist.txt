@@ -17,5 +17,6 @@ TO DO
 keywords tfs_inertia tfsm_inertia
 insert eigs function into many other functions
 decomposition of stochastics
+add utilities, diagnostics, convergence stuff to vignette
 
 BUGS
