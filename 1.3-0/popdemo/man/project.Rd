@@ -94,7 +94,8 @@ behave as:
  \item if \code{vector="diri"}, a numeric matrix of population projections where each 
  column represents projection of a single vector draw and each column is of 
  length \code{time+1}
-}\cr\cr
+}
+
 See documentation on \code{\link{Projection-class}} objects to understand how 
 to access other slots (e.g. (st)age vectors through the population projection) 
 and for S4 methods (e.g. plotting projections).
@@ -106,7 +107,8 @@ for either vector 2 (multiple vectors), stage-bias 2 (\code{vector="n"}) or draw
 is found at element 11. The vector [,3,2] represents the time series of densities 
 of stage 3 in the projection of vector 2 / stage-bias 2 / draw 2. The matrix [,,2] 
 represents the time series of all stages in the projection of vector 2 / stage-bias 
-2 / draw 2.\cr\cr
+2 / draw 2.
+
 Note that the projections inherit the labelling from \code{A} and \code{vector}, if
 it exists. Both stage and vector names are taken from the COLUMN names of \code{A} 
 and \code{vector} respectively. These may be useful for selecting from the
@@ -120,7 +122,8 @@ Project dynamics of a specified population matrix projection model.
 If \code{vector} is specified, \code{project} will calculate population 
 dynamics through time by projecting this vector / these vectors through 
 \code{A}. If multiple vectors are specified, a separate population projection
-is calculated for each.\cr\cr 
+is calculated for each.
+ 
 If \code{vector="n"}, \code{project} will automatically project the set of 
 'stage-biased' vectors of \code{A}. Effectively, each vector is a population
 consisting of all individuals in one stage. These projections are achieved using a 
@@ -128,7 +131,8 @@ set of standard basis vectors equal in number to the dimension of \code{A}.
 The vectors have every element equal to 0, except for a single element equal to 1,  
 i.e. for a matrix of dimension 3, the set of stage-biased vectors are: 
 \code{c(1,0,0)}, \code{c(0,1,0)} and \code{c(0,0,1)}. Stage-biased projections are 
-useful for seeing how extreme transient dynamics can be.\cr\cr
+useful for seeing how extreme transient dynamics can be.
+
 If \code{vector="diri"}, \code{project} draws random population vectors from 
 the dirichlet distribution. \code{draws} gives the number of population vectors
 to draw. \code{alpha.draws} gives the parameters for the dirichlet and can be
@@ -140,11 +144,14 @@ structure to focus the distribution on, and the absolute value of the vector
 entries (and their sum) gives the strength of the distribution: values greater
 than 1 make it more likely to draw from nearby that population structure, 
 whilst values less than 1 make it less likely to draw from nearby that population
-structure.\cr\cr
+structure.
+
 Projections returned are of length \code{time+1}, as the first element 
-represents the population at \code{t=0}.\cr\cr
+represents the population at \code{t=0}.
+
 Projections have their own plotting method (see \code{\link{Projection-plots}})
-to enable easy graphing.\cr\cr
+to enable easy graphing.
+
 In addition to the examples below, see the "Deterministic population dynamics" 
 and "Stochastic population dynamics" vignettes for worked examples that use 
 the \code{project} function.

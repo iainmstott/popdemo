@@ -17,7 +17,9 @@
 #' matrix).
 #'
 #' @references
-#' Caswell (2001) matrix Population Models, 2nd. ed. Sinauer.
+#' \itemize{
+#'  \item Caswell (2001) matrix Population Models, 2nd. ed. Sinauer.
+#' }
 #'
 #' @family PerronFrobeniusDiagnostics
 #'

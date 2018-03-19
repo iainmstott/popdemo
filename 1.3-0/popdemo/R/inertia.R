@@ -6,18 +6,14 @@
 #'
 #' @param A a square, primitive, irreducible, non-negative numeric matrix of any 
 #' dimension
-#'
 #' @param vector (optional) a numeric vector or one-column matrix describing 
 #' the age/stage distribution ('demographic structure') used to calculate a 
 #' 'case-specific' maximal amplification
-#'
 #' @param bound (optional) specifies whether an upper or lower bound should be 
 #' calculated (see details).
-#'
 #' @param return.N (optional) if \code{TRUE}, returns population size for a 
 #' specified \code{t} (including effects of asymptotic growth and initial 
 #' population size), alongside standardised inertia.
-#'
 #' @param t (optional) the projection interval at which \code{N} is to be 
 #' calculated.  Calculation of \code{N} is only accurate for \code{t} where the 
 #' model has converged (see details)
@@ -26,12 +22,14 @@
 #' A nonstable population, when it achieves asymptotic growth following transient 
 #' dynamics, is a fixed ratio of the size of a population projected with the same
 #' initial size but stable structure. \code{inertia} calculates the value of this
-#' ratio (Koons et al. 2007)\cr\cr
+#' ratio (Koons et al. 2007)
+#' 
 #' If \code{vector="n"} then either \code{bound="upper"} or \code{bound="lower"}
 #' must be specified, which calculate the upper or lower bound on population 
 #' inertia (i.e. the largest and smallest values that inertia may take) 
 #' respectively. Specifying \code{vector} overrides calculation of a bound, and 
-#' will yield a 'case-specific' value for inertia.\cr\cr
+#' will yield a 'case-specific' value for inertia.
+#' 
 #' \code{inertia} will not work with imprimitive or reducible matrices.
 #'
 #' @return 
@@ -46,8 +44,10 @@
 #' }
 #'
 #' @references
-#' Koons et al. (2007) Ecology, 88, 2867-2867.\cr
-#' Stott et al. (2011) Ecol. Lett., 14, 959-970.\cr
+#' \itemize{
+#'  \item Koons et al. (2007) Ecology, 88, 2867-2867.
+#'  \item Stott et al. (2011) Ecol. Lett., 14, 959-970.
+#' }
 #'
 #' @family TransientIndices
 #'

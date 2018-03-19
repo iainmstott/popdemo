@@ -11,7 +11,7 @@ Description: Tools for modelling populations and demography using matrix project
  indices of short- and long-term population size and growth, perturbation analysis,
  convergence to stability or stationarity, and diagnostic and manipulation tools.
 Depends:
-    R (>= 3.4.3)
+    R (>= 3.4.0)
 Imports:
     expm, 
     graphics, 

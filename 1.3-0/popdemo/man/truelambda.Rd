@@ -21,7 +21,8 @@ accuracy, this may need to be increased.}
 }
 \value{
 If \code{vector} is specified, a numeric vector of length 2 giving the range in 
-which asymptoticgrowth of the model lies.\cr\cr
+which asymptoticgrowth of the model lies.
+
 If \code{vector} is not specified, a 2-column matrix with each row giving the 
 range in which asymptotic growth lies for its corresponding stage-biased 
 projection: the number of rows is equal to the dimension of \code{A}; the first 
@@ -41,7 +42,8 @@ iterations of the model, with s equal to the dimension of \code{A}. For example,
 projection of an 8 by 8 matrix with convergence accuracy of 1e-2 is deemed to 
 have converged on asymptotic growth when 10*8=80 consecutive iterations of the 
 model have a growth within 1-1e-2=0.99 (i.e. 99\%) and 1+1e-2=1.01 (i.e. 101\%) 
-of each other.\cr\cr
+of each other.
+
 If \code{vector} is specified, then the asymptotic growth of the projection of 
 \code{vector} through \code{A} is returned. If \code{vector="n"} then 
 asymptotic growths of the set of 'stage-biased' vectors are calculated. These 
@@ -49,7 +51,8 @@ projections are achieved using a set of standard basis vectors equal in number
 to the dimension of \code{A}. These have every element equal to 0, except for 
 a single element equal to 1, i.e. for a matrix of dimension 3, the set of 
 stage-biased vectors are: \code{c(1,0,0)}, \code{c(0,1,0)} and 
-\code{c(0,0,1)}.\cr\cr
+\code{c(0,0,1)}.
+
 Asymptotic growth should be equal to the dominant eigenvalue of the matrix. For
 non-ergodic models this may not be the case: asymptotic growth will depend on
 the population structure that's projected. \code{truelambda} provides a means
@@ -79,7 +82,9 @@ to check what the true asymptotic growth of a non-ergodic model is.
 
 }
 \references{
-Stott et al. (2010) Methods Ecol. Evol., 1, 242-252.
+\itemize{
+ \item Stott et al. (2010) Methods Ecol. Evol., 1, 242-252.
+}
 }
 \seealso{
 Other ConvergenceMeasures: \code{\link{convt}},

@@ -25,7 +25,7 @@ options(digits = 4)
 
 ***
 # Installing `popdemo`
-`popdemo` is available on [CRAN](https://cran.r-project.org/web/packages/popdemo/index.html) as well as [GitHub](https://github.com/iainmstott/popdemo). The GitHub repository may be ahead of the CRAN version, so for the latest stable version check out the [GitHub](https://github.com/iainmstott/popdemo) page. The GitHub repository also includes a [development branch](https://github.com/iainmstott/popdemo/tree/development) with a development version of the package (called `popdemoDev`). This is likely to be unstable but may include new features.  
+`popdemo` is available on [CRAN](https://CRAN.R-project.org/package=popdemo) as well as [GitHub](https://github.com/iainmstott/popdemo). The GitHub repository may be ahead of the CRAN version, so for the latest stable version check out the [GitHub](https://github.com/iainmstott/popdemo) page. The GitHub repository also includes a [development branch](https://github.com/iainmstott/popdemo/tree/development) with a development version of the package (called `popdemoDev`). This is likely to be unstable but may include new features.  
 
 Vignette exercises usually require the latest version of the package (unless they're sourced from within an older package version).  
 
@@ -113,7 +113,7 @@ The core function for understanding population dynamics is the `project` functio
 
 In a deterministic model, there is no density dependence, and no stochasticity: the vital rates of the model, and therefore the matrix elements, don't change from timestep to timestep (in a density dependent model, they would change according to the size of all or part of the population, and in a stochastic model they would change randomly at each iteration of the model to incorporate random environmental or demographic variation). The projected population dynamics (time series of population size and structure over time) come from multiplying the matrix and the starting poulation vector:  
 
-$$\textbf{n}_\text{t} = \textbf{A}^t\textbf{n}_0$$  
+$$\textbf{n}_{\text{t}} = \textbf{A}^t\textbf{n}_0$$
 
 That is, the population size at time t **n**~t~ is equal to projection matrix **A** multiplied by the population size at time 0, **n**~0~. We have the matrix, but not a vector. We will:  
 - choose a vector using a random uniform distribution  
@@ -151,11 +151,11 @@ Population growth in an MPM is geometric: when you plot population size on a log
 
 
 ## *i. EXTRAS*  
-*'Projection objects contain further information that can be accessed in similar ways to the  `vec()` function. Type `?Projection-class` to see further options.*  
+*'Projection objects contain further information that can be accessed in similar ways to the  `vec()` function. Type `?"Projection-class"` to see further options.*  
 
 *Try altering the parameters in the `project` function: change the amount of time the model is projected using the `time` argument, or change the population vector using the `vector` argument. Have a look at how the asymptotic dynamics don't change as the vector changes, but observe how the transient dynamics change. See whether changing the vector changes the amount of time taken to reach stable state. Type `?project` to see further options (some of them will be covered in this vignette).*  
 
-*The `plot` function takes any of the usual graphical parameters: try changing the lines to points (`type` argument), changing the line colour, type or thickness(`col`, `lty`, `lwd`), changing the box around the plot (`bty`), or any other graphical parameters (see `?par`). There are further options available specifically for 'Projection' objects: see `?Projection-plots`.*  
+*The `plot` function takes any of the usual graphical parameters: try changing the lines to points (`type` argument), changing the line colour, type or thickness(`col`, `lty`, `lwd`), changing the box around the plot (`bty`), or any other graphical parameters (see `?par`). There are further options available specifically for 'Projection' objects: see `?"Projection-plots"`.*  
 \  
 
 ***
@@ -218,7 +218,7 @@ Before settling to stable growth rate, a population will grow, decline or fluctu
 ## 3.1 Standardisations
 `popdemo` contains functions that calculate deviations from stable growth at various points along the population projection. These _**transient indices**_ make two standardisations: starting population vector **n**~0~ is scaled by ||**n**~0~||~1~ so that it sums to 1: 
 
-$$\hat{\textbf{n}}_0 = \frac{\textbf{n}_0}{||\textbf{n}_0||_1}$$ 
+$$\hat{\textbf{n}}_0 = \frac{\textbf{n}_0}{||\textbf{n}_0||_1}$$
 
 The projection matrix is scaled by $\lambda$, so that lambda of the scaled matrix becomes 1: 
 
@@ -253,14 +253,14 @@ points(c(1, 100), c(r1, i1), pch = 3, col = "red")
 ### 3.2.1 Reactivity
 Reactivity (`r1`) is the population size in the first timestep of the projection (one year), relative to a population with stable growth. A reactivity of 2 would mean that in the first timestep, the population grows twice as fast as its stable growth rate. Reactivity is calculated using:  
 
-$$\textit{reactivity} = P_1 = ||\hat{\textbf{A}} \hat{\textbf{n}}_0||_1$$ 
+$$\textit{reactivity} = P_1 = ||\hat{\textbf{A}} \hat{\textbf{n}}_0||_1$$
 
 As we can see, measurements of transient dynamics use the standardisations we encountered earlier. These "standardisations" mean that transient indices are measured relative to long-term population growth, and initial population size. The interpretation of this is that transient indices measure the ratio of population size compared to a population growing at a stable rate.  
 
 ### 3.2.2 Inertia
 Inertia (`i1`) is the ratio of the size of the population in the long-term, relative to a population with stable growth. An inertia of 4 would mean that after the transient period, the population settles to a size 4 times as large as a population that grows with stable rate. Inertia is calculated using:  
 
-$$\textit{inertia} = P_\infty = \frac{\textbf{v}^\text{T}\hat{\textbf{n}}_0||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}$$  
+$$\textit{inertia} = P_{\infty} = \frac{\textbf{v}^\text{T}\hat{\textbf{n}}_0||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}$$  
 
 **w** and **v** are the right and left eigenvectors as described in the "Asymptotic dynamics" section above. If **w** and **v** are scaled as described, then $\textit{inertia} = \textbf{v}^\text{T}\hat{\textbf{n}}_0$.  
 
@@ -268,8 +268,8 @@ $$\textit{inertia} = P_\infty = \frac{\textbf{v}^\text{T}\hat{\textbf{n}}_0||\te
 Comparable points at which to measure transient dynamics don't have to be at the same time of the projection. _**maximum amplification**_ and _**maximum attenuation**_ describe the largest and smallest population sizes (relative to long-term growth $\lambda$). Maximum amplification and maximum attenuation can occur at any point along the projection. Use `return.t = TRUE` to return the time at which they occur, as well as their value.  
 
 Some populations only have a maximum amplification (because they never attenuate), some only have a maximum attenuation (because they never amplify), and some have both. With this proviso in mind, these indices are calculated using:
-$$maximum \ amplification = \bar{P}_{max} = \max_{t > 0}||\hat{\textbf{A}}^t\hat{\textbf{n}}_0||_1$$
-$$maximum \ attenuation = \underline{P}_{min} = \min_{t > 0}||\hat{\textbf{A}}^t\hat{\textbf{n}}_0||_1$$
+$$maximum\ amplification = \bar{P}_{max} = \max_{t > 0}||\hat{\textbf{A}}^t\hat{\textbf{n}}_0||_1$$
+$$maximum\ attenuation = \underline{P}_{min} = \min_{t > 0}||\hat{\textbf{A}}^t\hat{\textbf{n}}_0||_1$$
 
 If we want to compare several different population structures, then it's possible to project several simultaneously. We will:  
 - create two extra vectors; one which amplifies and one which attenuates  
@@ -364,18 +364,18 @@ points(c(rep(1, 5), rep(100, 5), max3t, maxB$t, min3t, minB$t),
        lwd = c(rep(c(1, 1, 1, 2, 2), 2), rep(c(1, 1, 2) ,2 )) )
 ```
 
-Using $\rho_1$ to refer to reactivity bounds, $\rho_\infty$ to refer to inertia bounds, $\rho_{max}$ to refer to the maxmimum amplification bound, $\rho_{min}$ to refer to the maximum attenuation bound, and with overbars to refer to upper bounds and underbars to refer to lower bounds[^6]:  
+Using $\rho_1$ to refer to reactivity bounds, $\rho_{\infty}$ to refer to inertia bounds, $\rho_{max}$ to refer to the maxmimum amplification bound, $\rho_{min}$ to refer to the maximum attenuation bound, and with overbars to refer to upper bounds and underbars to refer to lower bounds[^6]:  
 
-$$\bar{\rho}_1 = ||\hat{\textbf{A}}||_1 \hspace{0.75cm} and  \hspace{0.75cm} 
-  \underline{\rho}_1 = minCS(\hat{\textbf{A}})$$ 
-$$\bar{\rho}_\infty = \frac{v_{max}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}} \hspace{0.75cm} and  \hspace{0.75cm} 
-  \underline{\rho}_\infty = \frac{v_{min}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}.$$
-$$\bar{\rho}_{max} = \max_{t > 0}||\hat{\textbf{A}}^t||_1 \hspace{0.75cm} and  \hspace{0.75cm} 
+$$\bar{\rho}_1 = ||\hat{\textbf{A}}||_1 \quad and \quad 
+  \underline{\rho}_1 = minCS(\hat{\textbf{A}})$$
+$$\bar{\rho}_{\infty} = \frac{v_{max}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}} \quad and \quad 
+  \underline{\rho}_{\infty} = \frac{v_{min}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}$$
+$$\bar{\rho}_{max} = \max_{t > 0}||\hat{\textbf{A}}^t||_1 \quad and \quad 
   \underline{\rho}_{min} = \min_{t > 0}(minCS(\hat{\textbf{A}}^t))$$
 
 [^6]: $||\hat{\textbf{A}}||_1$ is the one-norm of $\hat{\textbf{A}}$, is equal to its maximum column sum. $minCS$ describes the minimum column sum. $v_{max}$ and $v_{min}$ are the maximum and minimum entries of **v**, respectively. 
 
-When **w** and **v** are scaled as decribed in the "Asymptotic dynamics" section, then $\bar{\rho}_\infty = v_{max}$ and $\bar{\rho}_\infty = v_{min}$.  
+When **w** and **v** are scaled as decribed in the "Asymptotic dynamics" section, then $\bar{\rho}_{\infty} = v_{max}$ and $\bar{\rho}_{\infty} = v_{min}$.  
 \  
 
 ## *iv. EXTRAS*  
@@ -419,13 +419,14 @@ plot(delta, lambda_delta, type = "l")
 
 ## 5.1 Sensitivity and elasticity: linear perturbation analysis
 The first perturbation analyses described linear relationships between matrix elements and asymptotic growth. These are the first derivatives of the relationship between a the matrix element and lambda:
-$$s_{i,j} = \frac{\partial \lambda_{max}}{\partial a_{i,j}} 
-          = \frac{v_iw_j}{\textbf{v}^\text{T}\textbf{w}}$$
+
+$$s_{i,j} = \frac{\partial \lambda_{max}}{\partial a_{i,j}} = \frac{v_iw_j}{\textbf{v}^\text{T}\textbf{w}}$$
 
 **v** and **w** are commonly scaled so that ||**w**||~1~ = 1 and **v**^T^**w** = 1 (see "Deterministic population dynamics vignette), so the above simplifies to $v_iw_j$. This equation describes the slope of the line in the previous plot. It's evaluated for infinitessimally small perturbation magnitude, so strictly it's the slope of the line where delta = 0.  
 
 ### 5.1.1 Sensitivity
 The above analysis is called _**sensitivity analysis**_ and it's quick to calculate sensitivity of all matrix elements using:
+
 $$\textbf{S} = \frac{\textbf{vw}^\text{T}}{\textbf{v}^\text{T}\textbf{w}}$$
 
 This is the "sensitivity matrix", and assuming the same scaling of **w** and **v**, simplifies to $\textbf{vw}^\text{T}$. It can be calculated in `popdemo` using the `sens` function.
@@ -438,6 +439,7 @@ Any element equal to zero in the projection matrix is shown as zero in the sensi
 
 ### 5.1.2 Elasticity
 The effort required to change a matrix element by a certain amount is not the same for every matrix element. The fecundity of subadults is 1.3 but the fecundity of the second adult class is 2.57. Increasing fecundity by 1 may therefore be harder for subadults than adults. Elasticity analysis adjusts for these differences:
+
 $$\textbf{E} = \frac{1}{\lambda_{max}}\textbf{A}\cdot\textbf{S}$$
 
 It's calculated using the `elas` function:
@@ -579,7 +581,7 @@ Stage 4: adult (5+ years old), available to breed
 Stage 5: adult, with cub (0-1 years old)  
 Stage 6: adult, with yearling (1-2 years old).  
 
-[^10]: [Hunter et al. (2010) Ecology, 91, 2883-2897.](https://www.mbr-pwrc.usgs.gov/workshops/uf2016/lectures/Hunter%20et%20al%202010%20Polar%20Bear%20population%20dynamics%20Ecology%202010%202.pdf)
+[^10]: [Hunter et al. (2010) Ecology, 91, 2883-2897.](https://www.fws.gov/alaska/fisheries/mmm/polarbear/pdf/Hunter_Et_Al_%202011.pdf)
 
 Load in the data
 ```{r}

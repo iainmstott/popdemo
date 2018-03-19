@@ -12,10 +12,10 @@ eigs(A, what = "all", check = TRUE)
 \item{what}{what components of the dominant eigenstuff should be returned. 
 A character vector, which may include:
 \describe{
-\item{\code{"lambda"}}{the dominant eigenvalue (lambda)}
-\item{\code{"ss"}}{the dominant right eigenvector (stable stage)}
-\item{\code{"rv"}}{the dominant left eigenvector (reproductive value)}
-}\cr
+ \item{\code{"lambda"}}{the dominant eigenvalue (lambda)}
+ \item{\code{"ss"}}{the dominant right eigenvector (stable stage)}
+ \item{\code{"rv"}}{the dominant left eigenvector (reproductive value)}
+}
 the default, \code{"all"}, returns all of the above.}
 
 \item{check}{(logical) determines whether the dominant eigenvalue is 
@@ -42,7 +42,8 @@ the dominant left eigenvector, which describes the reproductive value (if
 numeric vector equal to the dimension of \code{A} in length, scaled so that 
 rv%*%ss equals 1.
 }
-}\cr\cr
+}
+
 If only one of these components is returned, then the value is not a list, but 
 a single numeric vector.
 }

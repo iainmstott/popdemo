@@ -6,19 +6,18 @@
 #'
 #' @param x an object of class 'tfa' (transfer function analysis) created using 
 #' \code{\link{tfa_lambda}} or \code{\link{tfa_inertia}}.
-#'
 #' @param xvar,yvar (optional) the variables to plot on the x and y axes. May
 #' be \code{"p"}, \code{"lambda"} or \code{"inertia"}. Defaults to
 #' \code{xvar="p"} and \code{yvar="lambda"} for objects created using
 #' \code{tfa_lambda} and \code{xvar="p"} and \code{yvar="inertia"} for 
 #' objects created using \code{tfa_inertia}.
-#'
 #' @param ...  arguments to be passed to methods: see \code{\link{par}} and
 #' \code{\link{plot}}.
 #'
 #' @details 
 #' \code{plot.tfa} plots transfer functions (class \code{tfa}) created using 
-#' \code{\link{tfa_lambda}} or \code{\link{tfa_inertia}}.\cr\cr
+#' \code{\link{tfa_lambda}} or \code{\link{tfa_inertia}}.
+#' 
 #'
 #' @seealso
 #' Constructor functions: \code{\link{tfa_lambda}}, \code{\link{tfa_inertia}}

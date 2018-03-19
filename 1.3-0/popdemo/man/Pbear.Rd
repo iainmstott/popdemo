@@ -21,7 +21,9 @@ Stage 2: 3-year-old\cr
 Stage 3: 4-year-old\cr
 Stage 4: adult (5+ years old), available to breed\cr
 Stage 5: adult, with cub (0-1 years old)\cr
-Stage 6: adult, with yearling (1-2 years old).\cr\cr
+Stage 6: adult, with yearling (1-2 years old).
+}
+\details{
 The population structure is 
 \code{c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108))}
 }
@@ -32,7 +34,9 @@ The population structure is
 
 }
 \references{
-Hunter et al. (2010) Ecology, 91, 2883-2897.
+\itemize{
+ \item Hunter et al. (2010) Ecology, 91, 2883-2897.
+}
 }
 \concept{
 data polar bear matrix Ursus maritimus

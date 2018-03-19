@@ -40,8 +40,10 @@ computation of eigenvalues of submatrices).
 
 }
 \references{
-Caswell (2001) Matrix population models 2nd ed. Sinauer.\cr
-Stott et al. (2010) Methods. Ecol. Evol., 1, 242-252.
+\itemize{
+ \item Caswell (2001) Matrix population models 2nd ed. Sinauer.
+ \item Stott et al. (2010) Methods. Ecol. Evol., 1, 242-252.
+}
 }
 \concept{
 reducible irreducible submatrix permutation conjugation permute conjugate 

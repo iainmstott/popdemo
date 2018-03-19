@@ -3,14 +3,23 @@
 language: r
 
 install:
+<<<<<<< HEAD
   - Rscript -e 'install.packages(c("devtools", "roxygen2")); devtools::install_deps("1.2-1/popdemo")'
 script:
   - Rscript -e 'devtools::check("1.2-1/popdemo")'
+=======
+  - Rscript -e 'install.packages(c("devtools", "roxygen2", "knitr", "magick")); devtools::install_deps("1.3-0/popdemo")'
+script:
+  - Rscript -e 'devtools::check("1.3-0/popdemo")'
+>>>>>>> development
 
 
 # R versions
 r:
+<<<<<<< HEAD
   - oldrel
+=======
+>>>>>>> development
   - release
 
 # operating systems to test. Excluding r-devel

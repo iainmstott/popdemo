@@ -22,7 +22,8 @@ Calculate projection distance for a population matrix projection model.
 \code{projectionD} (Haridas & Tuljapurkar 2007) is the difference 
 between the reproductive value of a population with demographic distribution 
 given by \code{vector} and the reproductive value of a population in stable 
-state.\cr\cr
+state.
+
 \code{projectionD} will not work for reducible matrices and returns a 
 warning for imprimitive matrices (although will not function for imprimitive 
 matrices with nonzero imaginary components in the dominant eigenpair).
@@ -39,8 +40,10 @@ matrices with nonzero imaginary components in the dominant eigenpair).
 
 }
 \references{
-Haridas & Tuljapurkar (2007) Ecol. Lett., 10, 1143-1153.\cr    
-Stott et al. (2011) Ecol. Lett., 14, 959-970.
+\itemize{
+ \item Haridas & Tuljapurkar (2007) Ecol. Lett., 10, 1143-1153.
+ \item Stott et al. (2011) Ecol. Lett., 14, 959-970.
+}
 }
 \seealso{
 Other DistanceMeasures: \code{\link{CohenD}},

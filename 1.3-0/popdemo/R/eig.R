@@ -5,16 +5,14 @@
 #' Dominant eigenstuff of a population matrix projection model.
 #'
 #' @param A a square, nonnegative numeric matrix of any dimension.
-#' 
 #' @param what what components of the dominant eigenstuff should be returned. 
 #' A character vector, which may include:
 #' \describe{
-#' \item{\code{"lambda"}}{the dominant eigenvalue (lambda)}
-#' \item{\code{"ss"}}{the dominant right eigenvector (stable stage)}
-#' \item{\code{"rv"}}{the dominant left eigenvector (reproductive value)}
-#' }\cr
+#'  \item{\code{"lambda"}}{the dominant eigenvalue (lambda)}
+#'  \item{\code{"ss"}}{the dominant right eigenvector (stable stage)}
+#'  \item{\code{"rv"}}{the dominant left eigenvector (reproductive value)}
+#' }
 #' the default, \code{"all"}, returns all of the above.
-#' 
 #' @param check (logical) determines whether the dominant eigenvalue is 
 #' checked for nonzero imaginary component, and largest absolute value. If
 #' either of these occur, then the dominant eigenvalue may not be described as 
@@ -51,7 +49,8 @@
 #' numeric vector equal to the dimension of \code{A} in length, scaled so that 
 #' rv%*%ss equals 1.
 #' }
-#' }\cr\cr
+#' }
+#' 
 #' If only one of these components is returned, then the value is not a list, but 
 #' a single numeric vector.
 #'

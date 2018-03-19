@@ -57,7 +57,43 @@ Calculate the sensitivity of population inertia of a population matrix
 projection model using differentiation of the transfer function.
 }
 \details{
-DETAILS
+\code{tfs_inertia} and \code{tfsm_inertia} differentiate a transfer function to
+find sensitivity of population inertia to perturbations.
+
+\code{tfs_inertia} evaluates the transfer function of a specific perturbation 
+structure. The perturbation structure is determined by \code{d\%*\%t(e)}. 
+Therefore, the rows to be perturbed are determined by \code{d} and the 
+columns to be perturbed are determined by \code{e}. The values in d and e 
+determine the relative perturbation magnitude. For example, if only entry
+[3,2] of a 3 by 3 matrix is to be perturbed, then \code{d = c(0,0,1)} and 
+\code{e = c(0,1,0)}. If entries [3,2] and [3,3] are to be perturbed with the 
+magnitude of perturbation to [3,2] half that of [3,3] then \code{d = c(0,0,1)} 
+and \code{e = c(0,0.5,1)}. \code{d} and \code{e} may also be expressed as 
+numeric one-column matrices, e.g. \code{d = matrix(c(0,0,1), ncol=1)}, 
+\code{e = matrix(c(0,0.5,1), ncol=1)}. See Hodgson et al. (2006) for more 
+information on perturbation structures.
+
+\code{tfsm_inertia} returns a matrix of sensitivity values for observed
+transitions (similar to that obtained when using \code{\link{sens}} to
+evaluate sensitivity of asymptotic growth), where a separate transfer function 
+for each nonzero element of \code{A} is calculated (each element perturbed 
+independently of the others).
+
+The formula used by \code{tfs_inertia} and \code{tfsm_inertia} cannot be
+evaluated at lambda-max, therefore it is necessary to find the limit of the
+formula as lambda approaches lambda-max. This is done using a bisection
+method, starting at a value of lambda-max + \code{startval}. \code{startval}
+should be small, to avoid the potential of false convergence. The algorithm
+continues until successive sensitivity calculations are within an accuracy
+of one another, determined by \code{tolerance}: a \code{tolerance} of 1e-10
+means that the sensitivity calculation should be accurate to 10 decimal
+places. However, as the limit approaches lambda-max, matrices are no longer
+invertible (singular): if matrices are found to be singular then
+\code{tolerance} should be relaxed and made larger.
+
+For \code{tfs_inertia}, there is an extra option to return and/or plot the above
+fitting process using \code{return.fit=TRUE} and \code{plot.fit=TRUE}
+respectively.
 }
 \examples{
   # Create a 3x3 matrix
@@ -81,7 +117,9 @@ DETAILS
 
 }
 \references{
-Stott et al. (2012) Methods Ecol. Evol., 3, 673-684.
+\itemize{
+ \item Stott et al. (2012) Methods Ecol. Evol., 3, 673-684.
+}
 }
 \seealso{
 Other TransferFunctionAnalyses: \code{\link{tfa_inertia}},

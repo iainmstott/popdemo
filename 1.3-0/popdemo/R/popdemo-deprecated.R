@@ -52,12 +52,15 @@
 #' working at some point in the future). In most cases, this is because 
 #' functions needed to be re-named. For now the older function names will 
 #' work but issue a warning, but you should use the new function names wherever possible.
-#' Please update your code, and I'm sorry for the inconvenience!\cr\cr
+#' Please update your code, and I'm sorry for the inconvenience!
+#' 
+#' \describe{
+#' \item{Avoiding S3 troubles}{
 #' Most deprecated functions needed to be renamed because they included a period 
 #' in the function name: the new function names don't use periods, which is a 
-#' better approach for playing nicely with the S3 object-orientedf system (see Hadley 
+#' better approach for playing nicely with the S3 object-oriented system (see Hadley 
 #' Wickham's \href{http://adv-r.had.co.nz/OO-essentials.html}{OO field guide} for more
-#' info). These are:\cr
+#' info). These are:
 #' \tabular{rl}{
 #'   \code{Cohen.cumulative} \tab now called \code{CohenD}\cr
 #'   \code{convergence.time} \tab now called \code{convt}\cr
@@ -71,31 +74,39 @@
 #'   \code{Keyfitz.delta} \tab now called \code{KeyfitzD}\cr
 #'   \code{projection.distance} \tab now called \code{projectionD}\cr
 #' }
+#' }
+#' \item{Consistency}{
 #' Some other functions have been renamed to keep consistency with new functions, 
 #' and also to further avoid problems with S3 methods by making sure classes and 
-#' functions don't have the same names:\cr
+#' functions don't have the same names:
 #' \tabular{rl}{
 #'   \code{tfa} \tab now called \code{tfa_lambda}\cr
 #'   \code{tfamatrix} \tab now called \code{tfam_lambda}\cr
 #'   \code{tfsens} \tab now called \code{tfs_lambda}\cr
 #'   \code{tfsensmatrix} \tab now called \code{tfsm_lambda}\cr
 #' }
+#' }
+#' \item{Hidden functions}{
 #' Some functions have been made internal (they're "hidden" but you can still 
-#' use them):\cr
+#' use them):
 #' \tabular{rl}{
 #'   \code{minCS} \tab now called \code{.minCS}\cr
 #'   \code{tf} \tab now called \code{.tf}\cr
 #' }
-#' Two functions are deprecated because they have been merged into one:\cr
+#' }
+#' \item{Merged functions}{
+#' Two functions are deprecated because they have been merged into one:
 #' \tabular{rl}{
 #'   \code{reactivity,firststepatt} \tab now handled by \code{\link{reac}}.\cr
 #' }
 #' Before, \code{reactivity} handled first-timestep amplification and 
 #' \code{firststepatt} handled first-timestep attenuation. This is silly, because
 #' a projection EITHER amplifies OR attenuates in the first timestep. Desptite 
-#' the semantics, \code{reac} now deals with both amplification and attenuation
+#' the semantics, \code{\link{reac}} now deals with both amplification and attenuation
 #' in the first timestep, everything that was calculable in the previous two
 #' functions is also calculable in the one new function.
+#' }
+#' }
 #' 
 #' @export Cohen.cumulative
 #' @export convergence.time

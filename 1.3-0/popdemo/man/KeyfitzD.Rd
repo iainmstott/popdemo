@@ -38,8 +38,10 @@ matrices with nonzero imaginary components in the dominant eigenpair).
 
 }
 \references{
-Keyfitz (1968) Introduction to the Mathematics of Populations. Addison-Wesley.\cr
-Stott et al. (2010) Ecol. Lett., 14, 959-970.
+\itemize{
+ \item Keyfitz (1968) Introduction to the Mathematics of Populations. Addison-Wesley.
+ \item Stott et al. (2010) Ecol. Lett., 14, 959-970.
+}
 }
 \seealso{
 Other DistanceMeasures: \code{\link{CohenD}},

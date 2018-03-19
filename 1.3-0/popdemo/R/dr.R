@@ -5,10 +5,8 @@
 #' Calculate the damping ratio of a given population matrix projection model.
 #'
 #' @param A a square, irreducible, non-negative numeric matrix of any dimension.
-#'
 #' @param return.time (optional) a logical argument determining whether an 
 #' estimated convergence time should be returned.
-#'
 #' @param x (optional) the logarithm used in determining estimated time to 
 #' convergence (see details).
 #'
@@ -23,13 +21,15 @@
 #' If \code{return.time=FALSE}, the damping ratio of \code{A}.\cr
 #' If \code{return.time=TRUE}, a list containing components:
 #' \describe{
-#' \item{dr}{the damping ratio of \code{A}}
-#' \item{t}{the estimated time to convergence.}
+#'  \item{dr}{the damping ratio of \code{A}}
+#'  \item{t}{the estimated time to convergence.}
 #' }
 #'
 #' @references
-#' Caswell (2001) Matrix Population Models 2nd. ed. Sinauer.\cr
-#' Stott et al. (2010) Ecol. Lett., 14, 959-970.
+#' \itemize{
+#'  \item Caswell (2001) Matrix Population Models 2nd. ed. Sinauer.
+#'  \item Stott et al. (2010) Ecol. Lett., 14, 959-970.
+#' }
 #'
 #' @family ConvergenceMeasures
 #'

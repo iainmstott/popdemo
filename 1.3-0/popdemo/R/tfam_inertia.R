@@ -6,25 +6,19 @@
 #' projection model for all matrix elements.
 #'
 #' @param A a square, primitive, nonnegative numeric matrix of any dimension
-#'
 #' @param vector (optional) a numeric vector or one-column matrix describing 
 #' the age/stage distribution ('demographic structure') used to calculate the
 #' transfer function of a 'case-specific' inertia
-#'
 #' @param bound (optional) specifies whether the transfer funciton of an upper 
 #' or lower bound on inertia should be calculated (see details).
-#'
 #' @param elementtype (optional) a character matrix of the same dimension as 
 #' \code{A} describing the structure of \code{A}: \code{"P"} denotes elements 
 #' bounded between 0 and 1, i.e. survival, growth, regression; \code{"F"} 
 #' denotes elements not bounded at 1, i.e. fecundity, fission; \code{NA} 
 #' denotes absent elements (see details).
-#'
 #' @param Flim,Plim the perturbation ranges for \code{"F"} and \code{"P"} 
 #' elements, expressed as a proportion of their magnitude  (see details).
-#'
 #' @param plength the desired length of the perturbation ranges.
-#'
 #' @param digits specifies which values of lambda should be excluded from 
 #' analysis to avoid a computationally singular system (see details).
 #'
@@ -35,7 +29,8 @@
 #' the others). The function is most useful for use with the S3 method 
 #' \code{\link{plot.tfam}} to visualise how perturbations affect the 
 #' life cycle transitions, and easily compare the (nonlinear) effect of 
-#' perturbation to different transitions on the dominant eigenvalue.\cr\cr
+#' perturbation to different transitions on the dominant eigenvalue.
+#' 
 #' The sizes of the perturbations are determined by \code{elementtype}, 
 #' \code{Flim}, \code{Plim} and \code{plength}. \code{elementtype} gives the 
 #' type of each element, specifying whether perturbations should be 
@@ -51,11 +46,13 @@
 #' to that element is \code{seq(-1*0.5,10*0.5,100-1)}. The process is the same 
 #' for \code{"P"} elements, except that these are truncated to a maximum value 
 #' of 1 (growth/survival elements cannot be greater than 1). Both \code{"F"} 
-#' and \code{"P"} elements are truncated to a minimum value of 0.\cr\cr
+#' and \code{"P"} elements are truncated to a minimum value of 0.
+#' 
 #' \code{tfam_inertia} uses \code{\link{tfa_inertia}} to calculate
 #' transfer functions. \code{digits} is passed to \code{tfa_inertia} to
 #' prevent the problem of singular matrices (see details in
-#' \code{\link{tfa_inertia}}).\cr\cr
+#' \code{\link{tfa_inertia}}).
+#' 
 #' \code{tfam_inertia} will not work for reducible matrices.
 #' 
 #' @return 
@@ -72,15 +69,16 @@
 #' element [3,2] of the matrix.
 #'
 #' @references
-#' Stott et al. (2012) Methods Ecol. Evol., 3, 673-684.
-#' Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+#' \itemize{
+#'  \item Stott et al. (2012) Methods Ecol. Evol., 3, 673-684.
+#'  \item Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+#' }
 #'
 #' @family TransferFunctionAnalyses
 #' @family PerturbationAnalyses
 #'
 #' @seealso
-#' S3 plotting method:\cr
-#' \code{\link{plot.tfam}}\cr
+#' S3 plotting method: \code{\link{plot.tfam}}
 #'
 #' @examples
 #'   # Create a 3x3 matrix

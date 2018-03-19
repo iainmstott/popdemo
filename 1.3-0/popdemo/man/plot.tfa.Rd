@@ -24,7 +24,7 @@ Plot a transfer function
 }
 \details{
 \code{plot.tfa} plots transfer functions (class \code{tfa}) created using 
-\code{\link{tfa_lambda}} or \code{\link{tfa_inertia}}.\cr\cr
+\code{\link{tfa_lambda}} or \code{\link{tfa_inertia}}.
 }
 \examples{
   # Create a 3x3 matrix

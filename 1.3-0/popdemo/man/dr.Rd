@@ -19,8 +19,8 @@ convergence (see details).}
 If \code{return.time=FALSE}, the damping ratio of \code{A}.\cr
 If \code{return.time=TRUE}, a list containing components:
 \describe{
-\item{dr}{the damping ratio of \code{A}}
-\item{t}{the estimated time to convergence.}
+ \item{dr}{the damping ratio of \code{A}}
+ \item{t}{the estimated time to convergence.}
 }
 }
 \description{
@@ -46,8 +46,10 @@ subdominant eigenvalue.
 
 }
 \references{
-Caswell (2001) Matrix Population Models 2nd. ed. Sinauer.\cr
-Stott et al. (2010) Ecol. Lett., 14, 959-970.
+\itemize{
+ \item Caswell (2001) Matrix Population Models 2nd. ed. Sinauer.
+ \item Stott et al. (2010) Ecol. Lett., 14, 959-970.
+}
 }
 \seealso{
 Other ConvergenceMeasures: \code{\link{convt}},

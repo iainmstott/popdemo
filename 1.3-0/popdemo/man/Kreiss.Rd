@@ -50,13 +50,15 @@ maximum/minimum is passed and then backward in steps of \code{step2} to more
 accurately find the maximum/minimum itself. Therefore, \code{step1} should be 
 larger than \code{step2}. The balance between both will determine computation 
 time, whilst accuracy is determined almost solely by \code{step2}. The defaults 
-should be sufficient for most matrices.\cr\cr
+should be sufficient for most matrices.
+
 \code{theta} defaults to 1, which means the Kriess bound is assessed relative to 
 both asymptotic growth and initial population size. Sometimes, the maximum/minimum 
 of the function occurs at r-->\code{theta}, in which case r is equal to 
 \code{theta+step2}. Setting \code{return.r=TRUE} tells the function to return the 
 value of r where the maximum/minimum occurs alongside the value of the Kreiss bound. 
-r may not exceed \code{rlimit}.\cr\cr
+r may not exceed \code{rlimit}.
+
 \code{Kreiss} will not work with reducible matrices, and returns a warning for 
 imprimitive matrices.
 }
@@ -76,8 +78,10 @@ imprimitive matrices.
 
 }
 \references{
-Stott et al. (2011) Ecol. Lett., 14, 959-970.\cr
-Townley & Hodgson (2008) J. Appl. Ecol., 45, 1836-1839.
+\itemize{
+ \item Stott et al. (2011) Ecol. Lett., 14, 959-970.
+ \item Townley & Hodgson (2008) J. Appl. Ecol., 45, 1836-1839.
+}
 }
 \seealso{
 Other TransientIndices: \code{\link{inertia}},

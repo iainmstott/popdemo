@@ -15,23 +15,18 @@
 #' tfsm_lambda(A, startval=0.001, tolerance=1e-10)
 #'
 #' @param A a square, nonnegative numeric matrix of any dimension.
-#'
 #' @param d,e numeric vectors that determine the perturbation structure (see
 #' details).
-#'
 #' @param startval \code{tfs_lambda} calculates the limit of the derivative of the
 #' transfer function as lambda of the perturbed matrix approaches the dominant 
 #' eigenvalue of \code{A} (see details). \code{startval} provides a starting 
 #' value for the algorithm: the smaller \code{startval} is, the quicker the 
 #' algorithm should converge.
-#'
 #' @param tolerance the tolerance level for determining convergence (see
 #' details).
-#'
 #' @param return.fit if \code{TRUE} the lambda and sensitivity values obtained
 #' from the convergence algorithm are returned alongside the sensitivity at the
 #' limit.
-#'
 #' @param plot.fit if \code{TRUE} then convergence of the algorithm is plotted
 #' as sensitivity~lambda.
 #'
@@ -40,7 +35,8 @@
 #' find sensitivity of the dominant eigenvalue of \code{A} to perturbations. 
 #' This provides an alternative method to using matrix eigenvectors to 
 #' calculate the sensitivity matrix and is useful as it may incorporate a 
-#' greater diversity of perturbation structures.\cr\cr
+#' greater diversity of perturbation structures.
+#' 
 #' \code{tfs_lambda} evaluates the transfer function of a specific perturbation 
 #' structure. The perturbation structure is determined by \code{d\%*\%t(e)}. 
 #' Therefore, the rows to be perturbed are determined by \code{d} and the 
@@ -52,12 +48,14 @@
 #' and \code{e = c(0,0.5,1)}. \code{d} and \code{e} may also be expressed as 
 #' numeric one-column matrices, e.g. \code{d = matrix(c(0,0,1), ncol=1)}, 
 #' \code{e = matrix(c(0,0.5,1), ncol=1)}. See Hodgson et al. (2006) for more 
-#' information on perturbation structures.\cr\cr
+#' information on perturbation structures.
+#' 
 #' \code{tfsm_lambda} returns a matrix of sensitivity values for observed
 #' transitions (similar to that obtained when using \code{\link{sens}} to
 #' evaluate sensitivity using eigenvectors), where a separate transfer function 
 #' for each nonzero element of \code{A} is calculated (each element perturbed 
-#' independently of the others).\cr\cr
+#' independently of the others).
+#' 
 #' The formula used by \code{tfs_lambda} and \code{tfsm_lambda} cannot be
 #' evaluated at lambda-max, therefore it is necessary to find the limit of the
 #' formula as lambda approaches lambda-max. This is done using a bisection
@@ -68,7 +66,8 @@
 #' means that the sensitivity calculation should be accurate to 10 decimal
 #' places. However, as the limit approaches lambda-max, matrices are no longer
 #' invertible (singular): if matrices are found to be singular then
-#' \code{tolerance} should be relaxed and made larger.\cr\cr
+#' \code{tolerance} should be relaxed and made larger.
+#' 
 #' For \code{tfs_lambda}, there is an extra option to return and/or plot the above
 #' fitting process using \code{return.fit=TRUE} and \code{plot.fit=TRUE}
 #' respectively.
@@ -87,7 +86,9 @@
 #' }
 #'
 #' @references
-#' Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+#' \itemize{
+#'  \item Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+#' }
 #'
 #' @family TransferFunctionAnalyses
 #' @family PerturbationAnalyses

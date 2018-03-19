@@ -42,7 +42,8 @@ of a matrix (\code{A}), given a perturbation structure (specified using
 \code{d} and \code{e}), and either a range of target values for asymptotic 
 population growth (\code{lambdavalues}) or a range of desired perturbation 
 magnitude (\code{prange}). Currently \code{tfa_lambda} can only work with rank-
-one, single-parameter perturbations (see Hodgson & Townley 2004).\cr\cr
+one, single-parameter perturbations (see Hodgson & Townley 2004).
+
 The perturbation structure is determined by \code{d\%*\%t(e)}. Therefore, 
 the rows to be perturbed are determined by \code{d} and the columns to be 
 perturbed are determined by \code{e}. The specific values in d and e will 
@@ -53,7 +54,8 @@ magnitude of perturbation to [3,2] half that of [3,3] then \code{d = c(0,0,1)}
 and \code{e = c(0,0.5,1)}. \code{d} and \code{e} may also be expressed as 
 numeric one-column matrices, e.g. \code{d = matrix(c(0,0,1), ncol=1)}, 
 \code{e = matrix(c(0,0.5,1), ncol=1)}. See Hodgson et al. (2006) for more 
-information on perturbation structures.\cr\cr
+information on perturbation structures.
+
 The perturbation magnitude is determined by \code{prange}, a numeric vector 
 that gives the continuous range of perterbation magnitude to evaluate over. 
 This is usually a sequence (e.g. \code{prange=seq(-0.1,0.1,0.001)}), but 
@@ -65,7 +67,8 @@ magnitudes are back-calculated, so the output perturbation magnitude
 value (see value). Alternatively, a vector \code{lambdarange} can be 
 specified, representing a range of target lambda values from which the
 corresponding perturbation values will be calculated. Only one of either 
-\code{prange} or \code{lambdarange} may be specified.\cr\cr
+\code{prange} or \code{lambdarange} may be specified.
+
 \code{tfa_lambda} uses the resolvent matrix in its calculation, which cannot be 
 computed if any lambda are equal to the dominant eigenvalue of 
 \code{A}. \code{digits} specifies the values of lambda that should be 
@@ -73,8 +76,10 @@ excluded in order to avoid a computationally singular system. Any values
 equal to the dominant eigenvalue of \code{A} rounded to an accuracy of 
 \code{digits} are excluded. \code{digits} should only need to be changed 
 when the system is found to be computationally singular, in which case 
-increasing \code{digits} should help to solve the problem.\cr\cr
-\code{tfa_lambda} will not work for reducible matrices.\cr\cr
+increasing \code{digits} should help to solve the problem.
+
+\code{tfa_lambda} will not work for reducible matrices.
+
 There is an S3 plotting method available (see \code{\link{plot.tfa}} 
 and examples below)
 }
@@ -103,11 +108,13 @@ and examples below)
 
 }
 \references{
-Townley & Hodgson (2004) J. Appl. Ecol., 41, 1155-1161.\cr
-Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+\itemize{
+ \item Townley & Hodgson (2004) J. Appl. Ecol., 41, 1155-1161.
+ \item Hodgson et al. (2006) J. Theor. Biol., 70, 214-224.
+}
 }
 \seealso{
-S3 plotting method: \code{\link{plot.tfa}}\cr
+S3 plotting method: \code{\link{plot.tfa}}
 
 Other TransferFunctionAnalyses: \code{\link{tfa_inertia}},
   \code{\link{tfam_inertia}}, \code{\link{tfam_lambda}},
