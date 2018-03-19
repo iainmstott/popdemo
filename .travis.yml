@@ -2,8 +2,10 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 # blocklist
 branches:
-  except:
-  - legacylanguage: r
+  only:
+  - development
+
+language: r
 
 install:
   - Rscript -e 'install.packages(c("devtools", "roxygen2", "rmarkdown", "magick")); devtools::install_deps("Dev/popdemoDev")'
