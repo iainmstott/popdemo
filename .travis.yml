@@ -10,7 +10,7 @@ language: r
 install:
   - Rscript -e 'install.packages(c("devtools", "roxygen2", "rmarkdown", "magick")); devtools::install_deps("Dev/popdemoDev")'
 script:
-  - Rscript -e 'devtools::check("Dev/popdemoDev")'
+  - Rscript -e 'devtools::check("Dev/popdemoDev", vignettes = FALSE)'
 
 
 # R versions
