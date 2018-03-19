@@ -15,5 +15,6 @@ More background (simple) functions: e.g. basic projection function
 TO DO
 keywords tfs_inertia tfsm_inertia
 insert eigs function into many other functions
+decomposition of stochastics
 
 BUGS
