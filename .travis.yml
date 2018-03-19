@@ -1,5 +1,11 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+# only development branch (master will already have been tested on development)
+branches:
+  only:
+  - development
+
 language: r
 
 install:
