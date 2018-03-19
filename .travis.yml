@@ -1,15 +1,12 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
-# only development branch (master will already have been tested on development)
+# blocklist
 branches:
-  only:
-  - development
-
-language: r
+  except:
+  - legacylanguage: r
 
 install:
-  - Rscript -e 'install.packages(c("devtools", "roxygen2", "knitr", "magick")); devtools::install_deps("Dev/popdemoDev")'
+  - Rscript -e 'install.packages(c("devtools", "roxygen2", "rmarkdown", "magick")); devtools::install_deps("Dev/popdemoDev")'
 script:
   - Rscript -e 'devtools::check("Dev/popdemoDev")'
 
