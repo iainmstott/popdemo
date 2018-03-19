@@ -1,0 +1,29 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+# blocklist
+branches:
+  only:
+  - development
+
+language: r
+
+install:
+  - Rscript -e 'install.packages(c("devtools", "roxygen2", "rmarkdown", "magick")); devtools::install_deps("Dev/popdemoDev")'
+script:
+  - Rscript -e 'devtools::check("Dev/popdemoDev", vignettes = FALSE)'
+
+
+# R versions
+r:
+  - release
+
+# operating systems to test. Excluding r-devel
+os:
+  - linux
+  - osx
+
+# options for Linux tests
+sudo: false
+dist: trusty
+cache: packages
+
