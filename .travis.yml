@@ -3,9 +3,9 @@
 language: r
 
 install:
-  - Rscript -e 'install.packages(c("devtools", "roxygen2", "knitr", "magick")); devtools::install_deps("1.3-0/popdemo")'
+  - Rscript -e 'install.packages(c("devtools", "roxygen2", "knitr", "magick")); devtools::install_deps("Dev/popdemoDev")'
 script:
-  - Rscript -e 'devtools::check("1.3-0/popdemo")'
+  - Rscript -e 'devtools::check("Dev/popdemoDev")'
 
 
 # R versions
