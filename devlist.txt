@@ -11,6 +11,7 @@ S4 class for projections
 Combine documentation for the distance metrics
 Give some functions the option to pass a 'projection' object?
 More background (simple) functions: e.g. basic projection function
+Decomposition of stochastic growth
 
 TO DO
 keywords tfs_inertia tfsm_inertia
