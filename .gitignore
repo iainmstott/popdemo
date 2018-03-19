@@ -20,15 +20,6 @@
 # Output files from R CMD check
 /*.Rcheck/
 
-# Travis 
-# origin/master: No travis file. 
-# No need to check build, as
-# will have been checked on development.
-# origin/development: Travis checks Dev/popdemo.
-# Future changes to Travis can be commited through GitHub.
-# No need to keep Travis files locally.
-.travis.yml
-
 
 ### Rstudio project stuff
 
