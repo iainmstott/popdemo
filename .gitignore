@@ -31,12 +31,14 @@
 # Windows shortcuts
 *.lnk
 
+# shell script for testing back compatility
+Test_package_in_Docker.sh
 
 ### Rmarkdown stuff
 
 ## vignette knits (if desired)
-# vignettes/*.html
-# vignettes/*.pdf
+1.3-0/popdemo/vignettes/popdemo.html
+vignettes/*.pdf
 
 # vignette pictures
 vignettes/*.jpg
