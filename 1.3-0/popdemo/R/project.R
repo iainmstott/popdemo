@@ -269,77 +269,17 @@ setMethod('project',
                     return.vec = TRUE,
                     Aseq = "unif", Astart = NULL,
                     draws = 1000, alpha.draws = "unif", PREcheck = TRUE) {
-            # stop if A isn't a matrix or list of matrices (or array of matrices)
-            if(!any(is.matrix(A), 
-                    (is.list(A) & all(sapply(A, is.matrix))), 
-                    (is.array(A) & length(dim(A)) == 3)) ){
-              stop("A must be a matrix or list of matrices")
-            }
-            # if there's only one matrix, put it in an array by itself (for continuity)
-            if(is.list(A) & length(A) == 1) A <- A[[1]]
-            if(is.matrix(A)){
-              M1 <- A
-              dim(A) <- c(dim(A), 1)
-              dimnames(A)[[1]] <- dimnames(M1)[[1]]
-              dimnames(A)[[2]] <- dimnames(M1)[[2]]
-              dimnames(A)[[3]] <- NULL
-            }
-            # if there's more than one matrix in a list, put them in an array
-            if (is.list(A) & length(A) > 1) {
-              numA <- length(A)
-              alldim <- sapply(A, dim)
-              if (!diff(range(alldim))==0) {
-                stop("all matrices in A must be square and have the same dimension as each other")
-              }
-              dimA <- mean(alldim)
-              L <- A
-              A <- numeric(dimA * dimA * numA); dim(A) <- c(dimA, dimA, numA)
-              for(i in 1:numA){
-                A[,,i] <- L[[i]]
-              }
-              dimnames(A)[[1]] <- dimnames(L[[1]])[[1]]
-              dimnames(A)[[2]] <- dimnames(L[[1]])[[2]]
-              dimnames(A)[[3]] <- names(L)
-            }
-            # do the PREcheck
-            if(is.array(A) & dim(A)[3] == 1){
-              if (dim(A)[1] != dim(A)[2]) stop("A must be a square matrix")
-              if(PREcheck) {
-                
-                a_pre_checks(A)
-                
-              }
-            }
-            if (is.array(A) & dim(A)[3] > 1) {
-              if (dim(A)[1] != dim(A)[2]) stop("all matrices in A must be square")
-              if (PREcheck) {
-                red <- numeric(0)
-                imp <- numeric(0)
-                for(i in 1:dim(A)[3]){
-                  if (!isIrreducible(A[,,i])) {
-                    red <- c(red, i)
-                  } else {
-                    if (!isPrimitive(A[,,i])) {
-                      imp <- c(imp, i)
-                    }
-                  }
-                }
-                if (length(red) > 0){
-                  if(is.null(dimnames(A)[[3]])) red <- as.character(red)
-                  if(!is.null(dimnames(A)[[3]])) red <- dimnames(A)[[3]][red]
-                  red <- paste(red, collapse=", ")
-                  warning(paste(c("One or more matrices are reducible (", red, ")"), 
-                                collapse=""))
-                }
-                if (length(imp) > 0){
-                  if(is.null(dimnames(A)[[3]])) imp <- as.character(imp)
-                  if(!is.null(dimnames(A)[[3]])) imp <- dimnames(A)[[3]][imp]
-                  imp <- paste(imp, collapse=", ")
-                  warning(paste(c("One or more matrices are imprimitive (", imp, ")"), 
-                                collapse=""))
-                }
-              }
-            }
+            
+            errors <- character()
+            ifelse(
+              length(a_pre_checks(A, errors, PREcheck) > 0,
+                stop(error_constructor(errors)),
+                NULL
+              )
+              
+            A <- a_to_array(A)
+            
+            # ----------resume here 12.4 
             # extract some info about matrices
             mat_dim <- dim(A)[1]
             stagenames <- dimnames(A)[[2]]

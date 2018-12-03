@@ -1,32 +1,128 @@
 # helpers for project.compadreXXX
 
-check_a_start <- function(a_start) {
+is_deterministic <- function(A) {
+  (is.list(A) & length(A) == 1) |
+    is.matrix(A)
+}
+
+
+check_a_start <- function(a_start, errors) {
   
   
 }
   
   
-check_a_seq <- function(a_seq, a_seq_type) {
+check_a_seq <- function(a_seq, a_seq_type, errors) {
   
   
 }
 
-a_pre_checks <- function(a_mat) {
-  if (!isIrreducible(a_mat[,,1])) {
-    warning("Matrix is reducible")
+a_pre_checks <- function(a_mat, errors, PREcheck) {
+  
+  if(is_deterministic(A)) {
+    errors <- c(errors, check_deterministic_A(a_mat, errors, PREcheck))
+    
   } else {
-    if (!isPrimitive(A[,,1])) {
-      warning("Matrix is imprimitive")
+  
+    errors <- c(errors, check_stochastic_A(a_mat, errors, PREcheck))
+  }
+  
+  return(errors)
+}
+
+is_square <- function(a_mat) {
+  dim(a_mat)[1] == dim(a_mat)[2]
+}
+
+check_deterministic_A <- function(a_mat, errors, PREcheck) {
+  
+  if(!is_square(a_mat)) {
+    errors <- c(errors, 'A must be a square matrix')
+  }
+  
+  if(PREcheck){
+    if (!isIrreducible(a_mat)) {
+      warning("Matrix is reducible")
+    } else {
+      if (!isPrimitive(a_mat)) {
+        warning("Matrix is imprimitive")
+      }
     }
   }
   
 }
 
-check_a_mat <- function(a_list) {
+a_to_array <- function(a_list) {
   
-  
+  if(is_deterministic(a_list)) {
+    if(is.list(a_list)) A <- a_list[[1]]
+    if(is.matrix(a_list)) A <- a_list
+    M1 <- A
+    dim(A) <- c(dim(A), 1)
+    dimnames(A)[[1]] <- dimnames(M1)[[1]]
+    dimnames(A)[[2]] <- dimnames(M1)[[2]]
+    dimnames(A)[[3]] <- NULL  
+  } else {
+    
+    numA <- length(a_list)
+    dimA <- dim(a_list[[1]])[1]
+    
+    A <- numeric(dimA * dimA * numA)
+    dim(A) <- c(dimA, dimA, numA)
+    
+    # generate array of As
+    for(i in seq_len(numA)){
+      A[,,i] <- a_list[[i]]
+    }
+    
+    dimnames(A)[[1]] <- dimnames(a_list[[1]])[[1]]
+    dimnames(A)[[2]] <- dimnames(a_list[[1]])[[2]]
+    dimnames(A)[[3]] <- names(a_list)
+  }
 }
 
+check_stochastic_A <- function(a_mat, errors, PREcheck) {
+  
+  # stop if A isn't a matrix or list of matrices (or array of matrices)
+  if(!any((is.list(a_mat) & all(vapply(a_mat, is.matrix, logical(1)))), 
+          (is.array(a_mat) & length(dim(a_mat)) == 3)) ){
+    c(errors, "A must be a matrix or list of matrices")
+  }
+  
+  # test all equal dimension
+  all_dim <- vapply(a_mat, dim, numeric(2))
+  if(!diff(range(all_dim)) == 0) {
+    c(errors, "all matrices in A must be square and have the same dimension as each other")
+  }
+  # test squareness
+  squares <- vapply(a_mat, is_square, logical(1))
+  if(!any(squares)) {
+    errors <- c(error, 'All matrices in A must be square')
+  }
+  
+  # optional primitivity/reducibility checks
+  if(PREcheck){
+    reds <- vapply(a_mat, isIrreducible, logical(1))
+    imps <- vapply(a_mat, isPrimitive, logical(1))
+    
+    if(any(!reds)) {
+      red_ind <- which(!reds)
+      warning(paste(c("One or more matrices are reducible (", 
+                      paste(red_ind, collapse = ", "),")"),
+                    sep = ""))
+    }
+    
+    if(any(!imps)) {
+      imp_ind <- which(!imps)
+      warning(paste(c("One or more matrices are reducible (", 
+                      paste(imp_ind, collapse = ", "),")"),
+                    sep = ""))
+    }
+    
+  }
+  
+  return(errors)
+}
 init_pop_vec <- function(vector, ...) {
   
   # new character variable for switching between initial vectors
