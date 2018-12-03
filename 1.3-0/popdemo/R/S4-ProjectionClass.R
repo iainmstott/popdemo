@@ -297,7 +297,7 @@ validProjection <- function(object){
     }
     ifelse(length(errors) == 0, 
            TRUE, 
-           message(error_constructor(errors)))
+           stop(error_constructor(errors)))
 }
 setValidity("Projection", validProjection)
 
