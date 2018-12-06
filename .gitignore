@@ -33,6 +33,7 @@
 
 # shell script for testing back compatility
 Test_package_in_Docker.sh
+all_utils_SCL
 
 ### Rmarkdown stuff
 

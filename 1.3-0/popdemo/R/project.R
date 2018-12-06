@@ -24,7 +24,7 @@
 #' also take either "n" (default) to calculate the set of stage-biased projections 
 #' (see details), or "diri" to project random population vectors drawn from a 
 #' dirichlet distribution (see details). 
-#' @param n_iterations the number of projection intervals.
+#' @param time the number of projection intervals.
 #' @param standard.A (optional) if \code{TRUE}, scales each matrix in \code{A}
 #' by dividing all elements by the dominant eigenvalue. This standardises 
 #' asymptotic dynamics: the dominant eigenvalue of the scaled matrix is 1. 
@@ -45,7 +45,7 @@
 #'  each column j describes the probability of choosing stage (row) i at time t+1, 
 #'  given that stage (column) j was chosen at time t. \code{Aseq}  should have the 
 #'  same dimension as the number of matrices in \code{A}. 
-#'  \item a numeric vector giving a specific sequence which corresponds to the
+#'  \item an integer vector giving a specific sequence which corresponds to the
 #'  matrices in \code{A}.
 #'  \item a character vector giving a specific sequence which corresponds to the
 #'  names of the matrices in \code{A}.
@@ -57,7 +57,7 @@
 #' 
 #' @param draws if \code{vector="diri"}, the number of population vectors drawn
 #' from dirichlet.
-#' @param alpha.draws if \code{vector="diri"}, the alpha values passed to 
+#' @param alphaDraws if \code{vector="diri"}, the alpha values passed to 
 #' \code{rdirichlet}: used to bias draws towards or away from a certain population
 #' structure.
 #' @param PREcheck many functions in \code{popdemo} first check Primitivity, 
@@ -82,9 +82,9 @@
 #' 
 #' If \code{vector="diri"}, \code{project} draws random population vectors from 
 #' the dirichlet distribution. \code{draws} gives the number of population vectors
-#' to draw. \code{alpha.draws} gives the parameters for the dirichlet and can be
+#' to draw. \code{alphaDraws} gives the parameters for the dirichlet and can be
 #' used to bias the draws towards or away from certain population structures.
-#' The default is \code{alpha.draws="unif"}, which passes \code{rep(1,dim)} (where
+#' The default is \code{alphaDraws="unif"}, which passes \code{rep(1,dim)} (where
 #' dim is the dimension of the matrix), resulting in an equal probability of 
 #' any random population vector. Relative values in the vector give the population
 #' structure to focus the distribution on, and the absolute value of the vector
@@ -150,7 +150,7 @@
 #'   ( A <- matrix(c(0,1,2,0.5,0.1,0,0,0.6,0.6), byrow=TRUE, ncol=3) )
 #'
 #'   # Project stage-biased dynamics of A over 70 intervals
-#'   ( pr <- project(A, vector="n", n_iterations=70) )
+#'   ( pr <- project(A, vector="n", time=70) )
 #'   plot(pr)
 #' 
 #'   # Access other slots
@@ -170,7 +170,7 @@
 #'   pr[,2]
 #'
 #'   # Project stage-biased dynamics of standardised A over 30 intervals
-#'   ( pr2 <- project(A, vector="n", n_iterations=30, standard.A=TRUE) )
+#'   ( pr2 <- project(A, vector="n", time=30, standard.A=TRUE) )
 #'   plot(pr2)
 #'
 #'   #Select the projection of stage 2 bias
@@ -189,12 +189,12 @@
 #'   ( initial <- c(1,3,2) )
 #'
 #'   # Project A over 50 intervals using a specified population structure
-#'   ( pr3 <- project(A, vector=initial, n_iterations=50) )
+#'   ( pr3 <- project(A, vector=initial, time=50) )
 #'   plot(pr3)
 #'
 #'   # Project standardised dynamics of A over 10 intervals using 
 #'   # standardised initial structure and return demographic vectors
-#'   ( pr4 <- project(A, vector=initial, n_iterations=10, standard.vec=TRUE, 
+#'   ( pr4 <- project(A, vector=initial, time=10, standard.vec=TRUE, 
 #'                    standard.A=TRUE, return.vec=TRUE) )
 #'   plot(pr4)
 #'
@@ -210,7 +210,7 @@
 #'   Tortvec1 <- c(8, 7, 6, 5, 4, 3, 2, 1)
 #'   
 #'   # Create a projection over 30 time intervals
-#'   ( Tortp1 <- project(Tort, vector = Tortvec1, n_iterations = 10) )
+#'   ( Tortp1 <- project(Tort, vector = Tortvec1, time = 10) )
 #'
 #'   # plot p1
 #'   plot(Tortp1)
@@ -228,8 +228,8 @@
 #' 
 #'   # dirichlet distribution 
 #'   # darker shading indicates more likely population size
-#'   plot(project(Tort, n_iterations = 30, vector = "diri", standard.A = TRUE,
-#'                draws = 500, alpha.draws = "unif"),
+#'   plot(project(Tort, time = 30, vector = "diri", standard.A = TRUE,
+#'                draws = 500, alphaDraws = "unif"),
 #'        plottype = "shady", bounds = TRUE)
 #'   
 #'   ### STOCHASTIC PROJECTIONS
@@ -238,7 +238,7 @@
 #'   
 #'   # project over 50 years with uniform matrix selection
 #'   Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
-#'   p2 <- project(Pbear, Pbearvec, n_iterations = 50, Aseq = "unif")
+#'   p2 <- project(Pbear, Pbearvec, time = 50, Aseq = "unif")
 #' 
 #'   # stochastic projection information
 #'   Aseq(p2)
@@ -257,275 +257,95 @@
 #' @name project
 #' 
 
-setGeneric('project', function(...) {
+setGeneric('project', function(object, ...) {
   standardGeneric('project')
 })
 
 #' @rdname project 
 setMethod('project', 
           signature = 'CompadreMSM',
-          function (A, vector = "n", n_iterations = 100, 
+          function (object, vector = "n", time = 100, 
                     standard.A = FALSE, standard.vec = FALSE, 
                     return.vec = TRUE,
                     Aseq = "unif", Astart = NULL,
-                    draws = 1000, alpha.draws = "unif", PREcheck = TRUE) {
+                    draws = 1000, alphaDraws = "unif", PREcheck = TRUE) {
             
+            A <- object@A
+           
             errors <- character()
             ifelse(
-              length(a_pre_checks(A, errors, PREcheck) > 0,
-                stop(error_constructor(errors)),
-                NULL
-              )
-              
-            A <- a_to_array(A)
+              length(.aPreChecks(A, errors, PREcheck)) > 0,
+                stop(.errorConstructor(errors)),
+                ""
+            )
             
-            # ----------resume here 12.4 
+            
+            A <- .a2Array(A)
+          
             # extract some info about matrices
-            mat_dim <- dim(A)[1]
-            stagenames <- dimnames(A)[[2]]
-            if(is.null(stagenames)) stagenames <- paste("S", as.character(1:mat_dim), sep = "")
-            nmat <- dim(A)[3]
-            matrixnames <- dimnames(A)[[3]]
-            # standardisations
-            if (standard.A == TRUE) {
-              if(nmat != 1) warning("Ignoring standard.A = TRUE: only valid when A is a single matrix.")
-              # just for single matrices but maybe extend to stochastic projections some day
-              if(nmat == 1){
-                MS <- A
-                lambda <- apply(MS, 3, eigs, what = "lambda")
-                A <- numeric(mat_dim * mat_dim * nmat); dim(A) <- c(mat_dim, mat_dim, nmat)
-                for(i in 1:nmat){
-                  A[,,i] <- MS[,,i]/lambda[i]
-                }
-              }
-            }
-            # if there's only 1 matrix, the sequence of matrices is 1L repeated
-            if (nmat == 1) {
-              if(Aseq != "unif") warning("Ignoring Aseq: only 1 matrix in A")
-              MC <- rep(1L, n_iterations)
-              names(MC) <- matrixnames[MC]
-            }
-            # if >1 matrix, generate sequence of matrices using random Markov chain
-            if (nmat > 1) {
-              if(!any(Aseq[1] == "unif", 
-                      is.matrix(Aseq), 
-                      is.numeric(Aseq) & is.null(dim(Aseq)),
-                      is.character(Aseq) & is.null(dim(Aseq)))){
-                stop('Aseq must take "unif", a numeric matrix, a numeric vector, or a character vector')
-              }
-              # make sure Astart is OK
-              if(!any(is.numeric(Astart),
-                      is.character(Astart),
-                      is.null(Astart))) stop("Astart should be numeric, character or NULL")
-              if(is.numeric(Astart)){
-                if(length(Astart) > 1) stop("Astart should be length 1")
-                if(Astart < 1) stop("Astart must be greater than 0")
-                if(Astart > nmat) stop("Astart cannot be greater than the number of matrices in A")
-                if(Astart%%1 != 0) stop("Astart must be an integer")
-                MCstart <- Astart
-              }
-              if(is.character(Astart)){
-                if(length(Astart) > 1) stop("Astart should be length 1")
-                if(!(Astart %in% matrixnames)) stop("Astart is not found in names of matrices in A")
-                MCstart <- match(Astart, matrixnames)
-              }
-              if(is.null(Astart)) MCstart <- NULL
-              
-              # uniform probability or transition matrix
-              if(any(Aseq[1] == "unif", is.matrix(Aseq))){
-                if(Aseq[1] == "unif") MCtm <- matrix(rep(1/nmat, nmat^2), nmat, nmat)
-                if(is.matrix(Aseq)) MCtm <- Aseq
-                if(dim(MCtm)[1] != dim(MCtm)[2]) stop("Aseq is not a square matrix")
-                if(dim(MCtm)[1] != nmat){
-                  stop("Dimensions of Aseq must be equal to number of matrices in A")
-                }
-                if(!all(colSums(MCtm) == 1)) stop("Columns of Aseq do not sum to 1")
-                MC <- .rmc(MCtm, n_iterations, MCstart)
-                names(MC) <- matrixnames[MC]
-              }
-              # numeric sequence
-              if(is.numeric(Aseq) & is.null(dim(Aseq))){
-                if(min(Aseq) < 1) stop("Entries in Aseq are not all greater than 0")
-                if(max(Aseq) > nmat) stop("One or more entries in Aseq are greater than the number of matrices in A")
-                if(!all(Aseq%%1 == 0)) stop("One or more entries in Aseq are not integers")
-                if(length(Aseq) != n_iterations) n_iterations <- length(Aseq)
-                MC <- Aseq
-                names(MC) <- matrixnames[MC]
-              }
-              # character sequence (convert to numeric)
-              if(Aseq[1] != "unif" & is.character(Aseq) & is.null(dim(Aseq))){
-                if(!all(Aseq %in% matrixnames)) stop("Names of Aseq aren't all found in A")
-                if(length(Aseq) != n_iterations) n_iterations <- length(Aseq)
-                MC <- match(Aseq, matrixnames)
-                names(MC) <- matrixnames[MC]
-              }
-            }
-            # prepare object to return
-            out <- Projection()
+            matDim <- dim(A)[1]
+            stageNames <- dimnames(A)[[2]]
+            if(is.null(stageNames)) stageNames <- paste("S", 
+                                                        as.character(1:matDim),                                                        sep = "")
+            nMat <- dim(A)[3]
+            matrixNames <- dimnames(A)[[3]]
             
-            # stage-biased projections
-            #(run also for deterministic projections, to get bounds)
-            if(nmat == 1 | vector[1] == "n"){
-              # empty objects
-              VecBias <- numeric((n_iterations + 1) * mat_dim * mat_dim)
-              dim(VecBias) <- c(n_iterations + 1, mat_dim, mat_dim)
-              dimnames(VecBias)[[2]] <- stagenames
-              dimnames(VecBias)[[3]] <- paste("bias", stagenames, sep = "")
-              PopBias <- numeric((n_iterations + 1) * mat_dim)
-              dim(PopBias) <- c(n_iterations + 1, mat_dim)
-              dimnames(PopBias)[[2]] <- paste("bias", stagenames, sep = "")
-              # initial vectors come from identity matrix
-              I <- diag(mat_dim)
-              VecBias[1, ,] <- I
-              # initial population size is always 1
-              PopBias[1,] <- 1
-              for (i in 1:mat_dim) {
-                for (j in 1:n_iterations) {
-                  VecBias[j + 1, , i] <- A[, , MC[j]] %*% VecBias[j, , i]
-                  PopBias[j + 1, i] <- sum(VecBias[j + 1, , i])
-                }
-              }
-              # for deterministic projections, calculate the bounds
-              if(nmat == 1){
-                bounds <- t(apply(PopBias,1,range))
-              }
-              # return stage-biased vectors if nothing passed to vector
-              if(vector[1] == "n"){
-                if(is.null(dim(PopBias))) dim(PopBias) <- n_iterations + 1
-                out@.Data <- PopBias
-                if(return.vec) out@vec <- VecBias
-                out@mat <- A
-                out@Aseq <- MC
-                if(nmat == 1){
-                  out@bounds <- bounds
-                  out@projtype <- "deterministic"
-                }
-                if(nmat > 1){
-                  out@projtype <- "stochastic"
-                }
-                out@vectype <- "bias"
-                return(out)
-              }
+            # standardisations
+            if (standard.A) {
+              # now extended for stochastics as well
+              A <- standardA(A)
             }
-            # dirichlet projections
-            if(vector[1] == "diri") {
-              # dirichlet parameters
-              if(alpha.draws[1] == "unif") alpha.draws<-rep(1,mat_dim)
-              if(length(alpha.draws) != mat_dim) stop("length of alpha.draws must be equal to matrix dimension")
-              # empty objects
-              VecDraws <- numeric((n_iterations + 1) * mat_dim * draws)
-              dim(VecDraws) <- c(n_iterations + 1, mat_dim, draws)
-              dimnames(VecDraws)[[2]] <- stagenames
-              dimnames(VecDraws)[[3]] <- paste("draw", as.character(1:draws), sep = "")
-              PopDraws <- numeric((n_iterations + 1) * draws)
-              dim(PopDraws) <- c(n_iterations + 1, draws)
-              dimnames(PopDraws)[[2]] <- paste("draw", as.character(1:draws), sep = "")
-              # initial stage vectors come from dirichlet
-              VecDraws[1, , ] <- t(MCMCpack::rdirichlet(draws,alpha.draws))
-              # initial population size is always 1
-              PopDraws[1,] <- 1
-              #project
-              for (i in 1:draws) {
-                for (j in 1:n_iterations) {
-                  VecDraws[j + 1, , i] <- A[, , MC[j]] %*% VecDraws[j, ,i]
-                  PopDraws[j + 1, i] <- sum(VecDraws[j + 1, ,i])
-                }
-              }
-              # choose stuff to return
-              if(is.null(dim(PopDraws))) dim(PopDraws) <- n_iterations + 1
-              out@.Data <- PopDraws
-              if(return.vec) out@vec <- VecDraws
-              out@mat <- A
-              out@Aseq <- MC
-              if(nmat == 1){
-                out@bounds <- bounds
-                out@projtype <- "deterministic"
-              }
-              if(nmat > 1){
-                out@projtype <- "stochastic"
-              }
-              out@vectype <- "diri"
-              return(out)
+            
+            # initialize matrix sequences
+            
+            .checkAseq(Aseq, matrixNames)
+            
+            
+            MCstart <- .checkAstart(Astart, Aseq, matrixNames, nMat)
+            
+            # If, for some reason, they gave an integer vector and the length
+            # doesn't match time, just set it to that.
+            if(is.integer(Aseq) & is.null(dim(Aseq))){
+              if(length(Aseq) != time) time <- length(Aseq)
             }
-            # specific vector(s)...
-            # make sure vector is the correct size
-            if(vector[1]!="n"&vector[1]!="diri"&(length(vector)%%mat_dim)!=0) stop("vector has the wrong dimension(s)")
-            # multiple vectors projections
-            if(length(vector) > mat_dim){
-              # get information from vectors
-              nvec <- dim(vector)[2]
-              vectornames <- dimnames(vector)[[2]]
-              if(is.null(vectornames)) vectornames <- paste("V", as.character(1:nvec), sep="")
-              n0 <- vector
-              # standardisations
-              if (standard.vec) vector <- apply(n0, 2, function(x){x/sum(x)})
-              # empty objects
-              Vec <- numeric((n_iterations + 1) * mat_dim * nvec)
-              dim(Vec) <- c(n_iterations + 1, mat_dim, nvec)
-              dimnames(Vec)[[2]] <- stagenames
-              dimnames(Vec)[[3]] <- vectornames
-              Pop <- numeric((n_iterations + 1) * nvec)
-              dim(Pop) <- c(n_iterations + 1, nvec)
-              dimnames(Pop)[[2]] <- vectornames
-              # initialise
-              Vec[1, , ] <- vector
-              Pop[1,] <- colSums(vector)
-              # project
-              for (i in 1:nvec) {
-                for (j in 1:n_iterations) {
-                  Vec[j + 1, , i] <- A[, , MC[j]] %*% Vec[j, ,i]
-                  Pop[j + 1, i] <- sum(Vec[j + 1, ,i])
-                }
-              }
-              # choose stuff to return
-              if(is.null(dim(Pop))) dim(Pop) <- n_iterations + 1
-              out@.Data <- Pop
-              if(return.vec) out@vec <- Vec
-              out@mat <- A
-              out@Aseq <- MC
-              if(nmat == 1){
-                out@bounds <- bounds
-                out@projtype <- "deterministic"
-              }
-              if(nmat > 1){
-                out@projtype <- "stochastic"
-              }
-              out@vectype <- "multiple"
-              return(out)
+            
+            # initialize the matrix sequence vector, stage+population vectors,
+            # and Projection object
+            if(nMat == 1) { 
+              MC <- rep(1L, time)
+            } else {
+              MC <- .initMc(Aseq, time, MCstart, matrixNames, nMat)
             }
-            # single vector projection
-            if(length(vector) == mat_dim){
-              n0 <- vector
-              # standardisation
-              if (standard.vec) vector <- n0/sum(n0)
-              # empty objects
-              Vec <- matrix(0, ncol = mat_dim, nrow = n_iterations + 1)
-              Pop <- numeric(n_iterations + 1)
-              dimnames(Vec)[[2]] <- stagenames
-              Vec[1, ] <- vector
-              Pop[1] <- sum(vector)
-              # project
-              for (i in 1:n_iterations) {
-                Vec[(i + 1), ] <- A[, , MC[i]] %*% Vec[i, ]
-                Pop[i + 1] <- sum(Vec[(i + 1), ])
-              }
-              # choose stuff to return
-              if(is.null(dim(Pop))) dim(Pop) <- n_iterations + 1
-              out@.Data <- Pop
-              if(return.vec) out@vec <- Vec
-              out@mat <- A
-              out@Aseq <- MC
-              if(nmat == 1){
-                out@bounds <- bounds
-                out@projtype <- "deterministic"
-              }
-              if(nmat > 1){
-                out@projtype <- "stochastic"
-              }
-              out@vectype <- "single"
-              return(out)
+            
+            vecData <- .initPopVec(A = A,
+                                   vector = vector, 
+                                   time = time,
+                                   matDim = matDim,
+                                   stageNames = stageNames,
+                                   draws = draws,
+                                   alphaDraws = alphaDraws,
+                                   standard.vec = standard.vec)
+            
+            popVec <- vecData$popVec
+            vecType <- vecData$vecType
+            projType <- vecData$projType
+            
+            popSum <- .initPopSum(dim(popVec)[3], time, popVec, vecType)
+            
+            # browser()
+            out <- .iterateMsm(A, 
+                               time, 
+                               popVec, 
+                               popSum, 
+                               MC,
+                               vecType, 
+                               projType,
+                               return.vec)
+            
+            return(out)
+            
+
             }
-          }
           
 )
 
@@ -533,57 +353,57 @@ setMethod('project',
 #' 
 setMethod('project', 
           signature = 'CompadreDDM',
-          function(mat_data,
-                   n_iterations,
+          function(object,
+                   time,
                    target_output,
                    vector,
                    n_classes,
-                   alpha.draws
+                   alphaDraws
                    ) {
             
           
-            data_list <- mat_data@data_list
-            mat_exprs <- mat_data@mat_exprs
+            dataList <- object@dataList
+            matExprs <- object@matExprs
             
-            # needs updating, probably should use init_pop_vec()
-            init_p_vec <- init_pop_vec(vector, n_classes, alpha.draws)
+            # needs updating, probably should use initPopVec()
+            initPopVector <- init_pop_vec(vector, n_classes, alphaDraws)
             
             # insulated environment for the iterations to take place
-            eval_env <- rlang::env()
+            evalEnv <- rlang::env()
             
-            # Set this as the environment for each quosure in mat_exprs
-            mat_exprs <- lapply(mat_exprs, function(x) quo_set_env(x, eval_env))
+            # Set this as the environment for each quosure in matExprs
+            matExprs <- lapply(matExprs, function(x) quo_set_env(x, evalEnv))
             
-            # add data to eval_env
-            rlang::env_bind(eval_env,
-                            !!! data_list,
-                            !!! init_p_vec)
+            # add data to evalEnv
+            rlang::env_bind(evalEnv,
+                            !!! dataList,
+                            !!! initPopVector)
             
             # create lazy bindings to the evaluation environment
-            rlang::env_bind_lazy(eval_env,
-                                 !!! mat_exprs,
-                                 .eval_env = eval_env)
+            rlang::env_bind_lazy(evalEnv,
+                                 !!! matExprs,
+                                 .eval_env = evalEnv)
             
             # set up place to store outputs of interest
-            output <- initialize_proj_outputs(n_iterations,
+            output <- initialize_proj_outputs(time,
                                               target_output,
-                                              init_p_vec)
+                                              initPopVector)
             
             # iterate!
-            for(i in seq(2, n_iterations, 1)) {
+            for(i in seq(2, time, 1)) {
               # iterate the matrix and generate new population vector
-              new_p_vec <- as.numeric(rlang::eval_tidy(eval_env$mat_expr) %*% eval_env$p_vec)
+              newPopVec <- as.numeric(rlang::eval_tidy(evalEnv$matrixExpr) %*% evalEnv$popVec)
               
               # assign stage names to new population vector
-              names(new_p_vec) <- names(eval_env$p_vec)
+              names(newPopVec) <- names(evalEnv$p_vec)
               
-              # bind new names to eval_env for next iteration
-              rlang::env_bind(eval_env,
-                              !!! new_p_vec)
-              eval_env$p_vec <- new_p_vec
+              # bind new names to evalEnv for next iteration
+              rlang::env_bind(evalEnv,
+                              !!! newPopVec)
+              evalEnv$p_vec <- newPopVec
               
               # stash outputs in our list
-              output <- update_dd_outputs(output, new_p_vec, i, target_output)
+              output <- update_dd_outputs(output, newPopVec, i, target_output)
               
             }
             
@@ -591,6 +411,3 @@ setMethod('project',
             
           }
 )          
-
-
-

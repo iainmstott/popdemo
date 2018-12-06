@@ -12,7 +12,7 @@
 #'  \item{\code{vec}}{ access population vectors}
 #'  \item{\code{bounds}}{ access bounds on population dynamics}
 #'  \item{\code{mat}}{ access projection matrix/matrices used to create projection(s)}
-#'  \item{\code{env_seq}}{access sequence of environmental values/matrices used 
+#'  \item{\code{stochSeq}}{access sequence of environmental values/matrices used 
 #'  to create projection(s)}
 #'  \item{\code{projtype}}{ find out projection type}
 #'  \item{\code{vectype}}{ access type of vector used to initiate population projection(s)}
@@ -111,7 +111,7 @@
 #' \code{mat()} accessor function below, it is possible to choose different ways
 #' of representing the matrices (matrix, list, array).
 #'
-#' @slot env_seq A list giving the sequence of environmental values or matrices used in the 
+#' @slot stochSeq A list giving the sequence of environmental values or matrices used in the 
 #' projection. This will only have \code{length > 1} when doing stochastic by matrix
 #' element projections where vital rates depend on multiple external sources of 
 #' information (e.g. temperature AND precipitation, competitor density AND nutrient
@@ -122,14 +122,14 @@
 #'   \item Stochastic projections (with more than 1 matrix or a set of environmental
 #' values)
 #'    \itemize{ 
-#'      \item If \code{env_seq} is passed as a numeric or
+#'      \item If \code{stochSeq} is passed as a numeric or
 #' character vector then this slot will take that value. 
-#'      \item If \code{env_seq} is passed as a matrix describing
-#' a random markov process is passed, the\code{env_seq} slot will be a single 
+#'      \item If \code{stochSeq} is passed as a matrix describing
+#' a random markov process is passed, the\code{stochSeq} slot will be a single 
 #' random chain.
-#'      \item If \code{env_seq} is passed as a function call (e.g. describing a
+#'      \item If \code{stochSeq} is passed as a function call (e.g. describing a
 #' distribution of environmental values), then the both the expression and vector
-#' of values used will be returned in the \code{env_seq} slot.
+#' of values used will be returned in the \code{stochSeq} slot.
 #'  }
 #'}
 #' @slot projtype The type of projection. Either "deterministic" (single matrix; 
@@ -160,7 +160,7 @@
 #'   vec(pr)  #time sequence of population vectors
 #'   bounds(pr)  #bounds on population dynamics
 #'   mat(pr)  #matrix used to create projection
-#'   env_seq(pr)  #sequence of matrices (more useful for stochastic projections)
+#'   stochSeq(pr)  #sequence of matrices (more useful for stochastic projections)
 #'   projtype(pr)  #type of projection
 #'   vectype(pr)  #type of vector(s) initiating projection
 #'
@@ -241,10 +241,10 @@
 #'   
 #'   # project over 50 years with uniform matrix selection
 #'   Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
-#'   p2 <- project(Pbear, Pbearvec, time = 50, env_seq = "unif")
+#'   p2 <- project(Pbear, Pbearvec, time = 50, stochSeq = "unif")
 #' 
 #'   # stochastic projection information
-#'   env_seq(p2)
+#'   stochSeq(p2)
 #'   projtype(p2)
 #'   nmat(p2)
 #'   
@@ -258,46 +258,46 @@ NULL
 ### DEFINE CLASS
 #' @rdname Projection-class
 #' @export
-Projection <- setClass("Projection", contains = "list",
-                       slots = c(vec = "list", bounds = "list",
-                                 mat = "list", env_seq = "numeric", 
+Projection <- setClass("Projection", contains = "array",
+                       slots = c(vec = "array", bounds = "matrix",
+                                 mat = "list", stochSeq = "integer", 
                                  projtype = "character", vectype = "character") )
 
 ### CLASS VALIDITY
 validProjection <- function(object){
-    #get necessary slots
-    N <- object@.Data
-    errors <- character()
-    if(!(length(dim(N)) %in% c(1, 2))){
-        .Datamsg <- ".Data dimension must be 2 or 3"
-        c(errors, .Datamsg)
-    }
-    if(!(length(dim(vec(object))) %in% c(2, 3))){
-        vecmsg <- "vec dimension must be 2 or 3"
-        c(errors, vecmsg)
-    }
-    if(length(dim(bounds(object))) != 2){
-        boundsmsg <- "bounds dimension must be 2"
-        c(errors, boundsmsg)
-    }
-    if(length(dim(mat(object, return = "array"))) != 3){
-        matmsg <- "all list elements in mat must be matrices"
-    }
-    if(!all(env_seq(object) %in% 1:nmat(object))){
-        env_seqmsg1 <- "all env_seq must be integer numbers >0 and <nmat"
-        c(errors, env_seqmsg1)
-    }
-    if(!(projtype(object) %in% c("deterministic", "stochastic"))){
-        projtypemsg <- "projtype must be either \"deterministic\" or \"stochastic\""
-        c(errors, projtypemsg)
-    }
-    if(!(vectype(object) %in% c("single", "bias", "diri", "multiple"))){
-        vectypemsg <- "vectype must be either \"single\", \"bias\", \"multiple\" or \"diri\""
-        c(errors, vectypemsg)
-    }
-    ifelse(length(errors) == 0, 
-           TRUE, 
-           stop(error_constructor(errors)))
+  #get necessary slots
+  N <- object@.Data
+  errors <- character()
+  if(!(length(dim(N)) %in% c(1, 2))){
+    .Datamsg <- ".Data dimension must be 2 or 3"
+    c(errors, .Datamsg)
+  }
+  if(!(length(dim(vec(object))) %in% c(2, 3))){
+    vecmsg <- "vec dimension must be 2 or 3"
+    c(errors, vecmsg)
+  }
+  if(length(dim(bounds(object))) != 2){
+    boundsmsg <- "bounds dimension must be 2"
+    c(errors, boundsmsg)
+  }
+  if(length(dim(mat(object, return = "array"))) != 3){
+    matmsg <- "all list elements in mat must be matrices"
+  }
+  if(!all(stochSeq(object) %in% 1:nmat(object))){
+    stochSeqmsg1 <- "all stochSeq must be integer numbers >0 and <nmat"
+    c(errors, stochSeqmsg1)
+  }
+  if(!(projtype(object) %in% c("deterministic", "stochastic"))){
+    projtypemsg <- "projtype must be either \"deterministic\" or \"stochastic\""
+    c(errors, projtypemsg)
+  }
+  if(!(vectype(object) %in% c("single", "bias", "diri", "multiple"))){
+    vectypemsg <- "vectype must be either \"single\", \"bias\", \"multiple\" or \"diri\""
+    c(errors, vectypemsg)
+  }
+  ifelse(length(errors) == 0, 
+         TRUE, 
+         stop(errorConstructor(errors), call. = FALSE))
 }
 setValidity("Projection", validProjection)
 
@@ -310,13 +310,13 @@ setValidity("Projection", validProjection)
 #' @rdname Projection-class
 #' @export
 setGeneric("vec", function(object){
-    standardGeneric("vec")
+  standardGeneric("vec")
 })
 #' @rdname Projection-class
 #' @export
 setMethod("vec", signature = (object = "Projection"), 
           function(object){
-              return(object@vec)
+            return(object@vec)
           }
 )
 
@@ -324,15 +324,15 @@ setMethod("vec", signature = (object = "Projection"),
 #' @rdname Projection-class
 #' @export
 setGeneric("bounds", 
-               function(object){
-                   standardGeneric("bounds")
-               }
+           function(object){
+             standardGeneric("bounds")
+           }
 )
 #' @rdname Projection-class
 #' @export
 setMethod("bounds", signature = (object = "Projection"), 
           function(object){
-              return(object@bounds)
+            return(object@bounds)
           }
 )
 
@@ -342,7 +342,7 @@ setMethod("bounds", signature = (object = "Projection"),
 #' @export
 setGeneric("mat", 
            function(object, ...){
-               standardGeneric("mat")
+             standardGeneric("mat")
            }
 )
 #' @rdname Projection-class
@@ -352,43 +352,43 @@ setGeneric("mat",
 #' @export
 setMethod("mat", signature = (object = "Projection"),
           function(object, return = "simple"){
-              #get necessary slots
-              if(length(object@mat) == 0) return(object@mat)
-              if(!any(return %in% c("simple", "list", "array"))){
-                  stop("return must be \"simple\", \"list\" or \"array\"")
+            #get necessary slots
+            if(length(object@mat) == 0) return(object@mat)
+            if(!any(return %in% c("simple", "list", "array"))){
+              stop("return must be \"simple\", \"list\" or \"array\"")
+            }
+            if(return == "simple"){
+              if(dim(object@mat)[3] == 1) return(object@mat[,,1])
+              if(dim(object@mat)[3] > 1){
+                return(lapply(
+                  apply(object@mat, 3, list), function(x){x[[1]]}
+                ))
               }
-              if(return == "simple"){
-                  if(dim(object@mat)[3] == 1) return(object@mat[,,1])
-                  if(dim(object@mat)[3] > 1){
-                      return(lapply(
-                          apply(object@mat, 3, list), function(x){x[[1]]}
-                      ))
-                  }
-              }
-              if(return == "list"){
-                  return(lapply(
-                      apply(object@mat, 3, list), function(x){x[[1]]}
-                  ))
-              }
-              if(return == "array"){
-                  return(object@mat)
-              }
+            }
+            if(return == "list"){
+              return(lapply(
+                apply(object@mat, 3, list), function(x){x[[1]]}
+              ))
+            }
+            if(return == "array"){
+              return(object@mat)
+            }
           }
 )
 
-# env_seq
+# stochSeq
 #' @rdname Projection-class
 #' @export
-setGeneric("env_seq", 
+setGeneric("stochSeq", 
            function(object){
-               standardGeneric("env_seq")
+             standardGeneric("stochSeq")
            }
 )
 #' @rdname Projection-class
 #' @export
-setMethod("env_seq", signature = (object = "Projection"), 
+setMethod("stochSeq", signature = (object = "Projection"), 
           function(object){
-              return(object@env_seq)
+            return(object@stochSeq)
           }
 )
 
@@ -397,14 +397,14 @@ setMethod("env_seq", signature = (object = "Projection"),
 #' @export
 setGeneric("projtype", 
            function(object){
-               standardGeneric("projtype")
+             standardGeneric("projtype")
            }
 )
 #' @rdname Projection-class
 #' @export
 setMethod("projtype", signature = (object = "Projection"), 
           function(object){
-              return(object@projtype)
+            return(object@projtype)
           }
 )
 
@@ -413,14 +413,14 @@ setMethod("projtype", signature = (object = "Projection"),
 #' @export
 setGeneric("vectype", 
            function(object){
-               standardGeneric("vectype")
+             standardGeneric("vectype")
            }
 )
 #' @rdname Projection-class
 #' @export
 setMethod("vectype", signature = (object = "Projection"), 
           function(object){
-              return(object@vectype)
+            return(object@vectype)
           }
 )
 
@@ -429,16 +429,16 @@ setMethod("vectype", signature = (object = "Projection"),
 #' @export
 setGeneric("nproj", 
            function(object){
-               standardGeneric("nproj")
+             standardGeneric("nproj")
            }
 )
 #' @rdname Projection-class
 #' @export
 setMethod("nproj", signature = (object = "Projection"), 
           function(object){
-              if(length(object@.Data) == 0) return(0)
-              if(length(dim(object@.Data)) == 1) return(1)
-              if(length(dim(object@.Data)) > 1) return(dim(object@.Data)[2])
+            if(length(object@.Data) == 0) return(0)
+            if(length(dim(object@.Data)) == 1) return(1)
+            if(length(dim(object@.Data)) > 1) return(dim(object@.Data)[2])
           }
 )
 
@@ -447,15 +447,15 @@ setMethod("nproj", signature = (object = "Projection"),
 #' @export
 setGeneric("nmat", 
            function(object){
-               standardGeneric("nmat")
+             standardGeneric("nmat")
            }
 )
 #' @rdname Projection-class
 #' @export
 setMethod("nmat", signature = (object = "Projection"), 
           function(object){
-              if(length(object@mat) == 0) return(0)
-              if(length(dim(object@mat)) == 3) return(dim(object@mat)[3])
+            if(length(object@mat) == 0) return(0)
+            if(length(dim(object@mat)) == 3) return(dim(object@mat)[3])
           }
 )
 
@@ -464,15 +464,15 @@ setMethod("nmat", signature = (object = "Projection"),
 #' @export
 setGeneric("ntime", 
            function(object){
-               standardGeneric("ntime")
+             standardGeneric("ntime")
            }
 )
 #' @rdname Projection-class
 #' @export
 setMethod("ntime", signature = (object = "Projection"), 
           function(object){
-              if(length(object@.Data) == 0) return(0)
-              if(length(object@.Data) > 0) return(dim(object@.Data)[1] - 1)
+            if(length(object@.Data) == 0) return(0)
+            if(length(object@.Data) > 0) return(dim(object@.Data)[1] - 1)
           }
 )
 
@@ -502,7 +502,7 @@ setMethod("ntime", signature = (object = "Projection"),
 #'   vec(pr)  #time sequence of population vectors
 #'   bounds(pr)  #bounds on population dynamics
 #'   mat(pr)  #matrix used to create projection
-#'   env_seq(pr)  #sequence of matrices (more useful for stochastic projections)
+#'   stochSeq(pr)  #sequence of matrices (more useful for stochastic projections)
 #'   projtype(pr)  #type of projection
 #'   vectype(pr)  #type of vector(s) initiating projection
 #'
@@ -583,10 +583,10 @@ setMethod("ntime", signature = (object = "Projection"),
 #'   
 #'   # project over 50 years with uniform matrix selection
 #'   Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
-#'   p2 <- project(Pbear, Pbearvec, time = 50, env_seq = "unif")
+#'   p2 <- project(Pbear, Pbearvec, time = 50, stochSeq = "unif")
 #' 
 #'   # stochastic projection information
-#'   env_seq(p2)
+#'   stochSeq(p2)
 #'   projtype(p2)
 #'   nmat(p2)
 #'   
@@ -609,41 +609,41 @@ NULL
 #' 
 setMethod("show", signature = (object = "Projection"),
           function(object){
-              #get necessary slots
-              N <- object@.Data
-              if(length(N) == 0){
-                  callNextMethod()
+            #get necessary slots
+            N <- object@.Data
+            if(length(N) == 0){
+              callNextMethod()
+            }
+            if(length(N) > 0){
+              timec <- as.character(length(stochSeq(object)))
+              if(length(vectype(object)) > 0){
+                if(vectype(object) == "single"){
+                  nc1 <- as.character(1)
+                  nc2 <- ""
+                  vectypec <- ""
+                }
+                if(vectype(object) == "multiple"){
+                  nc1 <- as.character(dim(N)[2])
+                  nc2 <- "s"
+                  vectypec <- ""
+                }
+                if(vectype(object) == "bias"){
+                  nc1 <- as.character(dim(N)[2])
+                  nc2 <- "s"
+                  vectypec <- " (stage-biased initial vectors) "
+                }
+                if(vectype(object) == "diri"){
+                  nc1 <- as.character(dim(N)[2])
+                  nc2 <- "s"
+                  vectypec <- " (dirichlet initial vectors) "
+                }
+                cat(paste(nc1, " ", projtype(object), " population projection", nc2,
+                          vectypec,
+                          " over ", timec, " time intervals.\n\n",
+                          sep = ""))
+                print(N)
               }
-              if(length(N) > 0){
-                  timec <- as.character(length(env_seq(object)))
-                  if(length(vectype(object)) > 0){
-                      if(vectype(object) == "single"){
-                          nc1 <- as.character(1)
-                          nc2 <- ""
-                          vectypec <- ""
-                      }
-                      if(vectype(object) == "multiple"){
-                          nc1 <- as.character(dim(N)[2])
-                          nc2 <- "s"
-                          vectypec <- ""
-                      }
-                      if(vectype(object) == "bias"){
-                          nc1 <- as.character(dim(N)[2])
-                          nc2 <- "s"
-                          vectypec <- " (stage-biased initial vectors) "
-                      }
-                      if(vectype(object) == "diri"){
-                          nc1 <- as.character(dim(N)[2])
-                          nc2 <- "s"
-                          vectypec <- " (dirichlet initial vectors) "
-                      }
-                      cat(paste(nc1, " ", projtype(object), " population projection", nc2,
-                                vectypec,
-                                " over ", timec, " time intervals.\n\n",
-                                sep = ""))
-                      print(N)
-                  }
-              }
+            }
           }
 )
 
@@ -678,76 +678,94 @@ setMethod("show", signature = (object = "Projection"),
 #' @rdname Projection-plots
 #' 
 setMethod("plot", signature = (x = "Projection"),
-          function(x, bounds=FALSE, bounds.args=NULL, labs=TRUE, 
-                   plottype = "lines", ybreaks=20, shadelevels=100, ...){
-              #get necessary slots
-              N <- x@.Data
-              if(plottype == "shady" & vectype(x) != "diri"){
-                  warning('plottype "shady" only valid for projections generated with vector="diri",\n  defaulting to plottype="lines" instead')
-                  plottype <- "lines"
+          function(x, 
+                   bounds=FALSE,
+                   bounds.args=NULL, 
+                   labs=TRUE, 
+                   plottype = "lines",
+                   ybreaks=20, 
+                   shadelevels=100, ...) {
+            #get necessary slots
+            N <- x@.Data
+            
+            if(plottype == "shady" & vectype(x) != "diri"){
+              warning('plottype "shady" only valid for projections generated with vector="diri",\n  defaulting to plottype="lines" instead')
+              plottype <- "lines"
+            }
+            if(bounds & projtype(x) == "stochastic"){
+              warning("bounds are not implemented for stochastic projections yet")
+              bounds <- FALSE
+            }
+            if(length(dim(N)) == 1) N1 <- N[1]
+            if(length(dim(N)) == 2) N1 <- N[1,]
+            if(!bounds) PopulationDensity <- range(N)
+            if(bounds) PopulationDensity <- range(N1) * range(bounds(x))
+            len <- dim(N)[1]
+            TimeInterval <- c(0, (len - 1))
+            gargs <- list(...)
+            gargs$type <- "n"; gargs$x <- TimeInterval; gargs$y <- PopulationDensity
+            if(!("xlab"%in%names(gargs))) gargs$xlab <- "Time Intervals"
+            if(!("ylab"%in%names(gargs))) gargs$ylab <- "Population size / density"
+            wraplines <- function(..., log, axes, frame.plot, panel.first, panel.last){
+              graphics::lines(...)
+            }
+            wraptext <- function(..., log, axes, frame.plot, panel.first, panel.last, type){
+              graphics::text(...)
+            }
+            do.call(graphics::plot, gargs)
+            if(length(dim(N)) == 1) {
+              wraplines(0:(len - 1), N, ...)
+            }
+            if(length(dim(N)) == 2 & plottype == "lines") {
+              for (i in 1:dim(N)[2]) {
+                wraplines(0:(len - 1), N[, i], ...)
+                if (labs){
+                  graphics::par(adj=1)
+                  wraptext(len - 1, N[len, i], dimnames(N)[[2]][i], ...)
+                  graphics::par(adj=0.5)
+                }
               }
-              if(bounds & projtype(x) == "stochastic"){
-                  warning("bounds are not implemented for stochastic projections yet")
-                  bounds <- FALSE
+            }
+            if (length(dim(N)) == 2 & plottype == "shady") {
+              ybr <- cbind(seq(PopulationDensity[1] - 0.000001, PopulationDensity[2] + 0.000001,
+                               length.out=ybreaks + 1)[-(ybreaks + 1)],
+                           seq(PopulationDensity[1] - 0.000001,PopulationDensity[2] + 0.000001,
+                               length.out=ybreaks + 1)[-1])
+              pgrid  <-  matrix(0, ybreaks, len)
+              for(i in 2:(len)){
+                pgrid[,i] <- apply(ybr, 1, function(x){length(which(N[i,]>=x[1]&N[i,]<x[2]))/dim(N)[2]})
               }
-              if(length(dim(N)) == 1) N1 <- N[1]
-              if(length(dim(N)) == 2) N1 <- N[1,]
-              if(!bounds) PopulationDensity <- range(N)
-              if(bounds) PopulationDensity <- range(N1) * range(bounds(x))
-              len <- dim(N)[1]
-              TimeInterval <- c(0, (len - 1))
-              gargs <- list(...)
-              gargs$type <- "n"; gargs$x <- TimeInterval; gargs$y <- PopulationDensity
-              if(!("xlab"%in%names(gargs))) gargs$xlab <- "Time Intervals"
-              if(!("ylab"%in%names(gargs))) gargs$ylab <- "Population size / density"
-              wraplines <- function(..., log, axes, frame.plot, panel.first, panel.last){
-                  graphics::lines(...)
+              if(!("col"%in%names(gargs))) {
+                levels <- seq(min(pgrid),max(pgrid),length.out=shadelevels)
+                gargs$col <- grDevices::colorRampPalette(c("white", "black"))(shadelevels)
               }
-              wraptext <- function(..., log, axes, frame.plot, panel.first, panel.last, type){
-                  graphics::text(...)
+              if("col"%in%names(gargs)) {
+                levels <- seq(min(pgrid),max(pgrid),length.out=length(gargs$col))
               }
-              do.call(graphics::plot, gargs)
-              if(length(dim(N)) == 1) {
-                  wraplines(0:(len - 1), N, ...)
-              }
-              if(length(dim(N)) == 2 & plottype == "lines") {
-                  for (i in 1:dim(N)[2]) {
-                      wraplines(0:(len - 1), N[, i], ...)
-                      if (labs){
-                          graphics::par(adj=1)
-                          wraptext(len - 1, N[len, i], dimnames(N)[[2]][i], ...)
-                          graphics::par(adj=0.5)
-                      }
-                  }
-              }
-              if (length(dim(N)) == 2 & plottype == "shady") {
-                  ybr <- cbind(seq(PopulationDensity[1] - 0.000001, PopulationDensity[2] + 0.000001,
-                                   length.out=ybreaks + 1)[-(ybreaks + 1)],
-                               seq(PopulationDensity[1] - 0.000001,PopulationDensity[2] + 0.000001,
-                                   length.out=ybreaks + 1)[-1])
-                  pgrid  <-  matrix(0, ybreaks, len)
-                  for(i in 2:(len)){
-                      pgrid[,i] <- apply(ybr, 1, function(x){length(which(N[i,]>=x[1]&N[i,]<x[2]))/dim(N)[2]})
-                  }
-                  if(!("col"%in%names(gargs))) {
-                      levels <- seq(min(pgrid),max(pgrid),length.out=shadelevels)
-                      gargs$col <- grDevices::colorRampPalette(c("white", "black"))(shadelevels)
-                  }
-                  if("col"%in%names(gargs)) {
-                      levels <- seq(min(pgrid),max(pgrid),length.out=length(gargs$col))
-                  }
-                  graphics::.filled.contour(0:(len-1), apply(ybr,1,mean), t(pgrid), 
-                                            levels = levels, col=gargs$col)
-              }
-              if(bounds){
-                  if(is.null(bounds.args)) bounds.args <- list(col="black", lwd=2)
-                  args.lwr <- bounds.args
-                  args.lwr$x <- matrix(c(0:(len - 1), min(N1) * bounds(x)[, 1]), ncol = 2)
-                  args.upr <- bounds.args
-                  args.upr$x <- matrix(c(0:(len - 1), max(N1) * bounds(x)[, 2]), ncol = 2)
-                  do.call(wraplines, args.upr)
-                  do.call(wraplines, args.lwr)
-              }
+              graphics::.filled.contour(0:(len-1), apply(ybr,1,mean), t(pgrid), 
+                                        levels = levels, col=gargs$col)
+            }
+            if(bounds){
+              if(is.null(bounds.args)) bounds.args <- list(col="black", lwd=2)
+              args.lwr <- bounds.args
+              args.lwr$x <- matrix(c(0:(len - 1), min(N1) * bounds(x)[, 1]), ncol = 2)
+              args.upr <- bounds.args
+              args.upr$x <- matrix(c(0:(len - 1), max(N1) * bounds(x)[, 2]), ncol = 2)
+              do.call(wraplines, args.upr)
+              do.call(wraplines, args.lwr)
+            }
           }
 )
 
+errorConstructor <- function(errors) {
+  
+  
+  n <- seq(1, length(errors), 1)
+  c('The following errors were found:\n',
+    paste(
+      n,
+      '. ',
+      errors, '
+      \n',
+      sep = ""))
+}
