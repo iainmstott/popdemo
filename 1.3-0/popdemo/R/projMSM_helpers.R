@@ -1,34 +1,34 @@
 # helpers for project.compadreXXX
 
 # switch for aPreChecks and a few others
-isDeterministic <- function(aMat) {
+.isDeterministic <- function(aMat) {
   (is.list(aMat) & length(aMat) == 1) |
     is.matrix(aMat)
 }
 
 # Blanket function to cover both stochastic and deterministic
-aPreChecks <- function(aMat, errors, PREcheck) {
+.aPreChecks <- function(aMat, errors, PREcheck) {
   
-  if(isDeterministic(aMat)) {
-    errors <- c(errors, checkDeterministicA(aMat, errors, PREcheck))
+  if(.isDeterministic(aMat)) {
+    errors <- c(errors, .checkDeterministicA(aMat, errors, PREcheck))
     
   } else {
     
-    errors <- c(errors, checkStochasticA(aMat, errors, PREcheck))
+    errors <- c(errors, .checkStochasticA(aMat, errors, PREcheck))
   }
   
   return(errors)
 }
 
-isSquare <- function(aMat) {
+.isSquare <- function(aMat) {
   dim(aMat)[1] == dim(aMat)[2]
 }
 
 # check a single matrix for deterministic iterations
-checkDeterministicA <- function(aMat, errors, PREcheck) {
+.checkDeterministicA <- function(aMat, errors, PREcheck) {
   
   aMat <- aMat[[1]]  
-  if(!isSquare(aMat)) {
+  if(!.isSquare(aMat)) {
     errors <- c(errors, 'A must be a square matrix')
   }
   
@@ -46,9 +46,9 @@ checkDeterministicA <- function(aMat, errors, PREcheck) {
 
 # converts A slot of CompadreMSM to an array so that Iain's original algorithm
 # works as is.
-a2Array <- function(aList) {
+.a2Array <- function(aList) {
   
-  if(isDeterministic(aList)) {
+  if(.isDeterministic(aList)) {
     if(is.list(aList)) A <- aList[[1]]
     if(is.matrix(aList)) A <- aList
     M1 <- A
@@ -80,7 +80,7 @@ a2Array <- function(aList) {
 
 
 # Check set of matrices for stochastic iterations
-checkStochasticA <- function(aMat, errors, PREcheck) {
+.checkStochasticA <- function(aMat, errors, PREcheck) {
   
   # stop if A isn't a matrix or list of matrices (or array of matrices)
   if(!any((is.list(aMat) & all(vapply(aMat, is.matrix, logical(1)))), 
@@ -95,7 +95,7 @@ checkStochasticA <- function(aMat, errors, PREcheck) {
     c(errors, "all matrices in A must be square and have the same dimension as each other")
   }
   # test squareness
-  squares <- vapply(aMat, isSquare, logical(1))
+  squares <- vapply(aMat, .isSquare, logical(1))
   if(any(!squares)) {
     squareInd <- which(!squares)
     errors <- c(error, 
@@ -131,11 +131,11 @@ checkStochasticA <- function(aMat, errors, PREcheck) {
 }
 
 # checks aStart for most problems. Generates MCstart if none are found
-checkAstart <- function(Astart, Aseq, matrixNames, nMat) {
+.checkAstart <- function(Astart, Aseq, matrixNames, nMat) {
   
   MCstart <- NULL
   
-
+  
   if(nMat == 1) {
     if(Aseq != "unif") warning("Ignoring Aseq: only 1 matrix in A")
   }
@@ -168,7 +168,7 @@ checkAstart <- function(Astart, Aseq, matrixNames, nMat) {
     MCstart <- which(matInds == 1)
   }
   
-   return(MCstart)
+  return(MCstart)
 }
 
 # checks aSeq. Does not return anything if there no problems because
@@ -176,7 +176,7 @@ checkAstart <- function(Astart, Aseq, matrixNames, nMat) {
 # 
 # This is a mess of if()s, but I'm not sure how to avoid this.
 
-checkAseq <- function(aSeq, matrixNames, matDim) {
+.checkAseq <- function(aSeq, matrixNames, matDim) {
   
   # general checks
   if(!any(aSeq[1] == "unif", 
@@ -216,18 +216,31 @@ checkAseq <- function(aSeq, matrixNames, matDim) {
      !all(aSeq %in% matrixNames)) {
     stop("Names of aSeq aren't all found in A")  
   }
-   
+  
   invisible(NULL)
 }
 
 # takes the user-specified input and generates a sequence of integers to index
 # A by. This index is used to select the A matrix during iteration
-initMc <- function(aSeq, time, MCstart, matrixNames) {
+.initMc <- function(aSeq, time, MCstart, matrixNames, nMat) {
+  # browser()
   
-  if(aSeq == "unif") {
-    MC <- rep(1L, time)
-  } else if(is.matrix(aSeq)) {
-    MC <- .rmc(aSeq, time, MCstart)
+  # if uniform prob, create a uniform transition matrix
+  # if user provided markov matrix, just use that to generate markov chains
+  if(aSeq == "unif" || is.matrix(aSeq)) {
+    
+    # user supplied matrix
+    if(is.matrix(aSeq)) {
+      MCtm <- aSeq 
+      
+    } else {
+      # Unif gets uniform probability matrix
+      MCtm <- matrix(rep(1/nMat, nMat^2), nMat, nMat)
+    }
+    
+    # convert matrix to index
+    MC <- .rmc(MCtm, time, MCstart)
+    
   } else if(is.integer(aSeq) & is.null(dim(aSeq))) {
     MC <- aSeq
   } else if(is.character(aSeq)) {
@@ -249,15 +262,15 @@ initMc <- function(aSeq, time, MCstart, matrixNames) {
 # a given column is for each stage class, rows are time,
 # and the third dimension is for each set of initial vectors
 
-initPopVec <- function(A, 
-                       vector,
-                       time, 
-                       matDim, 
-                       stageNames,
-                       draws, 
-                       alphaDraws,
-                       standard.vec) {
-  browser()
+.initPopVec <- function(A, 
+                        vector,
+                        time, 
+                        matDim, 
+                        stageNames,
+                        draws, 
+                        alphaDraws,
+                        standard.vec) {
+  # browser()
   # new character variable for switching between initial vectors
   if(is.numeric(vector)) {
     vectorSwitch <- 'user'
@@ -266,24 +279,24 @@ initPopVec <- function(A,
   }
   
   popVec <- switch(vectorSwitch,
-                   'diri' = initDiriVector(matDim = matDim,
-                                           time = time,
-                                           stageNames = stageNames,
-                                           draws = draws,
-                                           alphaDraws = alphaDraws),
-                   'n' = initBiasVector(matDim = matDim,
-                                        time = time,
-                                        stageNames = stageNames),
-                   'user' = initUserVector(vector = vector,
-                                           time = time,
-                                           matDim = matDim, 
-                                           stageNames = stageNames,
-                                           standard.vec = standard.vec),
+                   'diri' = .initDiriVector(matDim = matDim,
+                                            time = time,
+                                            stageNames = stageNames,
+                                            draws = draws,
+                                            alphaDraws = alphaDraws),
+                   'n' = .initBiasVector(matDim = matDim,
+                                         time = time,
+                                         stageNames = stageNames),
+                   'user' = .initUserVector(vector = vector,
+                                            time = time,
+                                            matDim = matDim, 
+                                            stageNames = stageNames,
+                                            standard.vec = standard.vec),
                    # not yet implemented, waiting to see what
                    # the database version of these looks like
-                   'db' = initDbVector(vector, 
-                                       matDim, 
-                                       stageNames))
+                   'db' = .initDbVector(vector, 
+                                        matDim, 
+                                        stageNames))
   
   # can be any combinatin of c(deterministic, stochastic) AND
   # c(single, multiple, diri, or bias)
@@ -291,7 +304,7 @@ initPopVec <- function(A,
   if(is.numeric(vector)) {
     if((is.array(popVec) & dim(popVec)[3] == 1)) vecType <- 'single'
     if(dim(popVec)[3] > 1) vecType <- 'multiple'
-      
+    
   } else {
     vecType <- vector
   }
@@ -304,9 +317,9 @@ initPopVec <- function(A,
 }
 
 #' @noRd
-initBiasVector <- function(matDim, time, stageNames) {
+.initBiasVector <- function(matDim, time, stageNames) {
   
-
+  
   VecBias <- numeric((time + 1) * matDim * matDim)
   dim(VecBias) <- c(time + 1, matDim, matDim)
   dimnames(VecBias)[[2]] <- stageNames
@@ -321,7 +334,7 @@ initBiasVector <- function(matDim, time, stageNames) {
 }
 
 #' @noRd
-initDiriVector <- function(matDim, time, stageNames, draws, alphaDraws) {
+.initDiriVector <- function(matDim, time, stageNames, draws, alphaDraws) {
   
   # dirichlet parameters
   if(alphaDraws[1] == "unif") alphaDraws <- rep(1, matDim)
@@ -344,7 +357,7 @@ initDiriVector <- function(matDim, time, stageNames, draws, alphaDraws) {
   return(VecDraws)
 }
 
-initUserVector <- function(vector, time, matDim, stageNames, standard.vec) {
+.initUserVector <- function(vector, time, matDim, stageNames, standard.vec) {
   # single vector
   if(length(vector) == matDim) {
     
@@ -380,13 +393,13 @@ initUserVector <- function(vector, time, matDim, stageNames, standard.vec) {
   return(Vec)
 }
 
-standardVec <- function(vec) {
+.standardVec <- function(vec) {
   
   vec/sum(vec)
 }
 
 #' @noRd
-initPopSum <- function(nVec, time, vector, vecType) {
+.initPopSum <- function(nVec, time, vector, vecType) {
   
   popSize <- numeric((time + 1) * nVec)
   dim(popSize) <- c(time + 1, nVec)
@@ -403,15 +416,15 @@ initPopSum <- function(nVec, time, vector, vecType) {
 }
 
 # does the iterating
-iterateMsm <- function(A, time, 
-                       vecs, popSize,
-                       MC, 
-                       vecType, projType,
-                       return.vec) {
+.iterateMsm <- function(A, time, 
+                        vecs, popSize,
+                        MC, 
+                        vecType, projType,
+                        return.vec) {
   vecOut <- vecs
   popOut <- popSize
   nReps <- dim(vecOut)[[3]]
-   
+  
   # iterates over the different vectors. If single vector, then break after i = 1
   for(i in 1:nReps) {
     
@@ -420,22 +433,22 @@ iterateMsm <- function(A, time,
       popOut[j + 1, i] <- sum(vecOut[j + 1, , i])
     }
     
-    # for single vectors, no need to move on past the first iteration.
+    
     if(projType == 'deterministic') {
       
       bounds <- t(apply(popOut, 1, range))
       
-      break
     }  else {
       # no bounds for stochastic projections
       bounds <- matrix(c(NA_real_, NA_real_), nrow = 1)
     }
-  } 
-  out <- updateProjOutput(vecOut,
-                          popOut, bounds, 
-                          A, MC, 
-                          vecType, 
-                          projType, return.vec)
+  }
+  
+  out <- .updateProjOutput(vecOut,
+                           popOut, bounds, 
+                           A, MC, 
+                           vecType, 
+                           projType, return.vec)
   
   return(out)
 }
@@ -462,7 +475,7 @@ standardA <- function(A) {
   # placeholder
   Ms <- A
   # get lambdas
-  lambda <- apply(MS, 3, eigs, what = "lambda")
+  lambda <- apply(Ms, 3, eigs, what = "lambda")
   # initialize output
   A <- numeric(matDim * matDim * nMat)
   dim(A) <- c(matDim, matDim, nMat)
@@ -475,7 +488,7 @@ standardA <- function(A) {
   return(A)
 }
 
-a2List <- function(A) {
+.a2List <- function(A) {
   out <- list()
   nMat <- dim(A)[[3]]
   
@@ -492,21 +505,21 @@ a2List <- function(A) {
 
 #' @noRd
 # updates Projection components at the end of each iteration
-updateProjOutput <- function(vecOut,
-                             popOut,
-                             bounds, 
-                             A,
-                             MC,
-                             vecType,
-                             projType,
-                             return.vec) {
+.updateProjOutput <- function(vecOut,
+                              popOut,
+                              bounds, 
+                              A,
+                              MC,
+                              vecType,
+                              projType,
+                              return.vec) {
   
   out <- Projection()
   if(is.null(dim(popOut))) dim(popOut) <- time + 1
   out@.Data <- popOut
   if(return.vec) out@vec <- vecOut
-  out@mat <- a2List(A)
-  out@stochSeq <- MC
+  out@mat <- .a2List(A)
+  out@stochSeq <- as.integer(MC)
   out@projtype <- projType
   out@bounds <- bounds
   out@vectype <- vecType
