@@ -1,0 +1,156 @@
+
+#' @rdname Density-Dependent-Constructor-Funs
+#' @title Helpers to construct \code{CompadreDDM}s
+#' 
+#' @description These functions assist creation of \code{CompadreDDM}s by ensuring that
+#' each expression and associated values are evaluated in the correct order.
+#' See the examples for workflows
+#' 
+#' @param ... For \code{makeDataList}, named constant values that are 
+#' substituted into the \code{matrixExpr} or \code{matExprs} expressions. For
+#' \code{makeMatExprs}, this is a set of named expressions. The left hand 
+#' side of each one should be a parameter that appears either in the \code{matExpr}
+#' or in another expression in the same call. See examples.
+#' @param initPopVector optionally, an initial population vector to start a
+#' \code{Projection} with. Values in this should be named with values corresponding
+#' to the \code{matrixExpr} or \code{matExprs}
+#' 
+#' @return \code{makeDataList} returns a named list with parameter values.
+#' \code{makeMatExpr} returns a named list of expressions that are used
+#' to calculate values of matrix elements at each iteration, and the matrix itself.
+#' For those who are curious, these expressions are stored as
+#' \code{\link[rlang]{quos}}.
+#' 
+#' @examples 
+#' # makeMatExprs can take raw expressions, even when the parameters in them are
+#' defined by other expressions. This allows you to focus on specifying each
+#' density dependent model correctly without worrying about the specifics of
+#' function evaluation.
+#' exprs <- makeMatExprs(
+#'   s_2 = 1/(1 + exp(bs2_2 * u_i + bs2_1 * t_i + bs2_0)),
+#'   s_3 = exp(bs3_1 * log(r + 1)),
+#'   f = exp(bf_1 * a + bf_0),
+#'   u_i = r * a, # density dependent terms (r and a are stages in the population vector)
+#'   t_i = r + a, # density dependent terms (r and a are stages in the population vector)
+#'   mat_expr =
+#'     matrix(
+#'       c(
+#'         1 - g_2, 0, v * (1-g_1) * f,
+#'         g_2 * s_1, 0, v * g_1 * s_1 * f,
+#'         0, s_2 * s_3, 0
+#'       ),
+#'       nrow = 3,
+#'       byrow = TRUE
+#'       
+#'     )
+#' )
+#' 
+#' # Use this for constants and the initial population vector. All values
+#' # here should appear in the expressions above (either in a vital rate or 
+#' # matrix element). Notice that the initial popopulation vector is named such
+#' # that stages listed there match the values in "u_i" and "t_i".
+#' 
+#' data <- makeDataList(
+#'   v = 0.8228,
+#'   g_1 = 0.5503,
+#'   g_2 = 0.3171,
+#'   bs2_2 = 0.0016,
+#'   bs2_1 = -0.0664,
+#'   bs2_0 = -0.156,
+#'   bs3_1 = -0.289,
+#'   bf_1 = -0.0389,
+#'   bf_0 = 7.489,
+#'   s_1 = 0.5,
+#'   initPopVector = c(s = 10, r = 0, a = 0)
+#' )
+#' 
+#' alliariaDDM <- CompadreDDM(dataList = data, matExprs = exprs)
+#' 
+#' project(alliariaDDM, time = 100)
+#' 
+#' @export
+
+makeDataList <- function(...,
+                         initPopVector = NULL) {
+  
+  data <- list(...)
+  data$popVec <- initPopVector
+  return(data)
+}
+
+
+#' @rdname Density-Dependent-Constructor-Funs
+#' 
+#' @inheritParams makeDataList
+#' 
+#' @param matExpr An expression that specifies the form of the density dependent
+#' matrix. See examples.
+makeMatExprs <- function(...,
+                           matExpr = NULL) {
+  
+  matExprs <- enquos(...)
+  matExprs$matExpr <- enquo(matExpr)
+  
+  if(quo_is_null(matExprs$matExpr)) {
+    stop('Must supply an expression for "matExpr".',
+         call. = FALSE)
+  }
+  
+  textList <- .wrapEvalTidys(matExprs)
+  
+  out <- lapply(textList, .wrapQuos)
+  
+  return(out)
+}
+
+#' @noRd
+.wrapEvalTidys <- function(matExprs) {
+  
+  # turn quos into strings, extract the LHS variable names
+  textList <- lapply(matExprs, rlang::quo_text)
+  LHS <- names(textList)
+  
+  for(i in seq_along(textList)) {
+    for(j in seq_along(LHS)){
+      
+      # substitute eval_tidy(var) if anything in right hand side appears in
+      # left hand side
+      regExpression <- .makeMatRegexpr(LHS[j])
+      
+      textList[[i]] <- gsub(regExpression,
+                             paste0('rlang::eval_tidy(', LHS[j], ')'),
+                             textList[[i]])
+      
+    }
+  }
+  
+  
+  return(textList)
+}
+
+#' @noRd
+.makeMatRegexpr <- function(var) {
+  paste0('(\\b', var, '\\b)')
+}
+
+#' @noRd
+.wrapQuos <- function(matExprsWEvals) {
+  
+  string <- paste0('rlang::quo(', matExprsWEvals, ')')
+  out <- rlang::parse_expr(string)
+  enquo(out)
+  
+}
+
+#' @noRd
+errorConstructor <- function(errors) {
+  n <- seq(1, length(errors), 1)
+  c('The following errors were found:\n', 
+    paste(
+      n, 
+      '. ', 
+      errors, '
+        \n', 
+      sep = ""))
+}
+
