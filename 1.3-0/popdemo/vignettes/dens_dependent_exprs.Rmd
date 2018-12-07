@@ -1,0 +1,172 @@
+---
+title: "Density Dependent Expressions in popdemo and Compadre"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: monochrome
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Writing Density Dependent Expressions for matExprs}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+# Density dependent expressions
+Density dependent expressions can be tricky to write, so we hope this will help
+users figure out the correct specification for any density dependent model they 
+may come across.
+
+## What popdemo can do
+- Take expressions that generate scalar outputs and use those to iterate matrices
+
+- Generate plots of population sizes/vectors after the iterations have
+been done.
+
+
+## What popdemo cannot do (yet, anyway)
+- Take model objects (e.g. _glm_'s, _lm_'s, _merMod_'s) and automatically generate
+correct expressions for you. You'll need to know the mathematical form of the 
+models that underlie those.
+
+- May be able to work around this by writing your own functions that call `predict()` and return a single value, but this is not yet tested and may be difficult at the moment.
+
+# Writing expressions for `makeMatExprs`
+The ... argument of `makeMatExprs` takes named expressions. You do not need
+to make a list of these before calling `makeMatExprs` (in fact, I'm not sure that
+you could - R would try and fail to evaluate the symbols when generating the list!). 
+Below are a few examples of typical models and how those would get re-written to
+work in `makeMatExprs` and `project`.
+
+### Density dependent survival
+
+For this example, we'll consider a density dependent matrix model that has the following
+vital rates:
+
+$s = survival$
+
+$f = fecundity$
+
+$g = germination$
+
+$V = population vector$
+
+
+
+The matrix itself takes the form:
+
+$$
+\begin{bmatrix}
+    0 & 0 & f * g \\
+    s_1(V) & 0 & 0 \\
+    0 & s_2(V) & 0 
+    \end{bmatrix}
+\begin{bmatrix}
+    V_1 \\
+    V_2 \\
+    V_3 \\
+    \end{bmatrix}
+
+$$
+The column vector to the right of the matrix is the population vector. Each entry in it represents the number of individuals in each age/stage category in the model.
+
+Consider an example where $s_1$ depends on the sum of the population vector and $s_2$ depends on the product of the population vector. Survival probabilities are often modeled with logistic regressions. These take the form:
+
+$s_i = \frac{1}{1 + e^{-(\beta_0 + \beta_1*x(V))}}$
+
+Here, _s_ is the survival probability, $\beta_0$ is the intercept, $\beta_1$ is 
+a slope, and _x(V)_ is some function the population vector _V_. In this case, it 
+_x(v)_ represents two different functions, so we'll need to write 4 different equations:
+2 survival functions and 2 that calculate the quantities _x(V)_.
+
+$s_1 = \frac{1}{1 + e^{-(\beta_0 + \beta_1*v_{sum})}}$
+
+$s_2 = \frac{1}{1 + e^{-(\beta_0 + \beta_1*v_{prod})}}$
+
+$v_{sum} = \Sigma_{i=1}^n V_i$
+
+$v_{prod} = \Pi_{i=1}^n V_i$
+
+where _i_ indexes all of the stages in the model and _n_ is the number of stages.
+
+In this case, we need two expressions in a call to `makeMatExprs`. They should take
+the following forms:
+
+``` {r eval = FALSE}
+mat_exprs <- makeMatExprs(
+  s_1 = 1/(1 + exp(-(bs_0 + bs_1 * v_sum))),
+  s_2 = 1/(1 + exp(-(bs_0 + bs_1 * v_prod))),
+  
+  v_sum = sum(v_1, v_2, v_3), 
+  v_prod = v_1 * v_2 * v_3
+)
+```
+
+Unfortunately, this is not enough! We also need to supply an expression that creates the matrix we want.
+
+``` {r eval = FALSE}
+mat_exprs <- makeMatExprs(
+  s_1 = 1/(1 + exp(-(bs_0 + bs_1 * v_sum))),
+  s_2 = 1/(1 + exp(-(bs_0 + bs_1 * v_prod))),
+  
+  v_sum = sum(v_1, v_2, v_3), 
+  v_prod = v_1 * v_2 * v_3,
+  matrixExpression = matrix(
+    c(
+      0, 0, f*g,
+      s_1, 0, 0,
+      0, s_2, 0)
+    nrow = 3,
+    byrow = TRUE
+  )
+)
+```
+
+Next, we generate a `dataList` object. In this case, we only need to supply
+initial values for $v_1$, $v_2$, $v_3$, $f$, and $g$. $v_1$, $v_2$, $v_3$ go into
+the final argument named `initPopVector`
+
+``` {r eval = FALSE}
+data <- makeDataList(
+  g = 0.05,
+  f = 20,
+  initPopVector = c(v_1 = 20, v_2 = 5, v_3 = 0)
+)
+
+```
+
+Now, we are ready to create our `CompadreDDM` object and iterate it!
+
+```{r eval = FALSE}
+
+my_ddm <- CompadreDDM(dataList = data,
+                      matExprs = mat_exprs)
+
+my_projection <- project(my_ddm)
+
+```
+
+### Commonly used models and their translations to R code
+
+Poisson/Negative-binomial
+
+$y = e^{\beta_0 + \beta_1*x +...}$
+
+```{r eval = FALSE}
+y = exp(b_0 + b_1 * x)
+
+```
+
+
+Linear model
+
+$y = \beta_0 + \beta_1*x + ...$
+
+```{r eval = FALSE}
+y = b_0 + b_1 * x
+
+```
+

@@ -39,6 +39,8 @@ all_utils_SCL
 
 ## vignette knits (if desired)
 1.3-0/popdemo/vignettes/popdemo.html
+1.3-0/popdemo/vignettes/dens_dependent_exprs.html
+
 vignettes/*.pdf
 
 # vignette pictures
