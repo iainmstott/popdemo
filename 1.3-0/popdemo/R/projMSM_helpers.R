@@ -268,7 +268,7 @@
                         matDim, 
                         stageNames,
                         draws, 
-                        alphaDraws,
+                        alpha.draws,
                         standard.vec) {
   # browser()
   # new character variable for switching between initial vectors
@@ -283,7 +283,7 @@
                                             time = time,
                                             stageNames = stageNames,
                                             draws = draws,
-                                            alphaDraws = alphaDraws),
+                                            alpha.draws = alpha.draws),
                    'n' = .initBiasVector(matDim = matDim,
                                          time = time,
                                          stageNames = stageNames),
@@ -334,13 +334,13 @@
 }
 
 #' @noRd
-.initDiriVector <- function(matDim, time, stageNames, draws, alphaDraws) {
+.initDiriVector <- function(matDim, time, stageNames, draws, alpha.draws) {
   
   # dirichlet parameters
-  if(alphaDraws[1] == "unif") alphaDraws <- rep(1, matDim)
+  if(alpha.draws[1] == "unif") alpha.draws <- rep(1, matDim)
   # 
-  if(length(alphaDraws) != matDim) {
-    stop("length of alphaDraws must be equal to matrix dimension")
+  if(length(alpha.draws) != matDim) {
+    stop("length of alpha.draws must be equal to matrix dimension")
   }
   
   # array of Dirichlet vectors
@@ -352,7 +352,7 @@
   dimnames(VecDraws)[[3]] <- paste("draw", as.character(1:draws), sep = "")
   
   # initial stage vectors come from dirichlet
-  VecDraws[1, , ] <- t(MCMCpack::rdirichlet(draws, alphaDraws))
+  VecDraws[1, , ] <- t(MCMCpack::rdirichlet(draws, alpha.draws))
   
   return(VecDraws)
 }
@@ -362,12 +362,14 @@
   if(length(vector) == matDim) {
     
     # standardisation
-    if (standard.vec) vector <- standardVec(vector)
+    if (standard.vec) vector <- .standardVec(vector)
     # empty objects
     Vec <- array(0, c(time + 1, matDim, 1))
     dimnames(Vec)[[2]] <- stageNames
     
     Vec[1, , ] <- vector
+    
+    dimnames(Vec)[[3]] <- paste("V", 1:dim(Vec)[3], sep = "")
     
   } else { # multiple vectors
     
@@ -381,7 +383,7 @@
     }
     
     # standardisations
-    if (standard.vec) vector <- apply(vector, 2, standardVec)
+    if (standard.vec) vector <- apply(vector, 2, .standardVec)
     
     Vec <- numeric((time + 1) * matDim * nvec)
     dim(Vec) <- c(time + 1, matDim, nvec)
@@ -399,19 +401,25 @@
 }
 
 #' @noRd
-.initPopSum <- function(nVec, time, vector, vecType) {
-  
+.initPopSum <- function(nVec, time, vector) {
   popSize <- numeric((time + 1) * nVec)
   dim(popSize) <- c(time + 1, nVec)
-  popSize[1, ] <- 1
   
-  # overwrite if user hasn't requested vector standardization
-  # If they have, the sum/colSum will just return 1 anyway
-  if(vecType == 'single') {
-    popSize[1, ] <- sum(vector)
-  } else if(vecType == 'multiple') {
-    popSize[1, ] <- colSums(vector)
+  # The vectors are standardized (or not) when generated, so we don't need
+  # to worry about accounting for those here
+  if(dim(vector)[[3]] == 1) {
+    popSize[1, ] <- rowSums(vector)[1]
+    
+    # Copy over dimnames for plotting
+    dimnames(popSize)[[2]] <- list(dimnames(vector)[[3]])
+    
+  } else {
+    
+    popSize[1, ] <- apply(vector, 3, rowSums)[1, ]
+    
+    dimnames(popSize)[[2]] <- dimnames(vector)[[3]]
   }
+  
   return(popSize)
 }
 
@@ -443,12 +451,16 @@
       bounds <- matrix(c(NA_real_, NA_real_), nrow = 1)
     }
   }
-  
+
   out <- .updateProjOutput(vecOut,
-                           popOut, bounds, 
-                           A, MC, 
+                           popOut,
+                           bounds, 
+                           A, 
+                           time,
+                           MC, 
                            vecType, 
-                           projType, return.vec)
+                           projType, 
+                           return.vec)
   
   return(out)
 }
@@ -509,6 +521,7 @@ standardA <- function(A) {
                               popOut,
                               bounds, 
                               A,
+                              time,
                               MC,
                               vecType,
                               projType,
@@ -518,7 +531,7 @@ standardA <- function(A) {
   if(is.null(dim(popOut))) dim(popOut) <- time + 1
   out@.Data <- popOut
   if(return.vec) out@vec <- vecOut
-  out@mat <- .a2List(A)
+  out@mat <- ifelse(!is.list(A), .a2List(A), A)
   out@stochSeq <- as.integer(MC)
   out@projtype <- projType
   out@bounds <- bounds

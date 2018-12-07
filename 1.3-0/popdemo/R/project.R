@@ -5,15 +5,9 @@
 #' Project dynamics of a specified population matrix projection model.
 #'
 #' @param ... Arguments passed to individual methods.
-#' @param A a matrix, or list of matrices. If \code{A} is a matrix, then 
-#' \code{project} performs a 'deterministic' projection, where the matrix
-#' does not change with each timestep. If \code{A} is a list of matrices, then 
-#' \code{project} performs a 'stochastic' projection where the matrix varies 
-#' with each timestep. The sequence of matrices is determined using \code{Aseq}. 
-#' Matrices must be square, non-negative and numeric. If \code{A} is a list, 
-#' all matrices must have the same dimension. 'Projection' objects inherit
-#' names from \code{A}: if \code{A} is a matrix, stage names (in mat and 
-#' vec slots) are inherited from its column names..
+#' @param object Either a \code{CompadreMSM} or \code{CompadreDDM} object. See
+#' \code{\link{CompadreDDM}} and \code{\link{CompadreMSM}} for more info on 
+#' constructing these. \strong{NEED TO ADD METHOD FOR USER SPECIFIED ONES??}
 #' @param vector (optional) a numeric vector or matrix describing 
 #' the age/stage distribution(s) used to calculate the projection. Single
 #' population vectors can be given either as a numeric vector or 
@@ -23,18 +17,28 @@
 #' number of columns gives the number of vectors to project. \code{vector} may
 #' also take either "n" (default) to calculate the set of stage-biased projections 
 #' (see details), or "diri" to project random population vectors drawn from a 
-#' dirichlet distribution (see details). 
+#' dirichlet distribution (see details). This is possible for both \code{CompadreDDM}
+#' and \code{CompadreMSM} objects. When specifying a numeric vector/matrix for
+#' \code{CompadreDDM} objects, take care that
+#' the names supplied here match those in \code{matExprs} slot of the \code{object}.
+#' For numeric vectors, names are supplied via \code{my_vector = c(name1 = value1,
+#' name2 = value2, etc)} whereas for a numeric matrix, row names should be specified 
+#' as \code{dimnames(my_matrix)[[1]] <- c(name1, name2,etc)}. 
+#' If names are not supplied, they will generated with the following pattern: \code{V1},
+#' \code{V2}, \code{V3}, etc for each stage in the matrix. Therefore, expressions
+#' in \code{matExprs} would have to include \code{V1}, etc to function properly.
 #' @param time the number of projection intervals.
 #' @param standard.A (optional) if \code{TRUE}, scales each matrix in \code{A}
 #' by dividing all elements by the dominant eigenvalue. This standardises 
 #' asymptotic dynamics: the dominant eigenvalue of the scaled matrix is 1. 
-#' Useful for assessing transient dynamics.
+#' Useful for assessing transient dynamics. This is not used for 
+#' \code{CompadreDDM} objects.
 #' @param standard.vec (optional) if \code{TRUE}, standardises each \code{vector} 
 #' to sum to 1, by dividing each vector by its sum. Useful for assessing projection
 #' relative to initial population size.
 #' @param return.vec (optional) if \code{TRUE}, returns the time series of 
 #' demographic (st)age vectors as well as overall population size.
-#' @param Aseq (optional, for stochastic projections only) the sequence of 
+#' @param Aseq (optional, for stochastic projections with \code{CompadreMSM} only) the sequence of 
 #' matrices in a stochastic projection. 
 #' \code{Aseq} may be either:
 #' \itemize{
@@ -50,20 +54,21 @@
 #'  \item a character vector giving a specific sequence which corresponds to the
 #'  names of the matrices in \code{A}.
 #' }
-#' @param Astart (optional) in a stochastic projection, the matrix with which to
+#' @param Astart (optional, for stochastic projections with \code{CompadreMSM} 
+#' only) in a stochastic projection, the matrix with which to
 #' initialise the projection (either numeric, corresponding to the matrices in 
-#' \code{A}, or character, corresponding to the names of matrices in \code{A}). 
+#' \code{object}, or character, corresponding to the names of matrices in \code{object}). 
 #' When \code{Astart = NULL} (the default), a random initial matrix is chosen.
 #' 
 #' @param draws if \code{vector="diri"}, the number of population vectors drawn
 #' from dirichlet.
-#' @param alphaDraws if \code{vector="diri"}, the alpha values passed to 
-#' \code{rdirichlet}: used to bias draws towards or away from a certain population
+#' @param alpha.draws if \code{vector="diri"}, the alpha values passed to 
+#' \code{\link[MCMCpack]{rdirichlet}: used to bias draws towards or away from a certain population
 #' structure.
 #' @param PREcheck many functions in \code{popdemo} first check Primitivity, 
 #' Reducibility and/or Ergodicity of matrices, with associated warnings and/or 
 #' errors if a matrix breaks any assumptions. Set \code{PREcheck=FALSE} if you
-#' want to bypass these checks.
+#' want to bypass these checks. Only used for \code{CompadreMSM} objects.
 #' 
 #' @details 
 #' If \code{vector} is specified, \code{project} will calculate population 
@@ -72,26 +77,34 @@
 #' is calculated for each.
 #'  
 #' If \code{vector="n"}, \code{project} will automatically project the set of 
-#' 'stage-biased' vectors of \code{A}. Effectively, each vector is a population
+#' 'stage-biased' vectors of \code{object}. Effectively, each vector is a population
 #' consisting of all individuals in one stage. These projections are achieved using a 
-#' set of standard basis vectors equal in number to the dimension of \code{A}.
+#' set of standard basis vectors equal in number to the dimension of \code{object}.
 #' The vectors have every element equal to 0, except for a single element equal to 1,  
 #' i.e. for a matrix of dimension 3, the set of stage-biased vectors are: 
 #' \code{c(1,0,0)}, \code{c(0,1,0)} and \code{c(0,0,1)}. Stage-biased projections are 
-#' useful for seeing how extreme transient dynamics can be.
+#' useful for seeing how extreme transient dynamics can be. When doing this with
+#' \code{CompadreDDM} objects, the stage names will automatically be generated with
+#' the pattern of \code{V1}, \code{V2}, \code{V}\emph{n}, where \emph{n} is the number
+#' of stages. Thus, the expressions in the \code{matExprs} slot of the \code{CompadreDDM}
+#' need to contain these!
 #' 
 #' If \code{vector="diri"}, \code{project} draws random population vectors from 
 #' the dirichlet distribution. \code{draws} gives the number of population vectors
-#' to draw. \code{alphaDraws} gives the parameters for the dirichlet and can be
+#' to draw. \code{alpha.draws} gives the parameters for the dirichlet and can be
 #' used to bias the draws towards or away from certain population structures.
-#' The default is \code{alphaDraws="unif"}, which passes \code{rep(1,dim)} (where
+#' The default is \code{alpha.draws="unif"}, which passes \code{rep(1,dim)} (where
 #' dim is the dimension of the matrix), resulting in an equal probability of 
 #' any random population vector. Relative values in the vector give the population
 #' structure to focus the distribution on, and the absolute value of the vector
 #' entries (and their sum) gives the strength of the distribution: values greater
 #' than 1 make it more likely to draw from nearby that population structure, 
 #' whilst values less than 1 make it less likely to draw from nearby that population
-#' structure.
+#' structure. When doing this with
+#' \code{CompadreDDM} objects, the stage names will automatically be generated with
+#' the pattern of \code{V1}, \code{V2}, \code{V}\emph{n}, where \emph{n} is the number
+#' of stages. Thus, the expressions in the \code{matExprs} slot of the \code{CompadreDDM}
+#' need to contain these!
 #' 
 #' Projections returned are of length \code{time+1}, as the first element 
 #' represents the population at \code{t=0}.
@@ -229,7 +242,7 @@
 #'   # dirichlet distribution 
 #'   # darker shading indicates more likely population size
 #'   plot(project(Tort, time = 30, vector = "diri", standard.A = TRUE,
-#'                draws = 500, alphaDraws = "unif"),
+#'                draws = 500, alpha.draws = "unif"),
 #'        plottype = "shady", bounds = TRUE)
 #'   
 #'   ### STOCHASTIC PROJECTIONS
@@ -268,7 +281,7 @@ setMethod('project',
                     standard.A = FALSE, standard.vec = FALSE, 
                     return.vec = TRUE,
                     Aseq = "unif", Astart = NULL,
-                    draws = 1000, alphaDraws = "unif", PREcheck = TRUE) {
+                    draws = 1000, alpha.draws = "unif", PREcheck = TRUE) {
             
             A <- object@A
            
@@ -323,14 +336,14 @@ setMethod('project',
                                    matDim = matDim,
                                    stageNames = stageNames,
                                    draws = draws,
-                                   alphaDraws = alphaDraws,
+                                   alpha.draws = alpha.draws,
                                    standard.vec = standard.vec)
             
             popVec <- vecData$popVec
             vecType <- vecData$vecType
             projType <- vecData$projType
             
-            popSum <- .initPopSum(dim(popVec)[3], time, popVec, vecType)
+            popSum <- .initPopSum(dim(popVec)[3], time, popVec)
             
             # browser()
             out <- .iterateMsm(A, 
@@ -350,62 +363,112 @@ setMethod('project',
 )
 
 #' @rdname project
-#' 
+#' @importFrom rlang env_bind !!!
 setMethod('project', 
           signature = 'CompadreDDM',
           function(object,
-                   time,
-                   target_output,
-                   vector,
-                   n_classes,
-                   alphaDraws
+                   vector = NULL,
+                   time = 100,
+                   standard.A = NULL,
+                   standard.vec = FALSE,
+                   return.vec = TRUE,
+                   Aseq = NULL,
+                   Astart = NULL,
+                   draws = 1000, 
+                   alpha.draws = 'unif',
+                   PREcheck = FALSE
                    ) {
-            
-          
+
             dataList <- object@dataList
             matExprs <- object@matExprs
+            matDim <- object@matExprs$matDim
             
-            # needs updating, probably should use initPopVec()
-            initPopVector <- init_pop_vec(vector, n_classes, alphaDraws)
+            # uncomment if you need to debug
+            # browser()
             
-            # insulated environment for the iterations to take place
-            evalEnv <- rlang::env()
-            
-            # Set this as the environment for each quosure in matExprs
-            matExprs <- lapply(matExprs, function(x) quo_set_env(x, evalEnv))
-            
-            # add data to evalEnv
-            rlang::env_bind(evalEnv,
-                            !!! dataList,
-                            !!! initPopVector)
-            
-            # create lazy bindings to the evaluation environment
-            rlang::env_bind_lazy(evalEnv,
-                                 !!! matExprs,
-                                 .eval_env = evalEnv)
-            
-            # set up place to store outputs of interest
-            output <- initialize_proj_outputs(time,
-                                              target_output,
-                                              initPopVector)
-            
-            # iterate!
-            for(i in seq(2, time, 1)) {
-              # iterate the matrix and generate new population vector
-              newPopVec <- as.numeric(rlang::eval_tidy(evalEnv$matrixExpr) %*% evalEnv$popVec)
-              
-              # assign stage names to new population vector
-              names(newPopVec) <- names(evalEnv$p_vec)
-              
-              # bind new names to evalEnv for next iteration
-              rlang::env_bind(evalEnv,
-                              !!! newPopVec)
-              evalEnv$p_vec <- newPopVec
-              
-              # stash outputs in our list
-              output <- update_dd_outputs(output, newPopVec, i, target_output)
-              
+            if(is.null(dataList$popVec)){
+              # No user supplied vector
+              stageNames <- paste('V', 1:matDim, sep = "")
+              popVecData <- .initDDPopVec(vector = vector, 
+                                         time = time,
+                                         matDim = matDim,
+                                         stageNames = stageNames,
+                                         draws = draws,
+                                         alpha.draws = alpha.draws,
+                                         standard.vec = standard.vec)
+            } else {
+              # User supplied vector
+              stageNames <- .getStageNames(dataList$popVec)
+              popVecData <- .initDDPopVec(vector = dataList$popVec,
+                                          time = time,
+                                          matDim = matDim,
+                                          stageNames = stageNames,
+                                          draws = draws,
+                                          alpha.draws = alpha.draws,
+                                          standard.vec = standard.vec)
             }
+            
+            vecOut <- popVecData$popVec
+            projType <- popVecData$projType
+            vecType <- popVecData$vecType
+            
+            nVec <- dim(vecOut)[[3]]
+            nStages <- dim(vecOut)[[2]]
+            
+            evalEnv <- .initMatEnv(matExprs, dataList)
+            
+            # set up place to store outputs of interest. AList is where
+            # the list of A's goes.
+            AList <- list()
+            popSum <- .initPopSum(nVec, time, vecOut)
+            
+            projType <- 'stochastic'
+            bounds <- matrix(c(NA_real_, NA_real_), nrow = 1)
+            AListCounter <- 1
+            # iterate!
+            for(i in seq_len(nVec)) {
+              # bind initial vector and place it in the data list
+              evalEnv$popVec <- vecOut[1, , i]
+              
+              rlang::env_bind(evalEnv,
+                              !!! vecOut[1, , i])
+
+              for(j in seq(1, time, 1)) {
+               
+                # iterate the matrix and generate new population vector
+                currentMat <- rlang::eval_tidy(evalEnv$matrixExpr)
+                .checkCurrentMat(currentMat)
+                
+                # if it's a good matrix, store it
+                AList[[AListCounter]] <- currentMat
+                
+                newPopVec <- as.numeric(currentMat %*% evalEnv$popVec)
+                
+                vecOut[j + 1, , i] <- newPopVec
+                popSum[j + 1, i] <- sum(newPopVec)
+                # assign stage names to new population vector
+                names(newPopVec) <- names(evalEnv$popVec)
+                
+                # bind new names to evalEnv for next iteration
+                rlang::env_bind(evalEnv,
+                                !!! newPopVec)
+                evalEnv$popVec <- newPopVec
+                
+                AListCounter <- AListCounter + 1
+              }
+              # stash outputs in the Projection Object
+            }
+            
+            output <- .updateProjOutput(vecOut, 
+                                        popSum, 
+                                        bounds,
+                                        AList, 
+                                        time,
+                                        MC = NA_integer_,
+                                        vecType = vecType, 
+                                        projType = projType,
+                                        return.vec = return.vec)
+            
             
             return(output)
             

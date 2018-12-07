@@ -1,6 +1,7 @@
 
 #' @rdname Density-Dependent-Constructor-Funs
-#' @title Helpers to construct \code{CompadreDDM}s
+#' @aliases makeMatExprs makeDataList
+#' @title Helpers to construct CompadreDDMs
 #' 
 #' @description These functions assist creation of \code{CompadreDDM}s by ensuring that
 #' each expression and associated values are evaluated in the correct order.
@@ -13,13 +14,17 @@
 #' or in another expression in the same call. See examples.
 #' @param initPopVector optionally, an initial population vector to start a
 #' \code{Projection} with. Values in this should be named with values corresponding
-#' to the \code{matrixExpr} or \code{matExprs}
+#' to the \code{matrixExpr} or \code{matExprs}. See details for warnings on not 
+#' specifying this!
 #' 
 #' @return \code{makeDataList} returns a named list with parameter values.
 #' \code{makeMatExpr} returns a named list of expressions that are used
 #' to calculate values of matrix elements at each iteration, and the matrix itself.
-#' For those who are curious, these expressions are stored as
-#' \code{\link[rlang]{quos}}.
+#' For those who are curious or wish to construct this by hand, these expressions 
+#' are stored as \code{\link[rlang]{quos}} with \code{env} slot set to \code{empty}.
+#' The environment is reassigned to a specific evaluation environment during
+#' iteration and the user-specified one (if it is specified at all) will be 
+#' overridden. 
 #' 
 #' @examples 
 #' # makeMatExprs can take raw expressions, even when the parameters in them are
@@ -33,16 +38,12 @@
 #'   u_i = r * a, # density dependent terms (r and a are stages in the population vector)
 #'   t_i = r + a, # density dependent terms (r and a are stages in the population vector)
 #'   mat_expr =
-#'     matrix(
 #'       c(
 #'         1 - g_2, 0, v * (1-g_1) * f,
 #'         g_2 * s_1, 0, v * g_1 * s_1 * f,
 #'         0, s_2 * s_3, 0
 #'       ),
-#'       nrow = 3,
-#'       byrow = TRUE
-#'       
-#'     )
+#'    matrixDimension = 3
 #' )
 #' 
 #' # Use this for constants and the initial population vector. All values
@@ -83,27 +84,72 @@ makeDataList <- function(...,
 #' 
 #' @inheritParams makeDataList
 #' 
-#' @param matExpr An expression that specifies the form of the density dependent
-#' matrix. See examples.
+#' @param matrixExpr An expression that specifies the form of the density dependent
+#' matrix. Supplied as c(...) and in row-major format (e.g. forms correctly when
+#' \code{byrow = TRUE}).
+#' @param matrixDimension An integer that specifies how many rows and columns 
+#' are in the matrix.
+#' 
+#' @details Note that if you do not plan to pass an initial population vector
+#' to \code{makeDataList}, then the names of the vector will be automatically 
+#' generated as \code{V1}, \code{V2}, etc. This means that the expressions in
+#' \code{makeMatExprs} that are functions of the population vectors \strong{must
+#' use these names}.
+#' 
+#' @importFrom rlang enquos enquo quo_is_null
+#' @export
+
 makeMatExprs <- function(...,
-                           matExpr = NULL) {
+                         matrixExpr = NULL,
+                         matrixDimension = NULL) {
   
-  matExprs <- enquos(...)
-  matExprs$matExpr <- enquo(matExpr)
+  matExprs <- rlang::enquos(...)
+  matExprs$matrixExpr <- rlang::enquo(matrixExpr)
   
-  if(quo_is_null(matExprs$matExpr)) {
-    stop('Must supply an expression for "matExpr".',
+  if(rlang::quo_is_null(matExprs$matrixExpr)) {
+    stop('Must supply an expression for "matrixExpr".',
          call. = FALSE)
   }
+  
+  if(is.null(matrixDimension)) {
+    stop('Must supply an integer for "matrixDimension".')
+  }
+  
+  matExprs$matrixExpr <- .wrapMatrixCall(matExprs$matrixExpr, 
+                                         matrixDimension)
   
   textList <- .wrapEvalTidys(matExprs)
   
   out <- lapply(textList, .wrapQuos)
   
+  out$matDim <- matrixDimension
   return(out)
 }
 
 #' @noRd
+#' @importFrom rlang quo_text enquo parse_expr
+.wrapMatrixCall <- function(matrixExpr, matrixDimension) {
+  
+  # get text, wrap it in the matrix call with correct row count
+  matexpr <- rlang::quo_text(matrixExpr)
+  
+  text_call <- paste('matrix(', 
+                     matexpr,
+                     ', nrow = ', 
+                     matrixDimension,
+                     ', byrow = TRUE)', sep = "")
+  
+  # back to expression!
+  parsed_call <- rlang::parse_expr(text_call)
+  
+  # enquo it so we can save it for later!
+  new_quo <- rlang::enquo(parsed_call)
+  
+  return(new_quo)
+}
+
+#' @noRd
+#' @importFrom rlang quo_text eval_tidy
 .wrapEvalTidys <- function(matExprs) {
   
   # turn quos into strings, extract the LHS variable names
@@ -123,8 +169,6 @@ makeMatExprs <- function(...,
       
     }
   }
-  
-  
   return(textList)
 }
 
@@ -134,6 +178,7 @@ makeMatExprs <- function(...,
 }
 
 #' @noRd
+#' @importFrom rlang quo
 .wrapQuos <- function(matExprsWEvals) {
   
   string <- paste0('rlang::quo(', matExprsWEvals, ')')
@@ -143,14 +188,112 @@ makeMatExprs <- function(...,
 }
 
 #' @noRd
-errorConstructor <- function(errors) {
-  n <- seq(1, length(errors), 1)
-  c('The following errors were found:\n', 
-    paste(
-      n, 
-      '. ', 
-      errors, '
-        \n', 
-      sep = ""))
+#' @importFrom rlang env env_bind env_bind_lazy !!! quo_set_env
+
+.initMatEnv <- function(matExprs, dataList) {
+  # insulated environment for the iterations to take place
+  evalEnv <- rlang::env()
+  
+  # remove the matrixDimension slot, it's not a quosure! 
+  matDimInd <- which(names(matExprs) == 'matDim')
+  matExprs <- matExprs[-matDimInd]
+  
+  # Set this as the environment for each quosure in matExprs
+  matExprs <- lapply(matExprs, function(x) quo_set_env(x, evalEnv))
+  
+  # add data to evalEnv
+  rlang::env_bind(evalEnv,
+                  !!! dataList)
+  
+  # create lazy bindings to the evaluation environment
+  rlang::env_bind_lazy(evalEnv,
+                       !!! matExprs,
+                       .eval_env = evalEnv)
+  return(evalEnv)
 }
 
+.checkCurrentMat <- function(currentMat) {
+  
+  if(any(currentMat < 0)) {
+    stop('Some element of the matrix in the current iteration',
+         'is negative.\n',
+         'Check expressions supplied to matExprs in the',
+         'CompadreDDM object.')
+  }
+  
+  # Would be good to add check for colSums > 1 on a U matrix, but not sure how
+  # to split out the fecundity values.
+  
+}
+
+#' @noRd
+.getStageNames <- function(popVec) {
+  # can only be a matrix or a vector if it is user supplied
+  # This is so wildly inelegant - there must be a better way...
+  if(is.matrix(popVec)) { 
+    if(!is.null(dimnames(popVec)[[1]])) {
+      out <- dimnames(popVec)[[1]]
+    } else {
+      out <- paste('V', 1:dim(x)[[1]])
+    }
+  } else {
+    
+    if(!is.null(names(popVec))) {
+      out <- names(popVec)
+    } else {
+      out <- paste('V', 1:length(popVec))
+    }
+  }
+  
+  return(out)
+}
+
+.initDDPopVec <- function(vector, 
+                          time,
+                          matDim,
+                          stageNames,
+                          draws,
+                          alpha.draws,
+                          standard.vec) {
+  
+  if(is.numeric(vector)) {
+    vectorSwitch <- 'user'
+  } else {
+    vectorSwitch <- vector
+  }
+  
+  popVec <- switch(vectorSwitch,
+                   'diri' = .initDiriVector(matDim = matDim,
+                                            time = time,
+                                            stageNames = stageNames,
+                                            draws = draws,
+                                            alpha.draws = alpha.draws),
+                   'n' = .initBiasVector(matDim = matDim,
+                                         time = time,
+                                         stageNames = stageNames),
+                   'user' = .initUserVector(vector = vector,
+                                            time = time,
+                                            matDim = matDim, 
+                                            stageNames = stageNames,
+                                            standard.vec = standard.vec),
+                   # not yet implemented, waiting to see what
+                   # the database version of these looks like
+                   'db' = .initDbVector(vector, 
+                                        matDim, 
+                                        stageNames))
+  
+  if(is.numeric(vector)) {
+    if((is.array(popVec) & dim(popVec)[3] == 1)) vecType <- 'single'
+    if(dim(popVec)[3] > 1) vecType <- 'multiple'
+  } else {
+    vecType <- vector
+  }
+  
+  projType <- 'stochastic'
+  
+  out <- list(popVec = popVec,
+              projType = projType,
+              vecType = vecType)
+  return(out)
+  
+}
