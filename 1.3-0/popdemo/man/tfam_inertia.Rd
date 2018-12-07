@@ -5,7 +5,8 @@
 \title{Transfer function Analysis}
 \usage{
 tfam_inertia(A, bound = NULL, vector = "n", elementtype = NULL,
-  Flim = c(-1, 10), Plim = c(-1, 10), plength = 100, digits = 1e-10)
+  Flim = c(-1, 10), Plim = c(-1, 10), plength = 100,
+  digits = 1e-10)
 }
 \arguments{
 \item{A}{a square, primitive, nonnegative numeric matrix of any dimension}
@@ -139,6 +140,6 @@ Other PerturbationAnalyses: \code{\link{elas}},
   \code{\link{tfa_lambda}}, \code{\link{tfam_lambda}},
   \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
 }
-\concept{
-KEYWORDS
-}
+\concept{KEYWORDS}
+\concept{PerturbationAnalyses}
+\concept{TransferFunctionAnalyses}

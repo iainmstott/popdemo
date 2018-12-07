@@ -110,6 +110,5 @@ Other TransientIndices: \code{\link{Kreiss}},
   \code{\link{inertia}}, \code{\link{maxamp}},
   \code{\link{maxatt}}
 }
-\concept{
-transient dynamics amplification unstable instability structure
-}
+\concept{TransientIndices}
+\concept{transient dynamics amplification unstable instability structure}

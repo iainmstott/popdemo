@@ -4,7 +4,8 @@
 \alias{tfa_lambda}
 \title{Transfer function analysis}
 \usage{
-tfa_lambda(A, d, e, prange = NULL, lambdarange = NULL, digits = 1e-10)
+tfa_lambda(A, d, e, prange = NULL, lambdarange = NULL,
+  digits = 1e-10)
 }
 \arguments{
 \item{A}{a square, irreducible, nonnegative numeric matrix of any dimension}
@@ -125,7 +126,7 @@ Other PerturbationAnalyses: \code{\link{elas}},
   \code{\link{tfam_inertia}}, \code{\link{tfam_lambda}},
   \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
 }
-\concept{
-transfer function systems control nonlinear perturbation population viability
-PVA ecology demography PPM MPM
-}
+\concept{PerturbationAnalyses}
+\concept{TransferFunctionAnalyses}
+\concept{transfer function systems control nonlinear perturbation population viability
+PVA ecology demography PPM MPM}

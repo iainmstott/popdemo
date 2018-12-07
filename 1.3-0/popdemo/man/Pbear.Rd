@@ -38,7 +38,5 @@ The population structure is
  \item Hunter et al. (2010) Ecology, 91, 2883-2897.
 }
 }
-\concept{
-data polar bear matrix Ursus maritimus
-}
+\concept{data polar bear matrix Ursus maritimus}
 \keyword{datasets}

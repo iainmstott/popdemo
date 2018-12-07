@@ -4,7 +4,8 @@
 \alias{tfa_inertia}
 \title{Transfer function Analysis}
 \usage{
-tfa_inertia(A, d, e, vector = "n", bound = NULL, prange, digits = 1e-10)
+tfa_inertia(A, d, e, vector = "n", bound = NULL, prange,
+  digits = 1e-10)
 }
 \arguments{
 \item{A}{a square, primitive, nonnegative numeric matrix of any dimension}
@@ -143,6 +144,6 @@ Other PerturbationAnalyses: \code{\link{elas}},
   \code{\link{tfam_inertia}}, \code{\link{tfam_lambda}},
   \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
 }
-\concept{
-KEYWORDS
-}
+\concept{KEYWORDS}
+\concept{PerturbationAnalyses}
+\concept{TransferFunctionAnalyses}

@@ -45,6 +45,5 @@ and s is the dimension of \strong{A} (Caswell 2001).
 Other PerronFrobeniusDiagnostics: \code{\link{isErgodic}},
   \code{\link{isPrimitive}}
 }
-\concept{
-reducibility reducible irreducible Perron Frobenius
-}
+\concept{PerronFrobeniusDiagnostics}
+\concept{reducibility reducible irreducible Perron Frobenius}

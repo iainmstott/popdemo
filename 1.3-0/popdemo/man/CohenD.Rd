@@ -46,6 +46,5 @@ imaginary components in the dominant eigenpair).
 Other DistanceMeasures: \code{\link{KeyfitzD}},
   \code{\link{projectionD}}
 }
-\concept{
-distance vector state space
-}
+\concept{DistanceMeasures}
+\concept{distance vector state space}

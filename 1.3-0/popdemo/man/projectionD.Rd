@@ -49,6 +49,5 @@ matrices with nonzero imaginary components in the dominant eigenpair).
 Other DistanceMeasures: \code{\link{CohenD}},
   \code{\link{KeyfitzD}}
 }
-\concept{
-distance vector state space
-}
+\concept{DistanceMeasures}
+\concept{distance vector state space}

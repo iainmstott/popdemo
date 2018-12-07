@@ -131,6 +131,6 @@ Other PerturbationAnalyses: \code{\link{elas}},
   \code{\link{tfa_lambda}}, \code{\link{tfam_inertia}},
   \code{\link{tfam_lambda}}, \code{\link{tfs_lambda}}
 }
-\concept{
-KEYWORDS
-}
+\concept{KEYWORDS}
+\concept{PerturbationAnalyses}
+\concept{TransferFunctionAnalyses}

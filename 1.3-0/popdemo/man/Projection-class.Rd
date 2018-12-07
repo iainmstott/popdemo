@@ -3,7 +3,6 @@
 \docType{class}
 \name{Projection-class}
 \alias{Projection-class}
-\alias{Projection-class}
 \alias{Projection}
 \alias{vec}
 \alias{vec,Projection-method}
@@ -11,8 +10,8 @@
 \alias{bounds,Projection-method}
 \alias{mat}
 \alias{mat,Projection-method}
-\alias{Aseq}
-\alias{Aseq,Projection-method}
+\alias{stochSeq}
+\alias{stochSeq,Projection-method}
 \alias{projtype}
 \alias{projtype,Projection-method}
 \alias{vectype}
@@ -37,9 +36,9 @@ mat(object, ...)
 
 \S4method{mat}{Projection}(object, return = "simple")
 
-Aseq(object)
+stochSeq(object)
 
-\S4method{Aseq}{Projection}(object)
+\S4method{stochSeq}{Projection}(object)
 
 projtype(object)
 
@@ -83,7 +82,8 @@ for accessing them appear below. These are:
  \item{\code{vec}}{ access population vectors}
  \item{\code{bounds}}{ access bounds on population dynamics}
  \item{\code{mat}}{ access projection matrix/matrices used to create projection(s)}
- \item{\code{Aseq}}{ access projection matrix sequence used to create projection(s)}
+ \item{\code{stochSeq}}{access sequence of environmental values/matrices used 
+ to create projection(s)}
  \item{\code{projtype}}{ find out projection type}
  \item{\code{vectype}}{ access type of vector used to initiate population projection(s)}
 }
@@ -185,15 +185,32 @@ dimension is used to index the different matrices. However, by using the
 \code{mat()} accessor function below, it is possible to choose different ways
 of representing the matrices (matrix, list, array).}
 
-\item{\code{Aseq}}{The sequence of matrices used in the projection. For deterministic
-projections (where there is only 1 matrix) this will always be \code{rep(1, time)}.
-For stochastic projections (with more than 1 matrix), if \code{Aseq} is given 
-to \code{project} as a numeric or character vector then this slot will take 
-that value. If a matrix describing a random markov process is passed, the 
-\code{Aseq} slot will be a single random chain.}
+\item{\code{stochSeq}}{A list giving the sequence of environmental values or matrices used in the 
+projection. This will only have \code{length > 1} when doing stochastic by matrix
+element projections where vital rates depend on multiple external sources of 
+information (e.g. temperature AND precipitation, competitor density AND nutrient
+ availability) or a function call is used to generate the environmental sequence. 
+\itemize{
+  \item Deterministic projections - where there is only 1 matrix or 
+environmental value/set of values this will always be \code{rep(1, time)}.
+  \item Stochastic projections (with more than 1 matrix or a set of environmental
+values)
+   \itemize{ 
+     \item If \code{stochSeq} is passed as a numeric or
+character vector then this slot will take that value. 
+     \item If \code{stochSeq} is passed as a matrix describing
+a random markov process is passed, the\code{stochSeq} slot will be a single 
+random chain.
+     \item If \code{stochSeq} is passed as a function call (e.g. describing a
+distribution of environmental values), then the both the expression and vector
+of values used will be returned in the \code{stochSeq} slot.
+ }
+}}
 
 \item{\code{projtype}}{The type of projection. Either "deterministic" (single matrix; 
-time-invariant), or "stochastic" (multiple matrices; time-varying).}
+time-invariant), or "stochastic" (multiple matrices; time-varying). If "stochastic",
+\code{projtype} will also provide what type ("stochastic - density depedent",
+"stochastic - matrix element", or "stochastic - matrix selection").}
 
 \item{\code{vectype}}{The type of vector passed to \code{project}. May be "single" 
 (one vector; one population projection), "multiple" (more than one vector; 
@@ -216,7 +233,7 @@ distribution; \code{vector = "diri"}).}
   vec(pr)  #time sequence of population vectors
   bounds(pr)  #bounds on population dynamics
   mat(pr)  #matrix used to create projection
-  Aseq(pr)  #sequence of matrices (more useful for stochastic projections)
+  stochSeq(pr)  #sequence of matrices (more useful for stochastic projections)
   projtype(pr)  #type of projection
   vectype(pr)  #type of vector(s) initiating projection
 
@@ -297,10 +314,10 @@ distribution; \code{vector = "diri"}).}
   
   # project over 50 years with uniform matrix selection
   Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
-  p2 <- project(Pbear, Pbearvec, time = 50, Aseq = "unif")
+  p2 <- project(Pbear, Pbearvec, time = 50, stochSeq = "unif")
 
   # stochastic projection information
-  Aseq(p2)
+  stochSeq(p2)
   projtype(p2)
   nmat(p2)
   

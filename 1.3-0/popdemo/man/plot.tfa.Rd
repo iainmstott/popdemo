@@ -58,7 +58,5 @@ Plot a transfer function
 \seealso{
 Constructor functions: \code{\link{tfa_lambda}}, \code{\link{tfa_inertia}}
 }
-\concept{
-transfer function systems control nonlinear perturbation population viability
-PVA ecology demography PPM MPM
-}
+\concept{transfer function systems control nonlinear perturbation population viability
+PVA ecology demography PPM MPM}

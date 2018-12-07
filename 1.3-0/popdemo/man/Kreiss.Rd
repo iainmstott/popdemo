@@ -88,6 +88,5 @@ Other TransientIndices: \code{\link{inertia}},
   \code{\link{maxamp}}, \code{\link{maxatt}},
   \code{\link{reac}}
 }
-\concept{
-transient amplification attenuation systems control unstable instability
-}
+\concept{TransientIndices}
+\concept{transient amplification attenuation systems control unstable instability}

@@ -10,7 +10,8 @@
 \S4method{show}{Projection}(object)
 
 \S4method{plot}{Projection}(x, bounds = FALSE, bounds.args = NULL,
-  labs = TRUE, plottype = "lines", ybreaks = 20, shadelevels = 100, ...)
+  labs = TRUE, plottype = "lines", ybreaks = 20, shadelevels = 100,
+  ...)
 }
 \arguments{
 \item{object, x}{an object of class "Projection" generated using \code{\link{project}}}
@@ -67,7 +68,7 @@ population dynamics" vignettes.
   vec(pr)  #time sequence of population vectors
   bounds(pr)  #bounds on population dynamics
   mat(pr)  #matrix used to create projection
-  Aseq(pr)  #sequence of matrices (more useful for stochastic projections)
+  stochSeq(pr)  #sequence of matrices (more useful for stochastic projections)
   projtype(pr)  #type of projection
   vectype(pr)  #type of vector(s) initiating projection
 
@@ -148,10 +149,10 @@ population dynamics" vignettes.
   
   # project over 50 years with uniform matrix selection
   Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
-  p2 <- project(Pbear, Pbearvec, time = 50, Aseq = "unif")
+  p2 <- project(Pbear, Pbearvec, time = 50, stochSeq = "unif")
 
   # stochastic projection information
-  Aseq(p2)
+  stochSeq(p2)
   projtype(p2)
   nmat(p2)
   

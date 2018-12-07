@@ -90,6 +90,5 @@ to check what the true asymptotic growth of a non-ergodic model is.
 Other ConvergenceMeasures: \code{\link{convt}},
   \code{\link{dr}}
 }
-\concept{
-asymptotic growth project projection ergodic nonergodic Perron Frobenius
-}
+\concept{ConvergenceMeasures}
+\concept{asymptotic growth project projection ergodic nonergodic Perron Frobenius}

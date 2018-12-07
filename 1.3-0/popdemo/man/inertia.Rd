@@ -89,6 +89,5 @@ Other TransientIndices: \code{\link{Kreiss}},
   \code{\link{maxamp}}, \code{\link{maxatt}},
   \code{\link{reac}}
 }
-\concept{
-transient amplification attenuation unstable instability stable equivalent ratio
-}
+\concept{TransientIndices}
+\concept{transient amplification attenuation unstable instability stable equivalent ratio}
