@@ -17,11 +17,12 @@ Imports:
     graphics, 
     methods, 
     MCMCpack, 
-    stats,
-    rlang (>= 0.3.0)
+    rlang (>= 0.3.0),
+    stats
 Suggests:
     knitr,
-    magick
+    magick,
+    rmarkdown
 VignetteBuilder: knitr
 License: GPL (>= 2)
 Encoding: UTF-8
