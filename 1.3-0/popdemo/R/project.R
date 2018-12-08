@@ -5,9 +5,10 @@
 #' Project dynamics of a specified population matrix projection model.
 #'
 #' @param ... Arguments passed to individual methods.
-#' @param object Either a \code{CompadreMSM} or \code{CompadreDDM} object. See
+#' @param object Either a single square matrix, a list of square matrices,
+#' a \code{CompadreMSM}, or \code{CompadreDDM} object. See
 #' \code{\link{CompadreDDM}} and \code{\link{CompadreMSM}} for more info on 
-#' constructing these. \strong{NEED TO ADD METHOD FOR USER SPECIFIED ONES??}
+#' constructing the latter. 
 #' @param vector (optional) a numeric vector or matrix describing 
 #' the age/stage distribution(s) used to calculate the projection. Single
 #' population vectors can be given either as a numeric vector or 
@@ -17,8 +18,7 @@
 #' number of columns gives the number of vectors to project. \code{vector} may
 #' also take either "n" (default) to calculate the set of stage-biased projections 
 #' (see details), or "diri" to project random population vectors drawn from a 
-#' dirichlet distribution (see details). This is possible for both \code{CompadreDDM}
-#' and \code{CompadreMSM} objects. When specifying a numeric vector/matrix for
+#' dirichlet distribution (see details). When specifying a numeric vector/matrix for
 #' \code{CompadreDDM} objects, take care that
 #' the names supplied here match those in \code{matExprs} slot of the \code{object}.
 #' For numeric vectors, names are supplied via \code{my_vector = c(name1 = value1,
@@ -38,16 +38,16 @@
 #' relative to initial population size.
 #' @param return.vec (optional) if \code{TRUE}, returns the time series of 
 #' demographic (st)age vectors as well as overall population size.
-#' @param Aseq (optional, for stochastic projections with \code{CompadreMSM} only) the sequence of 
+#' @param stochSeq (optional, ignored for \code{CompadreDDM} objects) the sequence of 
 #' matrices in a stochastic projection. 
-#' \code{Aseq} may be either:
+#' \code{stochSeq} may be either:
 #' \itemize{
 #'  \item "unif" (default), which results in every matrix in \code{A} having an 
 #'  equal, random chance of being chosen at each timestep.
 #'  \item a square, nonnegative left-stochastic matrix describing a first-order 
 #'  Markov chain used to choose the matrices. The transitions are defined COLUMNWISE: 
 #'  each column j describes the probability of choosing stage (row) i at time t+1, 
-#'  given that stage (column) j was chosen at time t. \code{Aseq}  should have the 
+#'  given that stage (column) j was chosen at time t. \code{stochSeq}  should have the 
 #'  same dimension as the number of matrices in \code{A}. 
 #'  \item an integer vector giving a specific sequence which corresponds to the
 #'  matrices in \code{A}.
@@ -63,7 +63,7 @@
 #' @param draws if \code{vector="diri"}, the number of population vectors drawn
 #' from dirichlet.
 #' @param alpha.draws if \code{vector="diri"}, the alpha values passed to 
-#' \code{\link[MCMCpack]{rdirichlet}: used to bias draws towards or away from a certain population
+#' \code{\link[MCMCpack]{rdirichlet}}: used to bias draws towards or away from a certain population
 #' structure.
 #' @param PREcheck many functions in \code{popdemo} first check Primitivity, 
 #' Reducibility and/or Ergodicity of matrices, with associated warnings and/or 
@@ -110,7 +110,7 @@
 #' represents the population at \code{t=0}.
 #' 
 #' Projections have their own plotting method (see \code{\link{Projection-plots}})
-#' to enable easy graphing.
+#' to facilitate graphing.
 #' 
 #' In addition to the examples below, see the "Deterministic population dynamics" 
 #' and "Stochastic population dynamics" vignettes for worked examples that use 
@@ -147,7 +147,7 @@
 #' represents the time series of all stages in the projection of vector 2 / stage-bias 
 #' 2 / draw 2.
 #' 
-#' Note that the projections inherit the labelling from \code{A} and \code{vector}, if
+#' Note that the projections inherit the labelling from \code{object} and \code{vector}, if
 #' it exists. Both stage and vector names are taken from the COLUMN names of \code{A} 
 #' and \code{vector} respectively. These may be useful for selecting from the
 #' \code{projection} object, and for labelling graphs when plotting Projection
@@ -170,7 +170,7 @@
 #'   vec(pr)  #time sequence of population vectors
 #'   bounds(pr)  #bounds on population dynamics
 #'   mat(pr)  #matrix used to create projection
-#'   Aseq(pr)  #sequence of matrices (more useful for stochastic projections)
+#'   stochSeq(pr)  #sequence of matrices (more useful for stochastic projections)
 #'   projtype(pr)  #type of projection
 #'   vectype(pr)  #type of vector(s) initiating projection
 #'
@@ -212,7 +212,7 @@
 #'   plot(pr4)
 #'
 #'   # Select the time series for stage 1
-#'   vec(pr4)[,1]
+#'   vec(pr4)[, 1, 1]
 #'
 #'   ### DETERMINISTIC PROJECTIONS
 #' 
@@ -251,10 +251,10 @@
 #'   
 #'   # project over 50 years with uniform matrix selection
 #'   Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
-#'   p2 <- project(Pbear, Pbearvec, time = 50, Aseq = "unif")
+#'   p2 <- project(Pbear, Pbearvec, time = 50, stochSeq = "unif")
 #' 
 #'   # stochastic projection information
-#'   Aseq(p2)
+#'   stochSeq(p2)
 #'   projtype(p2)
 #'   nmat(p2)
 #'   
@@ -274,93 +274,174 @@ setGeneric('project', function(object, ...) {
   standardGeneric('project')
 })
 
+
 #' @rdname project 
+#' @export
 setMethod('project', 
           signature = 'CompadreMSM',
           function (object, vector = "n", time = 100, 
                     standard.A = FALSE, standard.vec = FALSE, 
                     return.vec = TRUE,
-                    Aseq = "unif", Astart = NULL,
+                    stochSeq = "unif", Astart = NULL,
                     draws = 1000, alpha.draws = "unif", PREcheck = TRUE) {
             
             A <- object@A
            
-            errors <- character()
-            ifelse(
-              length(.aPreChecks(A, errors, PREcheck)) > 0,
-                stop(.errorConstructor(errors)),
-                ""
-            )
-            
-            
-            A <- .a2Array(A)
-          
-            # extract some info about matrices
-            matDim <- dim(A)[1]
-            stageNames <- dimnames(A)[[2]]
-            if(is.null(stageNames)) stageNames <- paste("S", 
-                                                        as.character(1:matDim),                                                        sep = "")
-            nMat <- dim(A)[3]
-            matrixNames <- dimnames(A)[[3]]
-            
-            # standardisations
-            if (standard.A) {
-              # now extended for stochastics as well
-              A <- standardA(A)
+            .projectMSM_impl(A = A, 
+                             vector = vector,
+                             time = time,
+                             standard.A = standard.A,
+                             standard.vec = standard.vec,
+                             return.vec = return.vec, 
+                             stochSeq = stochSeq,
+                             Astart = Astart, 
+                             draws = draws,
+                             alpha.draws = alpha.draws,
+                             PREcheck = PREcheck)
             }
-            
-            # initialize matrix sequences
-            
-            .checkAseq(Aseq, matrixNames)
-            
-            
-            MCstart <- .checkAstart(Astart, Aseq, matrixNames, nMat)
-            
-            # If, for some reason, they gave an integer vector and the length
-            # doesn't match time, just set it to that.
-            if(is.integer(Aseq) & is.null(dim(Aseq))){
-              if(length(Aseq) != time) time <- length(Aseq)
-            }
-            
-            # initialize the matrix sequence vector, stage+population vectors,
-            # and Projection object
-            if(nMat == 1) { 
-              MC <- rep(1L, time)
-            } else {
-              MC <- .initMc(Aseq, time, MCstart, matrixNames, nMat)
-            }
-            
-            vecData <- .initPopVec(A = A,
-                                   vector = vector, 
-                                   time = time,
-                                   matDim = matDim,
-                                   stageNames = stageNames,
-                                   draws = draws,
-                                   alpha.draws = alpha.draws,
-                                   standard.vec = standard.vec)
-            
-            popVec <- vecData$popVec
-            vecType <- vecData$vecType
-            projType <- vecData$projType
-            
-            popSum <- .initPopSum(dim(popVec)[3], time, popVec)
-            
-            # browser()
-            out <- .iterateMsm(A, 
-                               time, 
-                               popVec, 
-                               popSum, 
-                               MC,
-                               vecType, 
-                               projType,
-                               return.vec)
-            
-            return(out)
-            
-
-            }
-          
 )
+
+#' @rdname project
+#' @export
+setMethod('project',
+          signature = 'matrix',
+          function (object, vector = "n", time = 100, 
+                    standard.A = FALSE, standard.vec = FALSE, 
+                    return.vec = TRUE,
+                    stochSeq = "unif", Astart = NULL,
+                    draws = 1000, alpha.draws = "unif", PREcheck = TRUE) {
+            
+            A <- list(object)
+            
+            .projectMSM_impl(A = A, 
+                             vector = vector,
+                             time = time,
+                             standard.A = standard.A,
+                             standard.vec = standard.vec,
+                             return.vec = return.vec, 
+                             stochSeq = stochSeq,
+                             Astart = Astart, 
+                             draws = draws,
+                             alpha.draws = alpha.draws,
+                             PREcheck = PREcheck)
+          }
+)
+
+#' @rdname project
+#' @export
+setMethod('project',
+          signature = 'list',
+          function (object, vector = "n", time = 100, 
+                    standard.A = FALSE, standard.vec = FALSE, 
+                    return.vec = TRUE,
+                    stochSeq = "unif", Astart = NULL,
+                    draws = 1000, alpha.draws = "unif", PREcheck = TRUE) {
+
+            .projectMSM_impl(A = object, 
+                             vector = vector,
+                             time = time,
+                             standard.A = standard.A,
+                             standard.vec = standard.vec,
+                             return.vec = return.vec, 
+                             stochSeq = stochSeq,
+                             Astart = Astart, 
+                             draws = draws,
+                             alpha.draws = alpha.draws,
+                             PREcheck = PREcheck)
+          }
+)
+
+.projectMSM_impl <- function (A, 
+                              vector, 
+                              time, 
+                              standard.A, 
+                              standard.vec, 
+                              return.vec,
+                              stochSeq, Astart,
+                              draws, 
+                              alpha.draws, 
+                              PREcheck) {
+  
+  if(PREcheck){
+    .checkRedAndPrim(A)
+  }
+  
+  errors <- .aPreChecks(A, character())
+  ifelse(
+    length(errors) > 0,
+    stop(.errorConstructor(errors)),
+    ""
+  )
+  
+  
+  A <- .a2Array(A)
+  
+  # extract some info about matrices
+  matDim <- dim(A)[1]
+  stageNames <- dimnames(A)[[2]]
+  if(is.null(stageNames)) stageNames <- paste("S", 
+                                              as.character(1:matDim),                                                        sep = "")
+  nMat <- dim(A)[3]
+  matrixNames <- dimnames(A)[[3]]
+  if(is.null(matrixNames)) {
+    matrixNames <- paste("mat", 1:nMat, sep = '')
+  }
+  
+  # standardisations
+  if (standard.A) {
+    # now extended for stochastics as well
+    A <- standardA(A)
+  }
+  
+  # initialize matrix sequences
+  
+  .checkstochSeq(stochSeq, matrixNames)
+  
+  
+  MCstart <- .checkAstart(Astart, stochSeq, matrixNames, nMat)
+  
+  # If, for some reason, they gave an integer vector and the length
+  # doesn't match time, just set it to that.
+  if(is.integer(stochSeq) & is.null(dim(stochSeq))){
+    if(length(stochSeq) != time) time <- length(stochSeq)
+  }
+  
+  # initialize the matrix sequence vector, stage+population vectors,
+  # and Projection object
+  if(nMat == 1) { 
+    MC <- rep(1L, time)
+  } else {
+    MC <- .initMc(stochSeq, time, MCstart, matrixNames, nMat)
+  }
+  
+  vecData <- .initPopVec(A = A,
+                         vector = vector, 
+                         time = time,
+                         matDim = matDim,
+                         stageNames = stageNames,
+                         draws = draws,
+                         alpha.draws = alpha.draws,
+                         standard.vec = standard.vec)
+  
+  popVec <- vecData$popVec
+  vecType <- vecData$vecType
+  projType <- vecData$projType
+  
+  popSum <- .initPopSum(dim(popVec)[3], time, popVec)
+  
+  # browser()
+  out <- .iterateMsm(A, 
+                     time, 
+                     popVec, 
+                     popSum, 
+                     MC,
+                     vecType, 
+                     projType,
+                     return.vec)
+  
+  return(out)
+  
+}
 
 #' @rdname project
 #' @importFrom rlang env_bind !!!
@@ -372,7 +453,7 @@ setMethod('project',
                    standard.A = NULL,
                    standard.vec = FALSE,
                    return.vec = TRUE,
-                   Aseq = NULL,
+                   stochSeq = NULL,
                    Astart = NULL,
                    draws = 1000, 
                    alpha.draws = 'unif',
