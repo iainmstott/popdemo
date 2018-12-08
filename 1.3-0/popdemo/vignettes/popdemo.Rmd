@@ -17,7 +17,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, comment = "##  ", collapse = TRUE, fig.align = "center")
-library(popdemo)
+library(popdemoDev)
 options(digits = 4)
 ```
 
@@ -128,23 +128,26 @@ Tortvec1 <- Tortvec1/sum(Tortvec1) #scales the vector to sum to 1
 plot(Tortp1.1, log = "y")
 ```
 
-The `project` function should usually have a matrix passed to the `A` argument, and a `vector`, which can be a single vector, multiple column vectors in a matrix, `"n"` (a default option which projects a set of stage-biased vectors) or `"diri"` (which projects large set of random vectors). We will encounter all these options in this vignette. The `time` argument gives the number of projection intervals, but the output will have length `time` + 1, because the population size at time 0 is included.  
+The `project` function can now take a matrix, a list of matrices, or a special data structure called a `CompadreMSM` for the `A` argument. The `vector` can be a single vector, multiple column vectors in a matrix, `"n"` (a default option which projects a set of stage-biased vectors) or `"diri"` (which projects large set of random vectors). We will encounter all these options in this vignette. The `time` argument gives the number of projection intervals, but the output will have length `time` + 1, because the population size at time 0 is included.  
 
-The `project` function returns an object of class 'Projection', containing the overall population size over time. In this case, this is a single vector but for objects containing multiple projections (as we'll encounter later), the projections are held in a matrix with one column per projection (therefore the number of rows is equal to `time + 1`).  
+The `project` function returns an object of class 'Projection', containing the overall population size over time. The size of the object returned depends on the number of vectors requested. It is always a matrix with `time` + 1 rows. The number of columns returned is equal to the number of vectors specified by the call to `project`. In this case, it is only 1 (because we supplied a single numeric vector, `Tortvec1`).
 
-The 'Projection' object also includes information on the time series of population vectors (i.e. (st)age-specific number / density). For an object containing a single projection, each row represents one timestep and each column represents one (st)age. We will access vectors for time intervals from 0 to 10:  
+The 'Projection' object also includes information on the time series of population vectors (i.e. (st)age-specific number / density). The first dimension is time and the second is (st)age, whilst the third represents each separate population projection. Therefore, for example, the first 10 timesteps of the third projection would be accessed using `object[1:11, ,3]`; the sizes of the second stage for all projections would be accessed using `object[ , 2, ]`; the size of the second stage at the 10th timestep of the second stage in the third projection would be `object[1:11, 2, 3]`.
+
+We will access vectors for time intervals from 0 to 10:  
+
 ```{r}
-vec(Tortp1.1)[1:11, ]
+vec(Tortp1.1)[1:11, , 1]
 
 ```
 
 The time series of stage 2 sizes is:
+
 ```{r}
-vec(Tortp1.1)[ , 2]
+vec(Tortp1.1)[ , 2, 1]
 
 ```
 
-When a Projection object contains multiple projections, the vectors are contained in a 3-dimensional array. As for a single projection, the first dimension is time and the second is (st)age, whilst the third represents each separate population projection. Therefore, for example, the first 10 timesteps of the third projection would be accessed using `object[1:11, ,3]`; the sizes of the second stage for all projections would be accessed using `object[ , 2, ]`; the size of the second stage at the 10th timestep of the second stage in the third projection would be `object[1:11, 2, 3]`.  
 
 Population growth in an MPM is geometric: when you plot population size on a log scale (as we have here), it's easy to see that the population settles to a stable geometric rate of decline. At this point, the population also has a fixed structure: the relative numbers of individuals in each stage don't change (although the absolute numbers do; this is what causes the population decline). These stable long-term dynamics are often called _**asymptotic dynamics**_. The short-term dynamics that happen before this stable state is reached and are different to asymptotic dynamics are called _**transient dynamics**_. In this exercise we'll explore both asymptotic and transient dynamics of deterministic MPM models.  
 \  
@@ -620,7 +623,7 @@ _Polar bear (photo by NASA Goddard Space Flight Center from Greenbelt, MD, USA)_
 > * Functions: `project`
 > * Classes: Projection
 > * Methods:
->     + Projection: `plot`, `Aseq`
+>     + Projection: `plot`, `stochSeq`
 
 This vignette builds on the "Deterministic population dynamics" vignette, in which a single matrix is used to project population dynamics over time. Using just a single matrix to project population dynamics makes the assumption that _**vital rates**_ such as survival, reproduction and growth stay fixed over time. It's a big assumption that over years or decades, the vital rates of a population won't change. One reason that they may change is because of environmental stochasticity, where environmental conditions, which change from year to year, impact vital rates. This could be due to many things, such as changes in weather or extreme weather events, disease outbreaks, varying resource availability, changes in predation or parasitism, and so on. If the vital rates change each year, then the matrix changes each year. The projection equation is:
 
@@ -634,9 +637,9 @@ Pbearp1.1 <- project(Pbear, Pbearvec, time = 50)
 plot(Pbearp1.1, log = "y")
 ```
 
-For a stochastic projection, the `project` function should usually have a list of matrices passed to the `A` argument, and a `vector`. The function will check that all the matrices have the same dimensions. `vector` can be either a single vector (as in the above case), or a matrix of several vectors, where each individual column represents one vector. The `time` argument gives the number of projection intervals, but the output will have length `time` + 1, because the population size at time 0 is included. There is one further important argument called `Aseq`, which determines the sequence of matrices chosen for the projection. By default, `Aseq = "unif"`. It's easy to see what the random sequence of matrices chosen is, how many matrices were used to make the projection, and what those matrices are:  
+For a stochastic projection, the `project` function should usually have a list of matrices passed to the `A` argument, and a `vector`. The function will check that all the matrices have the same dimensions. `vector` can be either a single vector (as in the above case), or a matrix of several vectors, where each individual column represents one vector. The `time` argument gives the number of projection intervals, but the output will have length `time` + 1, because the population size at time 0 is included. There is one further important argument called `stochSeq`, which determines the sequence of matrices chosen for the projection. By default, `stochSeq = "unif"`. It's easy to see what the random sequence of matrices chosen is, how many matrices were used to make the projection, and what those matrices are:  
 ```{r}
-Aseq(Pbearp1.1)
+stochSeq(Pbearp1.1)
 
 nmat(Pbearp1.1)
 
@@ -658,9 +661,9 @@ The matrix determines the probability of selecting any matrix at random based on
 
 As 2004 and 2005 were "bad" years, `p1` represents the probability of selecting a "bad" year (0.4) whilst `1 - p1` represents the probability of selecting a "good" year (0.6).  
 
-We can pass this matrix to the `Aseq` argument of the function to get a new estimate of population dynamics:
+We can pass this matrix to the `stochSeq` argument of the function to get a new estimate of population dynamics:
 ```{r}
-Pbearp2.1 <- project(Pbear, Pbearvec, Aseq = PbearM1, time = 50)
+Pbearp2.1 <- project(Pbear, Pbearvec, stochSeq = PbearM1, time = 50)
 plot(Pbearp2.1, log = "y")
 ```
 
@@ -673,9 +676,9 @@ p2 <- 0.5
 
 ```
 
-In this case, p = 0.5 means that there is now an equal probability of bad and good years. We can pass this to the `Aseq` argument of the function to get a new estimate of population dynamics:
+In this case, p = 0.5 means that there is now an equal probability of bad and good years. We can pass this to the `stochSeq` argument of the function to get a new estimate of population dynamics:
 ```{r}
-Pbearp2.2 <- project(Pbear, Pbearvec, Aseq = PbearM2, time = 50)
+Pbearp2.2 <- project(Pbear, Pbearvec, stochSeq = PbearM2, time = 50)
 plot(Pbearp2.2, log = "y")
 ```
 
@@ -684,7 +687,7 @@ This probably doesn't look too much different from the first projection, because
 p3 <- 0.8
 ( PbearM3 <- matrix(rep(c((1-p3)/3, (1-p3)/3, (1-p3)/3, p3/2, p3/2), 5), 5, 5) )
 
-Pbearp2.3 <- project(Pbear, Pbearvec, Aseq = PbearM3, time = 50)
+Pbearp2.3 <- project(Pbear, Pbearvec, stochSeq = PbearM3, time = 50)
 plot(Pbearp2.3, log = "y")
 ```
 
@@ -702,7 +705,7 @@ q4 <- 0.8
 
 The numbers show that if it's a good year (columns 1-3), the probability of next year being bad is low, whereas if it's a bad year (columns 4-5), the probability of next year being bad is high (see rows 4-5 of `PbearM4`). The projection should show us this is true:
 ```{r}
-Pbearp2.4 <- project(Pbear, Pbearvec, Aseq = PbearM4, time = 50)
+Pbearp2.4 <- project(Pbear, Pbearvec, stochSeq = PbearM4, time = 50)
 plot(Pbearp2.4, log = "y")
 ```
 
@@ -716,14 +719,14 @@ q5 <- 0.8
                       rep(c((1-q5)/3, (1-q5)/3, (1-q5)/3, q5/2, q5/2), 2)),
                     5, 5) )
 
-Pbearp2.5 <- project(Pbear, Pbearvec, Aseq = PbearM5, time = 50)
+Pbearp2.5 <- project(Pbear, Pbearvec, stochSeq = PbearM5, time = 50)
 plot(Pbearp2.5, log = "y")
 ```
 
 In this case, whilst there are still long strings of bad years, the strings of good years are much shorter.  
 
 ## 7.2 Nonrandom matrix selection
-The final option for matrix selection is to give exactly the sequence of matrices to use. It's possible to force `project` to use a specific sequence of matrices, simply by passing a sequence of numbers or names to `Aseq`. These numbers or names must correspond to the elements of your list of matrices.  
+The final option for matrix selection is to give exactly the sequence of matrices to use. It's possible to force `project` to use a specific sequence of matrices, simply by passing a sequence of numbers or names to `stochSeq`. These numbers or names must correspond to the elements of your list of matrices.  
 
 (so for the final projection of the polar bear model we could have instead specified c(1, 2, 3, 4, 5, 1, 2, 3,...) or c("2001", "2002", "2003", "2004", "2005", "2001", "2002", "2003",...) ).
 
@@ -731,11 +734,11 @@ Imagine that the weather conditions are cyclic over 5-year cycles, and that the 
 ```{r}
 ( Pbearseq <- rep(1:5, 10) )
 
-Pbearp3.1 <- project(Pbear, Pbearvec, Aseq = Pbearseq)
+Pbearp3.1 <- project(Pbear, Pbearvec, stochSeq = Pbearseq)
 plot(Pbearp3.1, log = "y")
 ```
 
-You would get the same result using `Aseq = rep(c("Y2001", "Y2002", "Y2003", "Y2004", "Y2005"), 10)`. The projection shows there's still a decline in overall population size, but with a clear cyclic dynamic to the trend.  
+You would get the same result using `stochSeq = rep(c("Y2001", "Y2002", "Y2003", "Y2004", "Y2005"), 10)`. The projection shows there's still a decline in overall population size, but with a clear cyclic dynamic to the trend.  
 \  
 
 ## *vii. EXTRAS*  
@@ -780,9 +783,9 @@ ThistleS <- mapply(function(A, r){A[3,2] <- r; A}, ThistleS, a32, SIMPLIFY = FAL
 ThistleS <- mapply(function(A, r){A[2,2] <- r; A}, ThistleS, a22, SIMPLIFY = FALSE)
 ```
 
-*As we saw earlier, it's possible to force `project` to use a specific sequence of matrices, simply by passing a sequence of numbers or names to `Aseq`. For this exercise in element selection, all we need to do is pass `1:30` to `Aseq` and it selects the random matrices in order:*
+*As we saw earlier, it's possible to force `project` to use a specific sequence of matrices, simply by passing a sequence of numbers or names to `stochSeq`. For this exercise in element selection, all we need to do is pass `1:30` to `stochSeq` and it selects the random matrices in order:*
 ```{r}
-Thistlep1.1 <- project(ThistleS, vector = Thistlevec, Aseq = 1:30)
+Thistlep1.1 <- project(ThistleS, vector = Thistlevec, stochSeq = 1:30)
 plot(Thistlep1.1, log = "y")
 lines(0:30, project(Thistle, Thistlevec, time = 30), lty = 3)
 ```
@@ -805,20 +808,20 @@ lines(0:30, project(Thistle, Thistlevec, time = 30), lty = 3)
 
 Stochastic projections are a random process. Perhaps the best way to understand stochastic population growth is to project the model and calculate growth from the results. We can calculate long-term growth of a stochastic model by averaging per-timestep growth rates over a long projection time. Every stochastic projection has a mean growth and a variance in growth. Let's calculate stochastic dynamics for the five polar bear examples from the Markov processes section above:
 ```{r}
-stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM1,
-      iterations = 3000, discard = 100)
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, stochSeq = PbearM1,
+      time = 3000, discard = 100)
 
-stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM2,
-      iterations = 3000, discard = 100)
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, stochSeq = PbearM2,
+      time = 3000, discard = 100)
 
-stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM3,
-      iterations = 3000, discard = 100)
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, stochSeq = PbearM3,
+      time = 3000, discard = 100)
 
-stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM4,
-      iterations = 3000, discard = 100)
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, stochSeq = PbearM4,
+      time = 3000, discard = 100)
 
-stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM5,
-      iterations = 3000, discard = 100)
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, stochSeq = PbearM5,
+      time = 3000, discard = 100)
 
 ```
 
@@ -832,7 +835,7 @@ eigs(PbearM4, "ss")
 
 ```
 
-In these vectors, each number gives the probability of choosing a matrix at random (in order from 2001-2005). For model 2, the probabilities are the same as the columns in the matrix. For model 4, it works out that there's an equal and symmetric (but low) probability of switching between "bad" and "good" states (20% change of switching from good to bad, 20% chance of switching from bad to good), and therefore equal (but high) probability of staying within the states (80% chance of each). The long-run probabilities of choosing each matrix are the same as for model 2 because on average each matrix gets picked 50% of the time. This observation stresses the need for long projections to calculate stochastic growth. In the above examples we used 3000 `iterations`, `discard`ing the first 100 to eliminate effects from the initial conditions. Conversely, too many iterations could result in numbers becoming too large or too small for `R` to continue to be able to calculate them.  
+In these vectors, each number gives the probability of choosing a matrix at random (in order from 2001-2005). For model 2, the probabilities are the same as the columns in the matrix. For model 4, it works out that there's an equal and symmetric (but low) probability of switching between "bad" and "good" states (20% change of switching from good to bad, 20% chance of switching from bad to good), and therefore equal (but high) probability of staying within the states (80% chance of each). The long-run probabilities of choosing each matrix are the same as for model 2 because on average each matrix gets picked 50% of the time. This observation stresses the need for long projections to calculate stochastic growth. In the above examples we used 3000 `time` steps, `discard`ing the first 100 to eliminate effects from the initial conditions. Conversely, too much time could result in numbers becoming too large or too small for `R` to continue to be able to calculate them.  
 
 It's even more difficult to understand long-run probabilities in asymmetric situations such as model 5, but we can still use the dominant eigenvector:
 ```{r}

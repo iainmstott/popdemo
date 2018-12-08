@@ -7,11 +7,11 @@
 standardA(A)
 }
 \arguments{
-\item{aMat}{A single square matrix or array of square matrices stacked as an
+\item{A}{A single square matrix or array of square matrices stacked as a
 3-dimensional array}
 }
 \value{
-A single matrix or a 3 dimensional array of square matrices. They are
+An array of the same dimension as the input (\code{A}). They are
 the input matrices that have been divided by their dominant eigenvalues.
 }
 \description{

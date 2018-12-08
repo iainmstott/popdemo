@@ -7,14 +7,14 @@
 }
 
 # Blanket function to cover both stochastic and deterministic
-.aPreChecks <- function(aMat, errors, PREcheck) {
+.aPreChecks <- function(aMat, errors) {
   
   if(.isDeterministic(aMat)) {
-    errors <- c(errors, .checkDeterministicA(aMat, errors, PREcheck))
+    errors <- c(errors, .checkDeterministicA(aMat, errors))
     
   } else {
     
-    errors <- c(errors, .checkStochasticA(aMat, errors, PREcheck))
+    errors <- c(errors, .checkStochasticA(aMat, errors))
   }
   
   return(errors)
@@ -25,21 +25,11 @@
 }
 
 # check a single matrix for deterministic iterations
-.checkDeterministicA <- function(aMat, errors, PREcheck) {
+.checkDeterministicA <- function(aMat, errors) {
   
   aMat <- aMat[[1]]  
   if(!.isSquare(aMat)) {
     errors <- c(errors, 'A must be a square matrix')
-  }
-  
-  if(PREcheck){
-    if (!isIrreducible(aMat)) {
-      warning("Matrix is reducible")
-    } else {
-      if (!isPrimitive(aMat)) {
-        warning("Matrix is imprimitive")
-      }
-    }
   }
   
 }
@@ -80,7 +70,7 @@
 
 
 # Check set of matrices for stochastic iterations
-.checkStochasticA <- function(aMat, errors, PREcheck) {
+.checkStochasticA <- function(aMat, errors) {
   
   # stop if A isn't a matrix or list of matrices (or array of matrices)
   if(!any((is.list(aMat) & all(vapply(aMat, is.matrix, logical(1)))), 
@@ -98,7 +88,7 @@
   squares <- vapply(aMat, .isSquare, logical(1))
   if(any(!squares)) {
     squareInd <- which(!squares)
-    errors <- c(error, 
+    errors <- c(errors, 
                 paste(c('One or more matrices are not square (',
                         paste(squareInd, 
                               collapes = ', '),
@@ -106,10 +96,16 @@
                       collapse = ""))
   }
   
+  return(errors)
+}
+
+# only used if(PREcheck)
+.checkRedAndPrim <- function(A) {
   # optional primitivity/reducibility checks
-  if(PREcheck){
-    reds <- vapply(aMat, isIrreducible, logical(1))
-    imps <- vapply(aMat, isPrimitive, logical(1))
+  
+  if(length(A) > 1){
+    reds <- vapply(A, isIrreducible, logical(1))
+    imps <- vapply(A, isPrimitive, logical(1))
     
     if(any(!reds)) {
       redInd <- which(!reds)
@@ -124,20 +120,30 @@
                       paste(impInd, collapse = ", "),")"),
                     sep = ""))
     }
-    
   }
   
-  return(errors)
+  if(length(A) == 1) {
+    A <- A[[1]]
+    if (!isIrreducible(A)) {
+      warning("Matrix is reducible")
+    } else {
+      if (!isPrimitive(A)) {
+        warning("Matrix is imprimitive")
+      }
+    }
+  }
+  
+  invisible(NULL)
 }
 
 # checks aStart for most problems. Generates MCstart if none are found
-.checkAstart <- function(Astart, Aseq, matrixNames, nMat) {
+.checkAstart <- function(Astart, stochSeq, matrixNames, nMat) {
   
   MCstart <- NULL
   
   
   if(nMat == 1) {
-    if(Aseq != "unif") warning("Ignoring Aseq: only 1 matrix in A")
+    if(stochSeq != "unif") warning("Ignoring stochSeq: only 1 matrix in A")
   }
   
   if(nMat > 1) {
@@ -171,50 +177,50 @@
   return(MCstart)
 }
 
-# checks aSeq. Does not return anything if there no problems because
-# aSeq is then passed as is to initMc by checkAstart(). 
+# checks stochSeq. Does not return anything if there no problems because
+# stochSeq is then passed as is to initMc by checkAstart(). 
 # 
 # This is a mess of if()s, but I'm not sure how to avoid this.
 
-.checkAseq <- function(aSeq, matrixNames, matDim) {
+.checkstochSeq <- function(stochSeq, matrixNames, matDim) {
   
   # general checks
-  if(!any(aSeq[1] == "unif", 
-          is.matrix(aSeq), 
-          is.integer(aSeq) & is.null(dim(aSeq)),
-          is.character(aSeq) & is.null(dim(aSeq)))){
-    stop('aSeq must take "unif", a numeric matrix, a numeric vector, or a character vector',
+  if(!any(stochSeq[1] == "unif", 
+          is.matrix(stochSeq), 
+          is.integer(stochSeq) & is.null(dim(stochSeq)),
+          is.character(stochSeq) & is.null(dim(stochSeq)))){
+    stop('stochSeq must take "unif", a numeric matrix, a numeric vector, or a character vector',
          call. = FALSE)
   }
   
   # if it's a transition matrix
-  if(is.matrix(aSeq)) {
-    if(dim(aSeq)[1] != length(matrixNames)) {
-      stop('Dimension of aSeq must equal the number of matrices in A',
+  if(is.matrix(stochSeq)) {
+    if(dim(stochSeq)[1] != length(matrixNames)) {
+      stop('Dimension of stochSeq must equal the number of matrices in A',
            call. = FALSE)
     }
-    if(dim(aSeq)[1] != dim(aSeq)[2]) {
-      stop('aSeq is not square', call. = FALSE)
+    if(dim(stochSeq)[1] != dim(stochSeq)[2]) {
+      stop('stochSeq is not square', call. = FALSE)
     }
-    if(!all(colSums(aSeq) == 1)) {
-      stop("Columns of Aseq do not sum to 1")
+    if(!all(colSums(stochSeq) == 1)) {
+      stop("Columns of stochSeq do not sum to 1")
     }
   }
   
   # if it's an integer sequence 
-  if(is.integer(aSeq)) {
-    if(min(aSeq) < 1) stop('All entries in aSeq must be positive integers')
-    if(max(aSeq) > length(matrixNames)) {
-      stop('One or more entries in aSeq are greater than the number of matrices',
+  if(is.integer(stochSeq)) {
+    if(min(stochSeq) < 1) stop('All entries in stochSeq must be positive integers')
+    if(max(stochSeq) > length(matrixNames)) {
+      stop('One or more entries in stochSeq are greater than the number of matrices',
            'in A')
     }
   }
   
   # if it's a character sequence w/ matrix names
-  if(is.character(aSeq) &
-     length(aSeq) > 1 &
-     !all(aSeq %in% matrixNames)) {
-    stop("Names of aSeq aren't all found in A")  
+  if(is.character(stochSeq) &
+     length(stochSeq) > 1 &
+     !all(stochSeq %in% matrixNames)) {
+    stop("Names of stochSeq aren't all found in A")  
   }
   
   invisible(NULL)
@@ -222,16 +228,16 @@
 
 # takes the user-specified input and generates a sequence of integers to index
 # A by. This index is used to select the A matrix during iteration
-.initMc <- function(aSeq, time, MCstart, matrixNames, nMat) {
+.initMc <- function(stochSeq, time, MCstart, matrixNames, nMat) {
   # browser()
   
   # if uniform prob, create a uniform transition matrix
   # if user provided markov matrix, just use that to generate markov chains
-  if(aSeq == "unif" || is.matrix(aSeq)) {
+  if(stochSeq == "unif" || is.matrix(stochSeq)) {
     
     # user supplied matrix
-    if(is.matrix(aSeq)) {
-      MCtm <- aSeq 
+    if(is.matrix(stochSeq)) {
+      MCtm <- stochSeq 
       
     } else {
       # Unif gets uniform probability matrix
@@ -241,10 +247,10 @@
     # convert matrix to index
     MC <- .rmc(MCtm, time, MCstart)
     
-  } else if(is.integer(aSeq) & is.null(dim(aSeq))) {
-    MC <- aSeq
-  } else if(is.character(aSeq)) {
-    MC <- match(aSeq, matrixNames)
+  } else if(is.integer(stochSeq) & is.null(dim(stochSeq))) {
+    MC <- stochSeq
+  } else if(is.character(stochSeq)) {
+    MC <- match(stochSeq, matrixNames)
   }
   
   if(!is.null(MCstart)) {
@@ -294,9 +300,10 @@
                                             standard.vec = standard.vec),
                    # not yet implemented, waiting to see what
                    # the database version of these looks like
-                   'db' = .initDbVector(vector, 
-                                        matDim, 
-                                        stageNames))
+                   # 'db' = .initDbVector(vector, 
+                   #                      matDim, 
+                   #                     stageNames)
+  )
   
   # can be any combinatin of c(deterministic, stochastic) AND
   # c(single, multiple, diri, or bias)
@@ -451,7 +458,7 @@
       bounds <- matrix(c(NA_real_, NA_real_), nrow = 1)
     }
   }
-
+  
   out <- .updateProjOutput(vecOut,
                            popOut,
                            bounds, 
@@ -471,10 +478,10 @@
 #' out the asymptotic components of each matrix, leaving only the transient
 #' growth components.
 #' 
-#' @param aMat A single square matrix or array of square matrices stacked as an
+#' @param A A single square matrix or array of square matrices stacked as a
 #' 3-dimensional array
 #' 
-#' @return A single matrix or a 3 dimensional array of square matrices. They are
+#' @return An array of the same dimension as the input (\code{A}). They are
 #' the input matrices that have been divided by their dominant eigenvalues.
 #' 
 #' @references Add something here
@@ -531,11 +538,32 @@ standardA <- function(A) {
   if(is.null(dim(popOut))) dim(popOut) <- time + 1
   out@.Data <- popOut
   if(return.vec) out@vec <- vecOut
-  out@mat <- ifelse(!is.list(A), .a2List(A), A)
+  if(is.list(A)) {
+    out@mat <- A
+  } else {
+    out@mat <- .a2List(A)
+  }
   out@stochSeq <- as.integer(MC)
   out@projtype <- projType
   out@bounds <- bounds
   out@vectype <- vecType
   
   return(out) 
+}
+
+
+.errorConstructor <- function(errors) {
+  n <- seq(1, length(errors), 1)
+  
+  paste(
+    c(
+      'The following errors were detected:\n',
+      paste(n, 
+            '. ',
+            errors,
+            '\n'),
+      sep = ""
+    ),
+    sep = ""
+  )
 }

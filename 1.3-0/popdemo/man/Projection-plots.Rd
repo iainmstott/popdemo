@@ -110,7 +110,7 @@ population dynamics" vignettes.
   plot(pr4)
 
   # Select the time series for stage 1
-  vec(pr4)[,1]
+  vec(pr4)[, 1, 1]
 
   ### DETERMINISTIC PROJECTIONS
 

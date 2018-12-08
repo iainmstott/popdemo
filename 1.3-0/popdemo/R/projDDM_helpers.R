@@ -3,15 +3,17 @@
 #' @aliases makeMatExprs makeDataList
 #' @title Helpers to construct CompadreDDMs
 #' 
-#' @description These functions assist creation of \code{CompadreDDM}s by ensuring that
+#' @description These functions assist with creation of \code{CompadreDDM}s by ensuring that
 #' each expression and associated values are evaluated in the correct order.
-#' See the examples for workflows
+#' 
 #' 
 #' @param ... For \code{makeDataList}, named constant values that are 
-#' substituted into the \code{matrixExpr} or \code{matExprs} expressions. For
-#' \code{makeMatExprs}, this is a set of named expressions. The left hand 
-#' side of each one should be a parameter that appears either in the \code{matExpr}
-#' or in another expression in the same call. See examples.
+#' substituted into the \code{matExprs} expressions. These can be regression 
+#' coefficients, values for fixed vital rates, or any other value that appears
+#' in \code{matExprs}. For \code{makeMatExprs}, this is a set of named expressions.
+#' The left hand side of each one should be a parameter that appears either 
+#' in the \code{matrixExpr} or in another expression for a density dependent vital
+#' rate.
 #' @param initPopVector optionally, an initial population vector to start a
 #' \code{Projection} with. Values in this should be named with values corresponding
 #' to the \code{matrixExpr} or \code{matExprs}. See details for warnings on not 
@@ -20,24 +22,28 @@
 #' @return \code{makeDataList} returns a named list with parameter values.
 #' \code{makeMatExpr} returns a named list of expressions that are used
 #' to calculate values of matrix elements at each iteration, and the matrix itself.
-#' For those who are curious or wish to construct this by hand, these expressions 
+#' For those who are curious or wish to construct these by hand, these expressions 
 #' are stored as \code{\link[rlang]{quos}} with \code{env} slot set to \code{empty}.
 #' The environment is reassigned to a specific evaluation environment during
 #' iteration and the user-specified one (if it is specified at all) will be 
 #' overridden. 
 #' 
 #' @examples 
+#' # This example makes use of Pardini et al (2009) Complex dynamics and control of
+#' # invasive bienniel Alliaria petiolata (garlic mustard). Ecologogical Applications
+#' 
 #' # makeMatExprs can take raw expressions, even when the parameters in them are
-#' defined by other expressions. This allows you to focus on specifying each
-#' density dependent model correctly without worrying about the specifics of
-#' function evaluation.
+#' # defined by other expressions. This allows you to focus on specifying each
+#' # density dependent model correctly without worrying about the specifics of
+#' # function evaluation.
+#' 
 #' exprs <- makeMatExprs(
 #'   s_2 = 1/(1 + exp(bs2_2 * u_i + bs2_1 * t_i + bs2_0)),
 #'   s_3 = exp(bs3_1 * log(r + 1)),
 #'   f = exp(bf_1 * a + bf_0),
-#'   u_i = r * a, # density dependent terms (r and a are stages in the population vector)
-#'   t_i = r + a, # density dependent terms (r and a are stages in the population vector)
-#'   mat_expr =
+#'   u_i = r * a, # density dependent terms. These appear in s_2, s_3, and f
+#'   t_i = r + a, # r and a are the second and third stages in initPopVector
+#'   matrixExpr =
 #'       c(
 #'         1 - g_2, 0, v * (1-g_1) * f,
 #'         g_2 * s_1, 0, v * g_1 * s_1 * f,
@@ -65,9 +71,39 @@
 #'   initPopVector = c(s = 10, r = 0, a = 0)
 #' )
 #' 
-#' alliariaDDM <- CompadreDDM(dataList = data, matExprs = exprs)
+#' alliariaDDM <- CompadreDDM(dataList = data,
+#'                            matExprs = exprs)
 #' 
 #' project(alliariaDDM, time = 100)
+#' 
+#' # Now, one without a population vector. In this case, we subtract the 
+#' # initPopVector entry from our dataList and 
+#' 
+#' vec_less_data <- data[-(length(data))]
+#' vec_less_exprs <- makeMatExprs(
+#'   s_2 = 1/(1 + exp(bs2_2 * u_i + bs2_1 * t_i + bs2_0)),
+#'   s_3 = exp(bs3_1 * log(V2 + 1)), # notice that this is now switched from "r" to V2
+#'   f = exp(bf_1 * V3 + bf_0),      # and this is now V3 instead of a
+#'   u_i = V2 * V3,                  # V2 * V3 instead of r * a
+#'   t_i = V2 + V3,                  # V2 + V3 instead of r + a
+#'   matrixExpr =
+#'     c(
+#'       1 - g_2, 0, v * (1-g_1) * f,
+#'       g_2 * s_1, 0, v * g_1 * s_1 * f,
+#'       0, s_2 * s_3, 0
+#'     ),
+#'   matrixDimension = 3
+#' )
+#' 
+#' vecless_alliariaDDM <- CompadreDDM(dataList = vec_less_data,
+#'                                    matExprs = vec_less_exprs)
+#' \dontrun{
+#' # Test out dirichlet vectors and make sure plotting works
+#' vecless_dirichlet_alliaria <- project(vecless_alliariaDDM,
+#'                                       vector = 'diri', 
+#'                                       draws = 500, 
+#'                                       alpha.draws = 'unif')
+#' }
 #' 
 #' @export
 
@@ -278,9 +314,10 @@ makeMatExprs <- function(...,
                                             standard.vec = standard.vec),
                    # not yet implemented, waiting to see what
                    # the database version of these looks like
-                   'db' = .initDbVector(vector, 
-                                        matDim, 
-                                        stageNames))
+                   # 'db' = .initDbVector(vector, 
+                   #                      matDim, 
+                   #                      stageNames)
+                   )
   
   if(is.numeric(vector)) {
     if((is.array(popVec) & dim(popVec)[3] == 1)) vecType <- 'single'

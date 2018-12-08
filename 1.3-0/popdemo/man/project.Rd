@@ -4,6 +4,8 @@
 \name{project}
 \alias{project}
 \alias{project,CompadreMSM-method}
+\alias{project,matrix-method}
+\alias{project,list-method}
 \alias{project,CompadreDDM-method}
 \title{Project population dynamics}
 \usage{
@@ -11,18 +13,29 @@ project(object, ...)
 
 \S4method{project}{CompadreMSM}(object, vector = "n", time = 100,
   standard.A = FALSE, standard.vec = FALSE, return.vec = TRUE,
-  Aseq = "unif", Astart = NULL, draws = 1000, alpha.draws = "unif",
-  PREcheck = TRUE)
+  stochSeq = "unif", Astart = NULL, draws = 1000,
+  alpha.draws = "unif", PREcheck = TRUE)
+
+\S4method{project}{matrix}(object, vector = "n", time = 100,
+  standard.A = FALSE, standard.vec = FALSE, return.vec = TRUE,
+  stochSeq = "unif", Astart = NULL, draws = 1000,
+  alpha.draws = "unif", PREcheck = TRUE)
+
+\S4method{project}{list}(object, vector = "n", time = 100,
+  standard.A = FALSE, standard.vec = FALSE, return.vec = TRUE,
+  stochSeq = "unif", Astart = NULL, draws = 1000,
+  alpha.draws = "unif", PREcheck = TRUE)
 
 \S4method{project}{CompadreDDM}(object, vector = NULL, time = 100,
   standard.A = NULL, standard.vec = FALSE, return.vec = TRUE,
-  Aseq = NULL, Astart = NULL, draws = 1000, alpha.draws = "unif",
-  PREcheck = FALSE)
+  stochSeq = NULL, Astart = NULL, draws = 1000,
+  alpha.draws = "unif", PREcheck = FALSE)
 }
 \arguments{
-\item{object}{Either a \code{CompadreMSM} or \code{CompadreDDM} object. See
+\item{object}{Either a single square matrix, a list of square matrices,
+a \code{CompadreMSM}, or \code{CompadreDDM} object. See
 \code{\link{CompadreDDM}} and \code{\link{CompadreMSM}} for more info on 
-constructing these. \strong{NEED TO ADD METHOD FOR USER SPECIFIED ONES??}}
+constructing the latter.}
 
 \item{...}{Arguments passed to individual methods.}
 
@@ -35,8 +48,7 @@ of rows of the matrix should be equal to the matrix dimension, whilst the
 number of columns gives the number of vectors to project. \code{vector} may
 also take either "n" (default) to calculate the set of stage-biased projections 
 (see details), or "diri" to project random population vectors drawn from a 
-dirichlet distribution (see details). This is possible for both \code{CompadreDDM}
-and \code{CompadreMSM} objects. When specifying a numeric vector/matrix for
+dirichlet distribution (see details). When specifying a numeric vector/matrix for
 \code{CompadreDDM} objects, take care that
 the names supplied here match those in \code{matExprs} slot of the \code{object}.
 For numeric vectors, names are supplied via \code{my_vector = c(name1 = value1,
@@ -61,16 +73,16 @@ relative to initial population size.}
 \item{return.vec}{(optional) if \code{TRUE}, returns the time series of 
 demographic (st)age vectors as well as overall population size.}
 
-\item{Aseq}{(optional, for stochastic projections with \code{CompadreMSM} only) the sequence of 
+\item{stochSeq}{(optional, ignored for \code{CompadreDDM} objects) the sequence of 
 matrices in a stochastic projection. 
-\code{Aseq} may be either:
+\code{stochSeq} may be either:
 \itemize{
  \item "unif" (default), which results in every matrix in \code{A} having an 
  equal, random chance of being chosen at each timestep.
  \item a square, nonnegative left-stochastic matrix describing a first-order 
  Markov chain used to choose the matrices. The transitions are defined COLUMNWISE: 
  each column j describes the probability of choosing stage (row) i at time t+1, 
- given that stage (column) j was chosen at time t. \code{Aseq}  should have the 
+ given that stage (column) j was chosen at time t. \code{stochSeq}  should have the 
  same dimension as the number of matrices in \code{A}. 
  \item an integer vector giving a specific sequence which corresponds to the
  matrices in \code{A}.
@@ -86,6 +98,10 @@ When \code{Astart = NULL} (the default), a random initial matrix is chosen.}
 
 \item{draws}{if \code{vector="diri"}, the number of population vectors drawn
 from dirichlet.}
+
+\item{alpha.draws}{if \code{vector="diri"}, the alpha values passed to 
+\code{\link[MCMCpack]{rdirichlet}}: used to bias draws towards or away from a certain population
+structure.}
 
 \item{PREcheck}{many functions in \code{popdemo} first check Primitivity, 
 Reducibility and/or Ergodicity of matrices, with associated warnings and/or 
@@ -123,7 +139,7 @@ of stage 3 in the projection of vector 2 / stage-bias 2 / draw 2. The matrix [,,
 represents the time series of all stages in the projection of vector 2 / stage-bias 
 2 / draw 2.
 
-Note that the projections inherit the labelling from \code{A} and \code{vector}, if
+Note that the projections inherit the labelling from \code{object} and \code{vector}, if
 it exists. Both stage and vector names are taken from the COLUMN names of \code{A} 
 and \code{vector} respectively. These may be useful for selecting from the
 \code{projection} object, and for labelling graphs when plotting Projection
@@ -172,7 +188,7 @@ Projections returned are of length \code{time+1}, as the first element
 represents the population at \code{t=0}.
 
 Projections have their own plotting method (see \code{\link{Projection-plots}})
-to enable easy graphing.
+to facilitate graphing.
 
 In addition to the examples below, see the "Deterministic population dynamics" 
 and "Stochastic population dynamics" vignettes for worked examples that use 
@@ -192,7 +208,7 @@ the \code{project} function.
   vec(pr)  #time sequence of population vectors
   bounds(pr)  #bounds on population dynamics
   mat(pr)  #matrix used to create projection
-  Aseq(pr)  #sequence of matrices (more useful for stochastic projections)
+  stochSeq(pr)  #sequence of matrices (more useful for stochastic projections)
   projtype(pr)  #type of projection
   vectype(pr)  #type of vector(s) initiating projection
 
@@ -234,7 +250,7 @@ the \code{project} function.
   plot(pr4)
 
   # Select the time series for stage 1
-  vec(pr4)[,1]
+  vec(pr4)[, 1, 1]
 
   ### DETERMINISTIC PROJECTIONS
 
@@ -273,10 +289,10 @@ the \code{project} function.
   
   # project over 50 years with uniform matrix selection
   Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
-  p2 <- project(Pbear, Pbearvec, time = 50, Aseq = "unif")
+  p2 <- project(Pbear, Pbearvec, time = 50, stochSeq = "unif")
 
   # stochastic projection information
-  Aseq(p2)
+  stochSeq(p2)
   projtype(p2)
   nmat(p2)
   

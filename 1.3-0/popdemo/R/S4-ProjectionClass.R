@@ -35,16 +35,17 @@
 #' such. Therefore, if \code{vector} is specified, the 'Projection' object will 
 #' behave as: 
 #' \itemize{
-#'  \item if a single \code{vector} is given, a numeric vector of population sizes 
-#'  of length \code{time+1}
+#'  \item if a single \code{vector} is given, a numeric matrix of population sizes 
+#'  with number of rows equal to \code{time+1} and one column.
 #'  \item if multiple \code{vector}s are given, a numeric matrix of population 
-#'  projections where each column represents a single population projection and 
-#'  is of length \code{time+1}
-#'  \item if \code{vector="n"}, a numeric matrix of population projections where each column 
-#'  represents a single stage-biased projection and is of length \code{time+1}.
-#'  \item if \code{vector="diri"}, a numeric matrix of population projections where each 
-#'  column represents projection of a single vector draw and each column is of 
-#'  length \code{time+1}.
+#'  projections with number of rows equal to \code{time+1} and as many columns
+#'  as there are initial population vectors.
+#'  \item if \code{vector="n"}, a numeric matrix of population 
+#'  projections with number of rows equal to \code{time+1} and as many columns
+#'  as there are stages in the matrix.
+#'  \item if \code{vector="diri"}, a numeric matrix of population 
+#'  projections with number of rows equal to \code{time+1} and as many columns
+#'  as there are \code{draws}.
 #' }
 #'
 #' @slot vec Age- or stage-based population vectors. \code{vec} 
@@ -77,7 +78,9 @@
 #' }
 #' 
 #' Some examples for understanding the structure of 3D arrays returned when 
-#' \code{return.vec=TRUE}: when projecting a 3 by 3 matrix for >10 time intervals, 
+#' \code{return.vec=TRUE}: 
+#' 
+#' when projecting a 3 by 3 matrix for >10 time intervals, 
 #' element [11,3,2] represents the density of stage 3 at time 10 
 #' for either vector 2 (multiple vectors), stage-bias 2 (\code{vector="n"}) or draw 2 
 #' (\code{vector="diri"}); note that because element 1 represents t=0, then t=10 
@@ -106,36 +109,17 @@
 #' number of rows is equal to \code{time + 1}.
 #' 
 #' @slot mat The matrix/matrices used in the population projection. In their 
-#' raw form \code{mat} is always a three-dimensional array, where the third 
-#' dimension is used to index the different matrices. However, by using the 
+#' raw form \code{mat} is always a list. However, by using the 
 #' \code{mat()} accessor function below, it is possible to choose different ways
-#' of representing the matrices (matrix, list, array).
+#' of representing the matrices (matrix, list, array). Note that for \code{CompadreDDM}s,
+#' this may be a very long list as the matrix computed for each iteration is stored
+#' and returned.
 #'
-#' @slot stochSeq A list giving the sequence of environmental values or matrices used in the 
-#' projection. This will only have \code{length > 1} when doing stochastic by matrix
-#' element projections where vital rates depend on multiple external sources of 
-#' information (e.g. temperature AND precipitation, competitor density AND nutrient
-#'  availability) or a function call is used to generate the environmental sequence. 
-#' \itemize{
-#'   \item Deterministic projections - where there is only 1 matrix or 
-#' environmental value/set of values this will always be \code{rep(1, time)}.
-#'   \item Stochastic projections (with more than 1 matrix or a set of environmental
-#' values)
-#'    \itemize{ 
-#'      \item If \code{stochSeq} is passed as a numeric or
-#' character vector then this slot will take that value. 
-#'      \item If \code{stochSeq} is passed as a matrix describing
-#' a random markov process is passed, the\code{stochSeq} slot will be a single 
-#' random chain.
-#'      \item If \code{stochSeq} is passed as a function call (e.g. describing a
-#' distribution of environmental values), then the both the expression and vector
-#' of values used will be returned in the \code{stochSeq} slot.
-#'  }
-#'}
+#' @slot stochSeq An integer vector giving the sequence of matrices used in the 
+#' projection.  
+#' 
 #' @slot projtype The type of projection. Either "deterministic" (single matrix; 
-#' time-invariant), or "stochastic" (multiple matrices; time-varying). If "stochastic",
-#' \code{projtype} will also provide what type ("stochastic - density depedent",
-#' "stochastic - matrix element", or "stochastic - matrix selection"). 
+#' time-invariant), or "stochastic" (multiple matrices; time-varying; density-dependent). 
 #'
 #' @slot vectype The type of vector passed to \code{project}. May be "single" 
 #' (one vector; one population projection), "multiple" (more than one vector; 
@@ -202,7 +186,7 @@
 #'   plot(pr4)
 #'
 #'   # Select the time series for stage 1
-#'   vec(pr4)[,1]
+#'   vec(pr4)[ , 1, 1]
 #'
 #'   ### DETERMINISTIC PROJECTIONS
 #' 
@@ -297,7 +281,7 @@ validProjection <- function(object){
   }
   ifelse(length(errors) == 0, 
          TRUE, 
-         stop(errorConstructor(errors), call. = FALSE))
+         stop(.errorConstructor(errors), call. = FALSE))
 }
 setValidity("Projection", validProjection)
 
@@ -358,20 +342,18 @@ setMethod("mat", signature = (object = "Projection"),
               stop("return must be \"simple\", \"list\" or \"array\"")
             }
             if(return == "simple"){
-              if(dim(object@mat)[3] == 1) return(object@mat[,,1])
-              if(dim(object@mat)[3] > 1){
-                return(lapply(
-                  apply(object@mat, 3, list), function(x){x[[1]]}
-                ))
+              if(length(object@mat) == 1) return(object@mat[[1]])
+              if(length(object@mat) > 1){
+                # This is the same return == 'list'. I have no idea what 
+                # 'simple' is supposed to return in this case though...
+                return(lapply(object@mat, function(x) x))
               }
             }
             if(return == "list"){
-              return(lapply(
-                apply(object@mat, 3, list), function(x){x[[1]]}
-              ))
+              return(object@mat)
             }
             if(return == "array"){
-              return(object@mat)
+              return(.a2Array(object@mat))
             }
           }
 )
@@ -455,7 +437,7 @@ setGeneric("nmat",
 setMethod("nmat", signature = (object = "Projection"), 
           function(object){
             if(length(object@mat) == 0) return(0)
-            if(length(dim(object@mat)) == 3) return(dim(object@mat)[3])
+            if(length(object@mat) > 0) return(length(object@mat))
           }
 )
 
@@ -544,7 +526,7 @@ setMethod("ntime", signature = (object = "Projection"),
 #'   plot(pr4)
 #'
 #'   # Select the time series for stage 1
-#'   vec(pr4)[,1]
+#'   vec(pr4)[, 1, 1]
 #'
 #'   ### DETERMINISTIC PROJECTIONS
 #' 
@@ -627,7 +609,7 @@ setMethod("show", signature = (object = "Projection"),
                   nc2 <- "s"
                   vectypec <- ""
                 }
-                if(vectype(object) == "bias"){
+                if(vectype(object) == "n"){
                   nc1 <- as.character(dim(N)[2])
                   nc2 <- "s"
                   vectypec <- " (stage-biased initial vectors) "
@@ -756,16 +738,3 @@ setMethod("plot", signature = (x = "Projection"),
             }
           }
 )
-
-errorConstructor <- function(errors) {
-  
-  
-  n <- seq(1, length(errors), 1)
-  c('The following errors were found:\n',
-    paste(
-      n,
-      '. ',
-      errors, '
-      \n',
-      sep = ""))
-}
