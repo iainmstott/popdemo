@@ -120,12 +120,62 @@ vec_less_exprs <- makeMatExprs(
 
 vecless_alliariaDDM <- CompadreDDM(dataList = vec_less_data,
                                    matExprs = vec_less_exprs)
-
+\dontrun{
 # Test out dirichlet vectors and make sure plotting works
 vecless_dirichlet_alliaria <- project(vecless_alliariaDDM,
                                       vector = 'diri', 
                                       draws = 500, 
                                       alpha.draws = 'unif')
+}
+
+
+#' 
+constants <- makeDataList(
+  v = 0.8228,
+  g_1 = 0.5503,
+  g_2 = 0.3171,
+  bs2_2 = 0.0016,
+  bs2_1 = -0.0664,
+  bs2_0 = -0.156,
+  bs3_1 = -0.289,
+  bf_1 = -0.0389,
+  bf_0 = 7.489,
+  s_1 = 0.28
+)
+
+# It is also possible to create model objects and pass calls to predict
+# into makeMatExprs and subsequently to project(). 
+
+s_2 <- rbinom(100, 1, 0.5)
+densV3 <- round(runif(100, 1, 2000))
+densV2 <- round(runif(100, 1, 2500))
+plotDens <- densV3 + densV2
+my_mod <- glm(s_2 ~ plotDens, family = 'binomial')
+
+# Here, we specify s_2 as the output of predict(). Any code can be substituted in
+# provided that it returns a single numeric value and that value is always positive!
+
+predictExprs <- makeMatExprs(
+  s_2 = predict(my_mod,         
+                newdata = data.frame(plotDens = sum(V2, V3)), 
+                type = 'response'), 
+  s_3 = exp(bs3_1 * log(V2 + 1)),
+  f = exp(bf_1 * V3 + bf_0),
+  u_i = V2 * V3,                     # Still not using an initial 
+  t_i = V2 + V3,                     # population vector in makeDataList()!
+  matrixExpr =
+    c(
+      1 - g_2, 0, v * (1-g_1) * f,
+      g_2 * s_1, 0, v * g_1 * s_1 * f,
+      0, s_2 * s_3, 0
+    ),
+  matrixDimension = 3
+)
+
+predictAlliariaDDM <- CompadreDDM(dataList = constants,
+                                  matExprs = predictExprs)
+
+glmProj <- project(predictAlliariaDDM, vector = 'n')
 
 
 }

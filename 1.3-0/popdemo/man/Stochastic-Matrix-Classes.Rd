@@ -57,7 +57,11 @@ expression for \code{u} will get evaluated first and substituted into the
 expression for \code{f_2}. More complicated expressions (provided they are valid
 R code) can also be supplied as long as they return a single numeric value. 
 You do not need to specify these in any particular 
-order in calls to \code{makeMatExprs}. See the vignette on writing density 
+order in calls to \code{makeMatExprs}. This is most useful after constructing
+a model for a vital rate - generating an expression that calls 
+\code{predict(model,...)} is valid.
+
+See the vignette on writing density 
 dependent functions for additional examples (\code{browseVignettes('popdemo')}).
  
 The matrix expression can be filled with a

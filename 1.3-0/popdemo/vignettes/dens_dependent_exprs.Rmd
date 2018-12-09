@@ -10,29 +10,24 @@ output:
       smooth_scroll: false
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Writing Density Dependent Expressions for matExprs}
+  %\VignetteIndexEntry{popdemo: Demographic modelling using projection matrices}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
+  
+  
+  ```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "##  ", collapse = TRUE, fig.align = "center")
+library(popdemoDev)
+options(digits = 4)
+```
 
 # Density dependent expressions
 Density dependent expressions can be tricky to write, so we hope this will help
 users figure out the correct specification for any density dependent model they 
-may come across.
+may come across. It is possible to pass calls to `predict` into `makeMatExprs`, 
+and this may save users considerable heartache. Examples of how to do that are below.
 
-## What popdemo can do
-- Take expressions that generate scalar outputs and use those to iterate matrices
-
-- Generate plots of population sizes/vectors after the iterations have
-been done.
-
-
-## What popdemo cannot do (yet, anyway)
-- Take model objects (e.g. _glm_'s, _lm_'s, _merMod_'s) and automatically generate
-correct expressions for you. You'll need to know the mathematical form of the 
-models that underlie those.
-
-- May be able to work around this by writing your own functions that call `predict()` and return a single value, but this is not yet tested and may be difficult at the moment.
 
 # Writing expressions for `makeMatExprs`
 The ... argument of `makeMatExprs` takes named expressions. You do not need
@@ -60,15 +55,15 @@ The matrix itself takes the form:
 
 $$
 \begin{bmatrix}
-    0 & 0 & f * g \\
-    s_1(V) & 0 & 0 \\
-    0 & s_2(V) & 0 
-    \end{bmatrix}
+0 & 0 & f * g \\
+s_1(V) & 0 & 0 \\
+0 & s_2(V) & 0 
+\end{bmatrix}
 \begin{bmatrix}
-    V_1 \\
-    V_2 \\
-    V_3 \\
-    \end{bmatrix}
+V_1 \\
+V_2 \\
+V_3 \\
+\end{bmatrix}
 
 $$
 The column vector to the right of the matrix is the population vector. Each entry in it represents the number of individuals in each age/stage category in the model.
@@ -78,7 +73,7 @@ Consider an example where $s_1$ depends on the sum of the population vector and 
 $s_i = \frac{1}{1 + e^{-(\beta_0 + \beta_1*x(V))}}$
 
 Here, _s_ is the survival probability, $\beta_0$ is the intercept, $\beta_1$ is 
-a slope, and _x(V)_ is some function the population vector _V_. In this case, it 
+a slope, and _x(V)_ is some function the population vector _V_. In this case, we'll pretend 
 _x(v)_ represents two different functions, so we'll need to write 4 different equations:
 2 survival functions and 2 that calculate the quantities _x(V)_.
 
@@ -96,6 +91,7 @@ In this case, we need two expressions in a call to `makeMatExprs`. They should t
 the following forms:
 
 ``` {r eval = FALSE}
+
 mat_exprs <- makeMatExprs(
   s_1 = 1/(1 + exp(-(bs_0 + bs_1 * v_sum))),
   s_2 = 1/(1 + exp(-(bs_0 + bs_1 * v_prod))),
@@ -142,14 +138,156 @@ Now, we are ready to create our `CompadreDDM` object and iterate it!
 
 ```{r eval = FALSE}
 
-my_ddm <- CompadreDDM(dataList = data,
-                      matExprs = mat_exprs)
+myDDM <- CompadreDDM(dataList = data,
+                     matExprs = mat_exprs)
 
-my_projection <- project(my_ddm)
+myProjection <- project(myDDM)
 
 ```
 
+# Using `predict` in `makeMatExprs`
+More complicated models can be difficult to write out (though we certainly do not want to discourage you from learning how to do so!). With that in mind, once your vital rate model is validated and looks good, it is possible to skip the above steps and substitute in a call to `predict` (provided that such a method exists for your model of choice. If not, there isn't much we can do). 
+
+To start, fit your vital rate model. For this example, we'll do a fecundity model that depends on the combined density of the second and third stages. The matrix itself will take the following form:
+
+$$
+\begin{bmatrix}
+0 & 0 & f(V) * g \\
+s_1 & s_2 * (1-p) & 0 \\
+0 & s_2*p & s_3 
+\end{bmatrix}
+\begin{bmatrix}
+V_1 \\
+V_2 \\
+V_3 \\
+\end{bmatrix}
+
+$$
+
+_s_'s represent survival probabilities, and for the sake of this example, are fixed. However, they
+need not be. _g_ is a germination probability, _p_ is a flowering probability. _f(V)_ is our 
+density dependent fecundity.
+
+```{r}
+# simulate some data and then fit a model
+
+fec <- rpois(100, 20:120)
+densV2 <- round(runif(100, 20, 1000))
+densV3 <- round(runif(100, 50, 700))
+
+plotDens <- densV3 + densV2
+
+# 
+plotDens <- sort(plotDens, decreasing = TRUE)
+
+fecModel <- glm(fec ~ plotDens, family = poisson())
+
+
+# Now, we specify our constants. These aren't necessarily realistic values!
+# We'll also use the stage-biased vector functionality of project() so there
+# is no need to worry about the initPopVector argument
+
+constants <- makeDataList(
+  s_1 = 0.2,
+  s_2 = 0.5,
+  s_3 = 0.9,
+  p = 0.6,
+  g = 0.8
+)
+
+# Next are our matExprs. Here, we only need the density dependent terms,
+# the matrix itself (matrixExpr), and matrix dimension (matrixDimension)
+
+matExpressions <- makeMatExprs(
+  f = predict(fecModel, 
+              newdata = data.frame(plotDens = sum(V2, V3)),
+              type = 'response'),
+  matrixExpr = c(
+    0, 0, f * g,
+    s_1, s_2 * (1 - p), 0,
+    0, s_2 * p, s_3
+  ),
+  matrixDimension = 3
+)
+
+fecDDM <- CompadreDDM(dataList = constants,
+                      matExprs = matExpressions)
+
+fecProjection <- project(fecDDM, vector = 'n', time = 50)
+
+plot(fecProjection)
+
+```
+
+Before going any further, it is worth highlighting a couple common pitfalls. 
+
+1.  Forgetting to specify the name of your predictor variable in the right hand side of `newdata = data.frame(**plotDens** = sum(V2,V3))`. Forgetting to specify this will result in errors reading like so: `Error in currentMat %*% evalEnv$popVec : non-conformable arguments` (the reason being that `predict` then returns a vector of predictions that's the same length as the original data!). 
+
+2. Typos! These errors will have something like `Error in matrix(c(0, 0, rlang::eval_tidy(f) * g, s_1, s * (1 - p), 0,  : object 's' not found`. If these appear, carefully inspect both the `matExprs` and `dataList`.
+
+Next, we'll add density dependent vital rate models for the _s_'s and _p_ and see how that plays out.
+
+
+```{r}
+
+# simulate some more data and model it
+s_1 <- rbinom(100, 1, 0.3)
+s_2 <- rbinom(100, 1, 0.5)
+s_3 <- rbinom(100, 1, 0.9)
+p <- rbinom(100, 1, 0.6)
+
+# For realism(?)
+plotDens <- sort(plotDens, decreasing = TRUE)
+
+s1Mod <- glm(s_1 ~ plotDens, family = binomial())
+s2Mod <- glm(s_2 ~ plotDens, family = binomial())
+s3Mod <- glm(s_3 ~ plotDens, family = binomial())
+pMod <- glm(p ~ plotDens, family = binomial())
+
+# constants. Now, only one is needed (g)
+constants <- makeDataList(g = 0.5)
+
+# matrix expressions. This one will be a bit more verbose, but hopefully will
+# make clear the power of this approach
+
+matExpressions <- makeMatExprs(
+  s_1 = predict(s1Mod, 
+                newdata = data.frame(plotDens = sum(V2,V3)), 
+                type = 'response'),
+  s_2 = predict(s2Mod, 
+                newdata = data.frame(plotDens = sum(V2,V3)), 
+                type = 'response'),
+  s_3 = predict(s3Mod, 
+                newdata = data.frame(plotDens = sum(V2,V3)), 
+                type = 'response'),
+  p = predict(pMod, 
+              newdata = data.frame(plotDens = sum(V2,V3)), 
+              type = 'response'),
+  f = predict(fecModel,
+              newdata = data.frame(plotDens = sum(V2, V3)),
+              type = 'response'),
+  matrixExpr = c(0, 0, f * g,
+                 s_1, s_2 * (1 - p), 0,
+                 0, s_2 * p, s_3),
+  matrixDimension = 3
+)
+
+fullDDM <- CompadreDDM(dataList = constants,
+                       matExprs = matExpressions)
+
+fullProjection <- project(fullDDM, vector = 'n', time = 75)
+
+plot(fullProjection)
+
+```
+
+A bit chaotic, but hopefully this illustrates how to pass functions into vital rate expressions
+with `CompadreDDM`s.
+
 ### Commonly used models and their translations to R code
+
+For those that wish to specify their own models by hand rather than use `predict`,
+here are a few examples that should help get started with the translations.
 
 Poisson/Negative-binomial
 
