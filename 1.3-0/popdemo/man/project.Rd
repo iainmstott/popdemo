@@ -26,7 +26,7 @@ project(object, ...)
   stochSeq = "unif", Astart = NULL, draws = 1000,
   alpha.draws = "unif", PREcheck = TRUE)
 
-\S4method{project}{CompadreDDM}(object, vector = NULL, time = 100,
+\S4method{project}{CompadreDDM}(object, vector = "n", time = 100,
   standard.A = NULL, standard.vec = FALSE, return.vec = TRUE,
   stochSeq = NULL, Astart = NULL, draws = 1000,
   alpha.draws = "unif", PREcheck = FALSE)

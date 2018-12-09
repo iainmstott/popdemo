@@ -448,7 +448,7 @@ setMethod('project',
 setMethod('project', 
           signature = 'CompadreDDM',
           function(object,
-                   vector = NULL,
+                   vector = 'n',
                    time = 100,
                    standard.A = NULL,
                    standard.vec = FALSE,
@@ -523,7 +523,7 @@ setMethod('project',
                 # if it's a good matrix, store it
                 AList[[AListCounter]] <- currentMat
                 
-                newPopVec <- as.numeric(currentMat %*% evalEnv$popVec)
+                newPopVec <- currentMat %*% evalEnv$popVec
                 
                 vecOut[j + 1, , i] <- newPopVec
                 popSum[j + 1, i] <- sum(newPopVec)
