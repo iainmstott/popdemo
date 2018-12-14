@@ -75,7 +75,7 @@ getting the format correct.
 \section{Slots}{
 
 \describe{
-\item{\code{data_list}}{list of named constant values for substitution in matrix. For 
+\item{\code{dataList}}{list of named constant values for substitution in matrix. For 
 additional examples, see \code{\link{makeDataList}}.}
 
 \item{\code{matExprs}}{list of expressions that define the density dependent components.

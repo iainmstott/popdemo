@@ -285,7 +285,7 @@ makeMatExprs <- function(...,
   matExprs <- matExprs[-matDimInd]
   
   # Set this as the environment for each quosure in matExprs
-  matExprs <- lapply(matExprs, function(x) quo_set_env(x, evalEnv))
+  matExprs <- lapply(matExprs, function(x) rlang::quo_set_env(x, evalEnv))
   
   # add data to evalEnv
   rlang::env_bind(evalEnv,

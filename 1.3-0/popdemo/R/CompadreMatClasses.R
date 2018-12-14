@@ -102,7 +102,7 @@ NULL
 
 #' @rdname Stochastic-Matrix-Classes
 #' @export CompadreDDM
-#' @slot data_list list of named constant values for substitution in matrix. For 
+#' @slot dataList list of named constant values for substitution in matrix. For 
 #' additional examples, see \code{\link{makeDataList}}. 
 #' @slot matExprs list of expressions that define the density dependent components.
 #' This can be constructed by hand, but it is safer to construct this using 
