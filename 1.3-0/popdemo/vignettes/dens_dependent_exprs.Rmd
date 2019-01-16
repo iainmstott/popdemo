@@ -47,7 +47,7 @@ $f = fecundity$
 
 $g = germination$
 
-$V = population vector$
+$V =  population\text{    } vector$
 
 
 
@@ -101,7 +101,7 @@ mat_exprs <- makeMatExprs(
 )
 ```
 
-Unfortunately, this is not enough! We also need to supply an expression that creates the matrix we want.
+Almost there! We also need to supply an expression that creates the matrix we want and an argument that specifies its dimension. Matrices are created by row internally.
 
 ``` {r eval = FALSE}
 mat_exprs <- makeMatExprs(
@@ -110,14 +110,12 @@ mat_exprs <- makeMatExprs(
   
   v_sum = sum(v_1, v_2, v_3), 
   v_prod = v_1 * v_2 * v_3,
-  matrixExpression = matrix(
-    c(
-      0, 0, f*g,
-      s_1, 0, 0,
-      0, s_2, 0)
-    nrow = 3,
-    byrow = TRUE
-  )
+  matrixExpression = c(
+    0,   0,   f * g,
+    s_1, 0,   0,
+    0,   s_2, 0)
+  ),
+  matrixDimension = 3
 )
 ```
 
@@ -146,7 +144,7 @@ myProjection <- project(myDDM)
 ```
 
 # Using `predict` in `makeMatExprs`
-More complicated models can be difficult to write out (though we certainly do not want to discourage you from learning how to do so!). With that in mind, once your vital rate model is validated and looks good, it is possible to skip the above steps and substitute in a call to `predict` (provided that such a method exists for your model of choice. If not, there isn't much we can do). 
+More complicated models can be difficult to write out (though we certainly do not want to discourage you from learning how to do so!). With that in mind, once your vital rate model is validated and looks good, it is possible to skip the above steps and substitute in a call to `predict` (provided that such a method exists for your model of choice. If not, you'll need to write the algebraic form). 
 
 To start, fit your vital rate model. For this example, we'll do a fecundity model that depends on the combined density of the second and third stages. The matrix itself will take the following form:
 
@@ -307,4 +305,12 @@ $y = \beta_0 + \beta_1*x + ...$
 y = b_0 + b_1 * x
 
 ```
+
+Logistic regression
+
+```{r eval = FALSE}
+
+y = 1/(1 + exp(-(b_0 + b_1 * x)))
+```
+
 
