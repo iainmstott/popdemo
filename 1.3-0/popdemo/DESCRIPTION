@@ -18,7 +18,8 @@ Imports:
     methods, 
     MCMCpack, 
     rlang (>= 0.3.0),
-    stats
+    stats,
+    readxl
 Suggests:
     knitr,
     magick,
