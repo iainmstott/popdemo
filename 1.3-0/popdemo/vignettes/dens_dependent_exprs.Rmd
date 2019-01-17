@@ -119,16 +119,31 @@ mat_exprs <- makeMatExprs(
 )
 ```
 
-Next, we generate a `dataList` object. In this case, we only need to supply
-initial values for $v_1$, $v_2$, $v_3$, $f$, and $g$. $v_1$, $v_2$, $v_3$ go into
-the final argument named `initPopVector`
+Next, we generate a `dataList` object. In this case, we need to supply
+initial values for $v_1$, $v_2$, $v_3$, $bs_0$, $bs_1$, $f$, and $g$. 
+$v_1$, $v_2$, $v_3$ go into the final argument named `initPopVector`. Alternatively,
+you can also just create those variables in your environment and `project()` will
+find them there. 
 
 ``` {r eval = FALSE}
+
+# With a call to makeDataList
 data <- makeDataList(
   g = 0.05,
   f = 20,
+  bs_0 = 0.5,
+  bs_1 = 2.2,
   initPopVector = c(v_1 = 20, v_2 = 5, v_3 = 0)
 )
+
+# Or, just create the values in your environment. This is more likely useful when
+# fitting your own matrix models, as parameters are typically created by manipulating
+# other data first.
+
+g <- 0.05
+f <- 20
+bs_0 <- 0.5
+bs_1 <- 2.2
 
 ```
 
@@ -136,10 +151,19 @@ Now, we are ready to create our `CompadreDDM` object and iterate it!
 
 ```{r eval = FALSE}
 
+# Using the dataList
 myDDM <- CompadreDDM(dataList = data,
                      matExprs = mat_exprs)
 
 myProjection <- project(myDDM)
+
+# This will look a bit different as we don't supply an initial population vector.
+# The default is then to use stage-biased vectors, so you should see 3 lines
+# when you plot() the Projection
+
+noDataDDM <- CompadreDDM(matExprs = mat_exprs)
+noDataProjection <- project(noDataDDM) 
+
 
 ```
 
@@ -162,9 +186,8 @@ V_3 \\
 
 $$
 
-_s_'s represent survival probabilities, and for the sake of this example, are fixed. However, they
-need not be. _g_ is a germination probability, _p_ is a flowering probability. _f(V)_ is our 
-density dependent fecundity.
+_s_'s represent survival probabilities, and for the sake of this example, are fixed. However, they don't
+need to be - you can specify as many density dependent parameters as you like. _g_ is a germination probability, _p_ is a flowering probability. _f(V)_ is our density dependent fecundity.
 
 ```{r}
 # simulate some data and then fit a model
