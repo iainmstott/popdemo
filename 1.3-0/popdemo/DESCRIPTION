@@ -20,8 +20,7 @@ Imports:
     stats
 Suggests:
     knitr,
-    magick,
-    rmarkdown
+    magick
 VignetteBuilder: knitr
 License: GPL (>= 2)
 Encoding: UTF-8
