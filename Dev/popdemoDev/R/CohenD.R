@@ -5,7 +5,8 @@
 #' Calculate Cohen's cumulative distance metric for a population matrix 
 #' projection model.
 #'
-#' @param A a square, irreducible, non-negative numeric matrix of any dimension.
+#' @param A a square, irreducible, non-negative numeric matrix of any dimension, 
+#' or a CompadreMat object (see RCompadre package).
 #' @param vector a numeric vector or one-column matrix describing the age/stage 
 #' distribution used to calculate the distance.
 #' 
@@ -40,31 +41,36 @@
 #' distance vector state space
 #'
 #' @export CohenD
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
 CohenD <-
-function(A,vector){
-if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
-order<-dim(A)[1]
-if(!isIrreducible(A)) stop("Matrix A is reducible")
-if(!isPrimitive(A)) warning("Matrix A is imprimitive")
-M<-A
-reigs<-eigen(M)
-leigs<-eigen(t(M))
-lmax<-which.max(Re(reigs$values))
-lambda<-reigs$values[lmax]
-A<-A/lambda
-w<-as.matrix(reigs$vectors[,lmax])
-v<-as.matrix(leigs$vectors[,lmax])
-if(max(Im(w))>0|max(Im(v))>0) stop("Dominant eigenvectors contain nonzero imaginary components")
-w<-abs(Re(w))
-v<-abs(Re(v))
-w<-w/sum(w)
-v<-v/as.vector(t(v)%*%w)
-vector<-vector/sum(vector)
-I<-diag(order)
-wv<-w%*%t(v)
-D1v<-(solve(I+wv-A)-wv)%*%vector
-D1<-sum(abs(D1v))
-return(D1)
+function(A, vector){
+    if(class(A %in% "CompadreMat")){
+        A <- matA(A)
+    }
+    if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
+    order<-dim(A)[1]
+    if(!isIrreducible(A)) stop("Matrix A is reducible")
+    if(!isPrimitive(A)) warning("Matrix A is imprimitive")
+    M<-A
+    reigs<-eigen(M)
+    leigs<-eigen(t(M))
+    lmax<-which.max(Re(reigs$values))
+    lambda<-reigs$values[lmax]
+    A<-A/lambda
+    w<-as.matrix(reigs$vectors[,lmax])
+    v<-as.matrix(leigs$vectors[,lmax])
+    if(max(Im(w))>0|max(Im(v))>0) stop("Dominant eigenvectors contain nonzero imaginary components")
+    w<-abs(Re(w))
+    v<-abs(Re(v))
+    w<-w/sum(w)
+    v<-v/as.vector(t(v)%*%w)
+    vector<-vector/sum(vector)
+    I<-diag(order)
+    wv<-w%*%t(v)
+    D1v<-(solve(I+wv-A)-wv)%*%vector
+    D1<-sum(abs(D1v))
+    return(D1)
 }
 

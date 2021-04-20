@@ -4,7 +4,8 @@
 #' @description
 #' Calculate Keyfitz's delta for a population matrix projection model.
 #'
-#' @param A a square, irreducible, non-negative numeric matrix of any dimension.
+#' @param A a square, irreducible, non-negative numeric matrix of any dimension, 
+#' or a CompadreMat object (see RCompadre package).
 #' @param vector a numeric vector or one-column matrix describing the age/stage 
 #' distribution used to calculate the distance.
 #'
@@ -41,20 +42,25 @@
 #' distance vector state space
 #'
 #' @export KeyfitzD
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
 KeyfitzD <-
 function(A,vector){
-if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
-if(!isIrreducible(A)) stop("Matrix A is reducible")
-if(!isPrimitive(A)) warning("Matrix A is imprimitive")
-reigs<-eigen(A)
-lmax<-which.max(Re(reigs$values))
-w<-as.matrix(reigs$vectors[,lmax])
-if(max(Im(w))>0) stop("Dominant right eigenvector contains nonzero imaginary components")
-w<-abs(Re(w))
-w<-w/sum(w)
-vector<-as.matrix(vector/sum(vector))
-delta<-0.5*norm(vector-w)
-return(delta)
+    if(class(A %in% "CompadreMat")){
+        A <- matA(A)
+    }
+    if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
+    if(!isIrreducible(A)) stop("Matrix A is reducible")
+    if(!isPrimitive(A)) warning("Matrix A is imprimitive")
+    reigs<-eigen(A)
+    lmax<-which.max(Re(reigs$values))
+    w<-as.matrix(reigs$vectors[,lmax])
+    if(max(Im(w))>0) stop("Dominant right eigenvector contains nonzero imaginary components")
+    w<-abs(Re(w))
+    w<-w/sum(w)
+    vector<-as.matrix(vector/sum(vector))
+    delta<-0.5*norm(vector-w)
+    return(delta)
 }
 

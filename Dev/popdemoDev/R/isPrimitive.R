@@ -4,7 +4,8 @@
 #' @description
 #' Determine whether a matrix is primitive or imprimitive
 #'
-#' @param A a square, non-negative numeric matrix of any dimension.
+#' @param A a square, non-negative numeric matrix of any dimension, 
+#' or a CompadreMat object (see RCompadre package).
 #'
 #' @details 
 #' \code{isPrimitive} works on the premise that a matrix \strong{A} is 
@@ -40,16 +41,22 @@
 #'
 #' @export isPrimitive
 #' @importFrom expm "%^%"
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
 isPrimitive <-
 function(A){
-if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
-order<-dim(A)[1]
-powermatrix<-A%^%((order^2)-(2*order)+2)
-minval<-min(powermatrix)
-if(minval>0){
-    return(TRUE)
+    if(class(A %in% "CompadreMat")){
+        A <- matA(A)
+    }
+    if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
+    order<-dim(A)[1]
+    powermatrix<-A%^%((order^2)-(2*order)+2)
+    minval<-min(powermatrix)
+    if(minval>0){
+        return(TRUE)
+    }
+    else{
+        return(FALSE)
+    }
 }
-else{
-    return(FALSE)
-}}

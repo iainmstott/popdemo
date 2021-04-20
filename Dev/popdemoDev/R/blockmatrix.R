@@ -4,7 +4,8 @@
 #' @description
 #' Conjugate a reducible matrix into block upper triangular form
 #'
-#' @param A a square, reducible, non-negative numeric matrix of any dimension
+#' @param A a square, reducible, non-negative numeric matrix of any dimension, 
+#' or a CompadreMat object (see RCompadre package).
 #'
 #' @details 
 #' Any square, reducible, non-negative matrix may have its rows and columns 
@@ -44,12 +45,16 @@
 #'
 #' @export blockmatrix
 #' @importFrom expm "%^%"
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
-#
 #Can be vectorised
 #
 blockmatrix <-
 function(A){
+if(class(A %in% "CompadreMat")){
+    A <- matA(A)
+}
 if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
 order<-dim(A)[1]
 if(isIrreducible(A)) stop("Cannot compute block-permutation for irreducible matrix")

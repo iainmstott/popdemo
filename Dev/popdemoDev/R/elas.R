@@ -5,7 +5,8 @@
 #' Calculate the elasticity matrix for a specified population matrix projection 
 #' model using eigenvectors.
 #'
-#' @param A a square, non-negative numeric matrix of any dimension
+#' @param A a square, non-negative numeric matrix of any dimension, 
+#' or a CompadreMat object (see RCompadre package).
 #' @param eval the eigenvalue to evaluate. Default is \code{eval="max"}, which 
 #' evaluates the dominant eigenvalue (the eigenvalue with largest REAL value: 
 #' for imprimitive or reducible matrices this may not be the first eigenvalue). 
@@ -43,23 +44,28 @@
 #' perturbation sensitivity elasticity 
 #'
 #' @export elas
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
 elas <-
 function(A,eval="max"){
-if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
-order<-dim(A)[1]
-if(eval=="max"){
-    val<-which.max(abs(Re(eigen(A)$values)))
-}
-else{
-    val<-eval
-}
-reigs<-eigen(A)
-leigs<-eigen(t(A))
-lambda<-reigs$values[val]
-w<-as.matrix(reigs$vectors[,val])
-v<-as.matrix(leigs$vectors[,val])
-S<-(Conj(v)%*%t(w))/as.vector(Conj(t(v))%*%w)
-E<-(1/lambda)*S*A
-if(max(Im(E))>0) return(E) else(return(Re(E)))
+    if(class(A %in% "CompadreMat")){
+        A <- matA(A)
+    }
+    if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
+    order<-dim(A)[1]
+    if(eval=="max"){
+        val<-which.max(abs(Re(eigen(A)$values)))
+    }
+    else{
+        val<-eval
+    }
+    reigs<-eigen(A)
+    leigs<-eigen(t(A))
+    lambda<-reigs$values[val]
+    w<-as.matrix(reigs$vectors[,val])
+    v<-as.matrix(leigs$vectors[,val])
+    S<-(Conj(v)%*%t(w))/as.vector(Conj(t(v))%*%w)
+    E<-(1/lambda)*S*A
+    if(max(Im(E))>0) return(E) else(return(Re(E)))
 }

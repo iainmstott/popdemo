@@ -65,3 +65,6 @@
 #' }
 #'
 "_PACKAGE"
+
+#' @import methods
+NULL

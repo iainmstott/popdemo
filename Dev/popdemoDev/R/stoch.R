@@ -4,10 +4,11 @@
 #' @description
 #' Analyse long-term dynamics of a stochastic population matrix projection model.
 #'
-#' @param A a list of matrices. \code{stoch} uses \code{\link{project}} to 
-#' perform a stochastic' projection where the matrix varies with each timestep. 
-#' The sequence of matrices is determined using \code{Aseq}. Matrices must be 
-#' square, non-negative and numeric, and all matrices must have the same dimension. 
+#' @param A a list of matrices or list of CompadreMat objects. \code{stoch} uses 
+#' \code{\link{project}} to perform a stochastic' projection where the matrix 
+#' varies with each timestep. The sequence of matrices is determined using 
+#' \code{Aseq}. Matrices must be square, non-negative and numeric, and all 
+#' matrices must have the same dimension. 
 #' @param what what should be returned. A character vector with possible entries
 #' "lambda" (to calcualate stochastic growth), "var" (to calculate variance in 
 #' stochastic growth) and/or "all" (to calculate both).
@@ -74,66 +75,72 @@
 #' stochastic growth variance projection project population
 #'
 #' @export stoch
-#' @import methods
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
 stoch<-
 function (A, what = "all", Aseq = "unif", vector = NULL, 
           Astart = NULL, iterations = 1e+4, discard = 1e+3, 
           PREcheck = FALSE){
 ## check structure of A and rearrange into an array
-if(!any((is.list(A) & all(sapply(A, is.matrix))), 
-        (is.array(A) & length(dim(A)) == 3)) ){
-    stop("A must be a list of matrices")
-}
-if(is.list(A) & length(A) == 1) stop("A must contain more than one matrix")
-if (is.list(A) & length(A) > 1) {
-    numA <- length(A)
-    alldim <- sapply(A, dim)
-    if (!diff(range(alldim))==0) {
-        stop("all matrices in A must be square and have the same dimension as each other")
+    if(class(A %in% "list")){
+        if(all(sapply(A, class) %in% "CompadreMat")){
+            A <- sapply(A, matA)
+        }
     }
-    dimA <- mean(alldim)
-    L <- A
-    A <- numeric(dimA * dimA * numA); dim(A) <- c(dimA, dimA, numA)
-    for(i in 1:numA){
-        A[,,i] <- L[[i]]
+    if(!any((is.list(A) & all(sapply(A, is.matrix))), 
+            (is.array(A) & length(dim(A)) == 3)) ){
+        stop("A must be a list of matrices or CompadreMat objects")
     }
-    dimnames(A)[[1]] <- dimnames(L[[1]])[[1]]
-    dimnames(A)[[2]] <- dimnames(L[[1]])[[2]]
-    dimnames(A)[[3]] <- names(L)
-}
-## extract some info about matrices
-order <- dim(A)[1]
-##what should be calculated?
-ifelse("lambda" %in% what, growth <- TRUE, growth <- FALSE)
-ifelse("var" %in% what, variance <- TRUE, variance <- FALSE)
-if("all" %in% what){
-    growth <- TRUE
-    variance <- TRUE
-}
-if(!growth & !variance) stop('"what" does not contain the right information')
-## check vector
-if(!is.null(vector) & length(vector) != order){
-    stop("vector must be equal to dimension of A")
-}
-if(is.null(vector)) vector <- stats::runif(order)
-vector <- vector / sum(vector)
-##project the model
-pr <- project(A = A, vector = vector, time = iterations, standard.A = FALSE,
-              standard.vec = FALSE, return.vec = FALSE, 
-              Aseq = Aseq, PREcheck = PREcheck)
-##calculate the stuff
-#work out per-timestep growth
-gr <- pr[(discard:iterations) + 1] / pr[discard:iterations]
-#find the per-timestep mean growth (stochastic growth)
-if(growth) gr_mean <- mean(gr)
-#find the per-timestep variance in growth
-if(variance) gr_var <- stats::var(gr)
-if(growth & variance) final <- data.frame(lambda = gr_mean,
-                                          var = gr_var)
-if(growth & !variance) final <- gr_mean
-if(!growth & variance) final <- gr_var
-return(final)
+    if(is.list(A) & length(A) == 1) stop("A must contain more than one matrix")
+    if (is.list(A) & length(A) > 1) {
+        numA <- length(A)
+        alldim <- sapply(A, dim)
+        if (!diff(range(alldim))==0) {
+            stop("all matrices in A must be square and have the same dimension as each other")
+        }
+        dimA <- mean(alldim)
+        L <- A
+        A <- numeric(dimA * dimA * numA); dim(A) <- c(dimA, dimA, numA)
+        for(i in 1:numA){
+            A[,,i] <- L[[i]]
+        }
+        dimnames(A)[[1]] <- dimnames(L[[1]])[[1]]
+        dimnames(A)[[2]] <- dimnames(L[[1]])[[2]]
+        dimnames(A)[[3]] <- names(L)
+    }
+    ## extract some info about matrices
+    order <- dim(A)[1]
+    ##what should be calculated?
+    ifelse("lambda" %in% what, growth <- TRUE, growth <- FALSE)
+    ifelse("var" %in% what, variance <- TRUE, variance <- FALSE)
+    if("all" %in% what){
+        growth <- TRUE
+        variance <- TRUE
+    }
+    if(!growth & !variance) stop('"what" does not contain the right information')
+    ## check vector
+    if(!is.null(vector) & length(vector) != order){
+        stop("vector must be equal to dimension of A")
+    }
+    if(is.null(vector)) vector <- stats::runif(order)
+    vector <- vector / sum(vector)
+    ##project the model
+    pr <- project(A = A, vector = vector, time = iterations, standard.A = FALSE,
+                standard.vec = FALSE, return.vec = FALSE, 
+                Aseq = Aseq, PREcheck = PREcheck)
+    ##calculate the stuff
+    #work out per-timestep growth
+    gr <- pr[(discard:iterations) + 1] / pr[discard:iterations]
+    #find the per-timestep mean growth (stochastic growth)
+    if(growth) gr_mean <- mean(gr)
+    #find the per-timestep variance in growth
+    if(variance) gr_var <- stats::var(gr)
+    if(growth & variance) final <- data.frame(lambda = gr_mean,
+                                            var = gr_var)
+    if(growth & !variance) final <- gr_mean
+    if(!growth & variance) final <- gr_var
+    return(final)
 }
 
 # decompose growth into lambda vs transient

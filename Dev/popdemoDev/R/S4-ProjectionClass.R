@@ -333,29 +333,28 @@ setGeneric("mat",
 #' @export
 setMethod("mat", signature = (object = "Projection"),
           function(object, return = "simple"){
-              #get necessary slots
-              if(length(object@mat) == 0) return(object@mat)
-              if(!any(return %in% c("simple", "list", "array"))){
-                  stop("return must be \"simple\", \"list\" or \"array\"")
-              }
-              if(return == "simple"){
-                  if(dim(object@mat)[3] == 1) return(object@mat[,,1])
-                  if(dim(object@mat)[3] > 1){
-                      return(lapply(
-                          apply(object@mat, 3, list), function(x){x[[1]]}
-                      ))
-                  }
-              }
-              if(return == "list"){
-                  return(lapply(
-                      apply(object@mat, 3, list), function(x){x[[1]]}
-                  ))
-              }
-              if(return == "array"){
-                  return(object@mat)
-              }
-          }
-)
+    #get necessary slots
+    if(length(object@mat) == 0) return(object@mat)
+    if(!any(return %in% c("simple", "list", "array"))){
+        stop("return must be \"simple\", \"list\" or \"array\"")
+    }
+    if(return == "simple"){
+        if(dim(object@mat)[3] == 1) return(object@mat[,,1])
+        if(dim(object@mat)[3] > 1){
+            return(lapply(
+                apply(object@mat, 3, list), function(x){x[[1]]}
+            ))
+        }
+    }
+    if(return == "list"){
+        return(lapply(
+            apply(object@mat, 3, list), function(x){x[[1]]}
+        ))
+    }
+    if(return == "array"){
+        return(object@mat)
+    }
+})
 
 # ASEQ
 #' @rdname Projection-class
@@ -456,6 +455,7 @@ setMethod("ntime", signature = (object = "Projection"),
               if(length(object@.Data) > 0) return(dim(object@.Data)[1] - 1)
           }
 )
+
 
 
 ### DISPLAY METHODS
@@ -590,43 +590,42 @@ NULL
 #' 
 setMethod("show", signature = (object = "Projection"),
           function(object){
-              #get necessary slots
-              N <- object@.Data
-              if(length(N) == 0){
-                  callNextMethod()
-              }
-              if(length(N) > 0){
-                  timec <- as.character(length(Aseq(object)))
-                  if(length(vectype(object)) > 0){
-                      if(vectype(object) == "single"){
-                          nc1 <- as.character(1)
-                          nc2 <- ""
-                          vectypec <- ""
-                      }
-                      if(vectype(object) == "multiple"){
-                          nc1 <- as.character(dim(N)[2])
-                          nc2 <- "s"
-                          vectypec <- ""
-                      }
-                      if(vectype(object) == "bias"){
-                          nc1 <- as.character(dim(N)[2])
-                          nc2 <- "s"
-                          vectypec <- " (stage-biased initial vectors) "
-                      }
-                      if(vectype(object) == "diri"){
-                          nc1 <- as.character(dim(N)[2])
-                          nc2 <- "s"
-                          vectypec <- " (dirichlet initial vectors) "
-                      }
-                      cat(paste(nc1, " ", projtype(object), " population projection", nc2,
-                                vectypec,
-                                " over ", timec, " time intervals.\n\n",
-                                sep = ""))
-                      print(N)
-                  }
-              }
-          }
-)
+    #get necessary slots
+    N <- object@.Data
+    if(length(N) == 0){
+        callNextMethod()
+    }
+    if(length(N) > 0){
+        timec <- as.character(length(Aseq(object)))
+        if(length(vectype(object)) > 0){
+            if(vectype(object) == "single"){
+                nc1 <- as.character(1)
+                nc2 <- ""
+                vectypec <- ""
+            }
+            if(vectype(object) == "multiple"){
+                nc1 <- as.character(dim(N)[2])
+                nc2 <- "s"
+                vectypec <- ""
+            }
+            if(vectype(object) == "bias"){
+                nc1 <- as.character(dim(N)[2])
+                nc2 <- "s"
+                vectypec <- " (stage-biased initial vectors) "
+            }
+            if(vectype(object) == "diri"){
+                nc1 <- as.character(dim(N)[2])
+                nc2 <- "s"
+                vectypec <- " (dirichlet initial vectors) "
+            }
+            cat(paste(nc1, " ", projtype(object), " population projection", nc2,
+                    vectypec,
+                    " over ", timec, " time intervals.\n\n",
+                    sep = ""))
+            print(N)
+        }
+    }
+})
 
 # PLOT
 #' @param bounds logical: indicates whether to plot the bounds on population density.
@@ -661,74 +660,73 @@ setMethod("show", signature = (object = "Projection"),
 setMethod("plot", signature = (x = "Projection"),
           function(x, bounds=FALSE, bounds.args=NULL, labs=TRUE, 
                    plottype = "lines", ybreaks=20, shadelevels=100, ...){
-              #get necessary slots
-              N <- x@.Data
-              if(plottype == "shady" & vectype(x) != "diri"){
-                  warning('plottype "shady" only valid for projections generated with vector="diri",\n  defaulting to plottype="lines" instead')
-                  plottype <- "lines"
-              }
-              if(bounds & projtype(x) == "stochastic"){
-                  warning("bounds are not implemented for stochastic projections yet")
-                  bounds <- FALSE
-              }
-              if(length(dim(N)) == 1) N1 <- N[1]
-              if(length(dim(N)) == 2) N1 <- N[1,]
-              if(!bounds) PopulationDensity <- range(N)
-              if(bounds) PopulationDensity <- range(N1) * range(bounds(x))
-              len <- dim(N)[1]
-              TimeInterval <- c(0, (len - 1))
-              gargs <- list(...)
-              gargs$type <- "n"; gargs$x <- TimeInterval; gargs$y <- PopulationDensity
-              if(!("xlab"%in%names(gargs))) gargs$xlab <- "Time Intervals"
-              if(!("ylab"%in%names(gargs))) gargs$ylab <- "Population size / density"
-              wraplines <- function(..., log, axes, frame.plot, panel.first, panel.last){
-                  graphics::lines(...)
-              }
-              wraptext <- function(..., log, axes, frame.plot, panel.first, panel.last, type){
-                  graphics::text(...)
-              }
-              do.call(graphics::plot, gargs)
-              if(length(dim(N)) == 1) {
-                  wraplines(0:(len - 1), N, ...)
-              }
-              if(length(dim(N)) == 2 & plottype == "lines") {
-                  for (i in 1:dim(N)[2]) {
-                      wraplines(0:(len - 1), N[, i], ...)
-                      if (labs){
-                          graphics::par(adj=1)
-                          wraptext(len - 1, N[len, i], dimnames(N)[[2]][i], ...)
-                          graphics::par(adj=0.5)
-                      }
-                  }
-              }
-              if (length(dim(N)) == 2 & plottype == "shady") {
-                  ybr <- cbind(seq(PopulationDensity[1] - 0.000001, PopulationDensity[2] + 0.000001,
-                                   length.out=ybreaks + 1)[-(ybreaks + 1)],
-                               seq(PopulationDensity[1] - 0.000001,PopulationDensity[2] + 0.000001,
-                                   length.out=ybreaks + 1)[-1])
-                  pgrid  <-  matrix(0, ybreaks, len)
-                  for(i in 2:(len)){
-                      pgrid[,i] <- apply(ybr, 1, function(x){length(which(N[i,]>=x[1]&N[i,]<x[2]))/dim(N)[2]})
-                  }
-                  if(!("col"%in%names(gargs))) {
-                      levels <- seq(min(pgrid),max(pgrid),length.out=shadelevels)
-                      gargs$col <- grDevices::colorRampPalette(c("white", "black"))(shadelevels)
-                  }
-                  if("col"%in%names(gargs)) {
-                      levels <- seq(min(pgrid),max(pgrid),length.out=length(gargs$col))
-                  }
-                  graphics::.filled.contour(0:(len-1), apply(ybr,1,mean), t(pgrid), 
-                                            levels = levels, col=gargs$col)
-              }
-              if(bounds){
-                  if(is.null(bounds.args)) bounds.args <- list(col="black", lwd=2)
-                  args.lwr <- bounds.args
-                  args.lwr$x <- matrix(c(0:(len - 1), min(N1) * bounds(x)[, 1]), ncol = 2)
-                  args.upr <- bounds.args
-                  args.upr$x <- matrix(c(0:(len - 1), max(N1) * bounds(x)[, 2]), ncol = 2)
-                  do.call(wraplines, args.upr)
-                  do.call(wraplines, args.lwr)
-              }
-          }
-)
+    #get necessary slots
+    N <- x@.Data
+    if(plottype == "shady" & vectype(x) != "diri"){
+        warning('plottype "shady" only valid for projections generated with vector="diri",\n  defaulting to plottype="lines" instead')
+        plottype <- "lines"
+    }
+    if(bounds & projtype(x) == "stochastic"){
+        warning("bounds are not implemented for stochastic projections yet")
+        bounds <- FALSE
+    }
+    if(length(dim(N)) == 1) N1 <- N[1]
+    if(length(dim(N)) == 2) N1 <- N[1,]
+    if(!bounds) PopulationDensity <- range(N)
+    if(bounds) PopulationDensity <- range(N1) * range(bounds(x))
+    len <- dim(N)[1]
+    TimeInterval <- c(0, (len - 1))
+    gargs <- list(...)
+    gargs$type <- "n"; gargs$x <- TimeInterval; gargs$y <- PopulationDensity
+    if(!("xlab"%in%names(gargs))) gargs$xlab <- "Time Intervals"
+    if(!("ylab"%in%names(gargs))) gargs$ylab <- "Population size / density"
+    wraplines <- function(..., log, axes, frame.plot, panel.first, panel.last){
+        graphics::lines(...)
+    }
+    wraptext <- function(..., log, axes, frame.plot, panel.first, panel.last, type){
+        graphics::text(...)
+    }
+    do.call(graphics::plot, gargs)
+    if(length(dim(N)) == 1) {
+        wraplines(0:(len - 1), N, ...)
+    }
+    if(length(dim(N)) == 2 & plottype == "lines") {
+        for (i in 1:dim(N)[2]) {
+            wraplines(0:(len - 1), N[, i], ...)
+            if (labs){
+                graphics::par(adj=1)
+                wraptext(len - 1, N[len, i], dimnames(N)[[2]][i], ...)
+                graphics::par(adj=0.5)
+            }
+        }
+    }
+    if (length(dim(N)) == 2 & plottype == "shady") {
+        ybr <- cbind(seq(PopulationDensity[1] - 0.000001, PopulationDensity[2] + 0.000001,
+                        length.out=ybreaks + 1)[-(ybreaks + 1)],
+                    seq(PopulationDensity[1] - 0.000001,PopulationDensity[2] + 0.000001,
+                        length.out=ybreaks + 1)[-1])
+        pgrid  <-  matrix(0, ybreaks, len)
+        for(i in 2:(len)){
+            pgrid[,i] <- apply(ybr, 1, function(x){length(which(N[i,]>=x[1]&N[i,]<x[2]))/dim(N)[2]})
+        }
+        if(!("col"%in%names(gargs))) {
+            levels <- seq(min(pgrid),max(pgrid),length.out=shadelevels)
+            gargs$col <- grDevices::colorRampPalette(c("white", "black"))(shadelevels)
+        }
+        if("col"%in%names(gargs)) {
+            levels <- seq(min(pgrid),max(pgrid),length.out=length(gargs$col))
+        }
+        graphics::.filled.contour(0:(len-1), apply(ybr,1,mean), t(pgrid), 
+                                levels = levels, col=gargs$col)
+    }
+    if(bounds){
+        if(is.null(bounds.args)) bounds.args <- list(col="black", lwd=2)
+        args.lwr <- bounds.args
+        args.lwr$x <- matrix(c(0:(len - 1), min(N1) * bounds(x)[, 1]), ncol = 2)
+        args.upr <- bounds.args
+        args.upr$x <- matrix(c(0:(len - 1), max(N1) * bounds(x)[, 2]), ncol = 2)
+        do.call(wraplines, args.upr)
+        do.call(wraplines, args.lwr)
+    }
+})
 

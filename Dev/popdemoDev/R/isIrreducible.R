@@ -4,7 +4,8 @@
 #' @description
 #' Determine whether a matrix is irreducible or reducible
 #'
-#' @param A a square, non-negative numeric matrix of any dimension.
+#' @param A a square, non-negative numeric matrix of any dimension, 
+#' or a CompadreMat object (see RCompadre package).
 #'
 #' @details 
 #' \code{isIrreducible} works on the premise that a matrix \strong{A} 
@@ -41,18 +42,24 @@
 #'
 #' @export isIrreducible
 #' @importFrom expm "%^%"
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
 isIrreducible <-
 function(A){
-if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
-order<-dim(A)[1]
-I<-diag(order)
-IplusA<-I+A
-powermatrix<-IplusA%^%(order-1)
-minval<-min(powermatrix)
-if(minval>0){
-    return(TRUE)
+    if(class(A %in% "CompadreMat")){
+        A <- matA(A)
+    }
+    if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
+    order<-dim(A)[1]
+    I<-diag(order)
+    IplusA<-I+A
+    powermatrix<-IplusA%^%(order-1)
+    minval<-min(powermatrix)
+    if(minval>0){
+        return(TRUE)
+    }
+    else{
+        return(FALSE)
+    }
 }
-else{
-    return(FALSE)
-}}

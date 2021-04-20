@@ -80,46 +80,51 @@
 #' asymptotic growth population structure reproductive value eigenvalues
 #'
 #' @export eigs
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
 eigs <-
 function(A, what = "all", check = TRUE){
-ifelse("lambda" %in% what, val <- TRUE, val <- FALSE)
-ifelse("ss" %in% what, rvec <- TRUE, rvec <- FALSE)
-ifelse("rv" %in% what, lvec <- TRUE, lvec <- FALSE)
-if("all" %in% what){
-    val <- TRUE
-    rvec <- TRUE
-    lvec <- TRUE
-}
-if(!val & !rvec & !lvec) stop('"what" does not contain the right information')
-if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
-eigstuff <- eigen(A)
-lmax <- which.max(Re(eigstuff$values))
-lambda <- Re(eigstuff$values[lmax])
-if(check){
-    if(any(abs(eigstuff$values[-lmax]) >= lambda)){
-        warning("More than one eigenvalues have equal absolute magnitude")
+    if(class(A %in% "CompadreMat")){
+        A <- matA(A)
     }
-    if(Im(eigstuff$values[lmax]) > 0){
-        warning("'Dominant' eigenvalue has nonzero imaginary component")
+    ifelse("lambda" %in% what, val <- TRUE, val <- FALSE)
+    ifelse("ss" %in% what, rvec <- TRUE, rvec <- FALSE)
+    ifelse("rv" %in% what, lvec <- TRUE, lvec <- FALSE)
+    if("all" %in% what){
+        val <- TRUE
+        rvec <- TRUE
+        lvec <- TRUE
     }
-}
-if(any(rvec, lvec)){
-    ss <- Re(eigstuff$vectors[,lmax])
-    ss <- ss / sum(ss)
-}
-if(lvec){
-    teigstuff <- eigen(t(A))
-    rv <- Re(teigstuff$vectors[,lmax])
-    rvss <- as.numeric(rv%*%ss)
-    rv <- rv / rvss
-}
-if(val&!rvec&!lvec) return(lambda)
-if(!val&rvec&!lvec) return(ss)
-if(!val&!rvec&lvec) return(rv)
-if(val&rvec&!lvec) return(list(lambda = lambda, ss = ss))
-if(val&!rvec&lvec) return(list(lambda = lambda, rv = rv))
-if(!val&rvec&lvec) return(list(ss = ss, rv = rv))
-if(val&rvec&lvec) return(list(lambda = lambda, ss = ss, rv = rv))
+    if(!val & !rvec & !lvec) stop('"what" does not contain the right information')
+    if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
+    eigstuff <- eigen(A)
+    lmax <- which.max(Re(eigstuff$values))
+    lambda <- Re(eigstuff$values[lmax])
+    if(check){
+        if(any(abs(eigstuff$values[-lmax]) >= lambda)){
+            warning("More than one eigenvalues have equal absolute magnitude")
+        }
+        if(Im(eigstuff$values[lmax]) > 0){
+            warning("'Dominant' eigenvalue has nonzero imaginary component")
+        }
+    }
+    if(any(rvec, lvec)){
+        ss <- Re(eigstuff$vectors[,lmax])
+        ss <- ss / sum(ss)
+    }
+    if(lvec){
+        teigstuff <- eigen(t(A))
+        rv <- Re(teigstuff$vectors[,lmax])
+        rvss <- as.numeric(rv%*%ss)
+        rv <- rv / rvss
+    }
+    if(val&!rvec&!lvec) return(lambda)
+    if(!val&rvec&!lvec) return(ss)
+    if(!val&!rvec&lvec) return(rv)
+    if(val&rvec&!lvec) return(list(lambda = lambda, ss = ss))
+    if(val&!rvec&lvec) return(list(lambda = lambda, rv = rv))
+    if(!val&rvec&lvec) return(list(ss = ss, rv = rv))
+    if(val&rvec&lvec) return(list(lambda = lambda, ss = ss, rv = rv))
 }
 

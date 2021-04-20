@@ -4,15 +4,16 @@
 #' @description
 #' Project dynamics of a specified population matrix projection model.
 #'
-#' @param A a matrix, or list of matrices. If \code{A} is a matrix, then 
-#' \code{project} performs a 'deterministic' projection, where the matrix
-#' does not change with each timestep. If \code{A} is a list of matrices, then 
-#' \code{project} performs a 'stochastic' projection where the matrix varies 
-#' with each timestep. The sequence of matrices is determined using \code{Aseq}. 
+#' @param A a matrix, a CompadreMat object (see RCompadre package), list of 
+#' matrices, or list of CompadreMat objects. If \code{A} is a matrix or CompadreM
+#' object, then \code{project} performs a 'deterministic' projection, where the matrix
+#' does not change with each timestep. If \code{A} is a list of matrices or 
+#' list of CompadreMat objects, then \code{project} performs a 'stochastic' 
+#' projection where the matrix varies with each timestep. 
 #' Matrices must be square, non-negative and numeric. If \code{A} is a list, 
 #' all matrices must have the same dimension. 'Projection' objects inherit
 #' names from \code{A}: if \code{A} is a matrix, stage names (in mat and 
-#' vec slots) are inherited from its column names..
+#' vec slots) are inherited from its column names.
 #' @param vector (optional) a numeric vector or matrix describing 
 #' the age/stage distribution(s) used to calculate the projection. Single
 #' population vectors can be given either as a numeric vector or 
@@ -252,6 +253,8 @@
 #' 
 #' @import methods
 #' @export project
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #' 
 #' @name project
 #' 
@@ -261,193 +264,242 @@ function (A, vector = "n", time = 100,
           return.vec = TRUE,
           Aseq = "unif", Astart = NULL,
           draws = 1000, alpha.draws = "unif", PREcheck = TRUE){
-# stop if A isn't a matrix or list of matrices (or array of matrices)
-if(!any(is.matrix(A), 
-        (is.list(A) & all(sapply(A, is.matrix))), 
-        (is.array(A) & length(dim(A)) == 3)) ){
-    stop("A must be a matrix or list of matrices")
-}
-# if there's only one matrix, put it in an array by itself (for continuity)
-if(is.list(A) & length(A) == 1) A <- A[[1]]
-if(is.matrix(A)){
-    M1 <- A
-    dim(A) <- c(dim(A), 1)
-    dimnames(A)[[1]] <- dimnames(M1)[[1]]
-    dimnames(A)[[2]] <- dimnames(M1)[[2]]
-    dimnames(A)[[3]] <- NULL
-}
-# if there's more than one matrix in a list, put them in an array
-if (is.list(A) & length(A) > 1) {
-    numA <- length(A)
-    alldim <- sapply(A, dim)
-    if (!diff(range(alldim))==0) {
-        stop("all matrices in A must be square and have the same dimension as each other")
+    if(class(A %in% "CompadreMat")){
+        A <- matA(A)
     }
-    dimA <- mean(alldim)
-    L <- A
-    A <- numeric(dimA * dimA * numA); dim(A) <- c(dimA, dimA, numA)
-    for(i in 1:numA){
-        A[,,i] <- L[[i]]
-    }
-    dimnames(A)[[1]] <- dimnames(L[[1]])[[1]]
-    dimnames(A)[[2]] <- dimnames(L[[1]])[[2]]
-    dimnames(A)[[3]] <- names(L)
-}
-# do the PREcheck
-if(is.array(A) & dim(A)[3] == 1){
-    if (dim(A)[1] != dim(A)[2]) stop("A must be a square matrix")
-    if(PREcheck){
-        if (!isIrreducible(A[,,1])) {
-            warning("Matrix is reducible")
-        } else {
-            if (!isPrimitive(A[,,1])) {
-                warning("Matrix is imprimitive")
-            }
+    if(class(A %in% "list")){
+        if(all(sapply(A, class) %in% "CompadreMat")){
+            A <- sapply(A, matA)
         }
     }
-}
-if (is.array(A) & dim(A)[3] > 1) {
-    if (dim(A)[1] != dim(A)[2]) stop("all matrices in A must be square")
-    if (PREcheck) {
-        red <- numeric(0)
-        imp <- numeric(0)
-        for(i in 1:dim(A)[3]){
-            if (!isIrreducible(A[,,i])) {
-                red <- c(red, i)
+    # stop if A isn't a matrix or list of matrices (or array of matrices)
+    if(!any(is.matrix(A), 
+            (is.list(A) & all(sapply(A, is.matrix))), 
+            (is.array(A) & length(dim(A)) == 3)) ){
+        stop("A must be a matrix or list of matrices")
+    }
+    # if there's only one matrix, put it in an array by itself (for continuity)
+    if(is.list(A) & length(A) == 1) A <- A[[1]]
+    if(is.matrix(A)){
+        M1 <- A
+        dim(A) <- c(dim(A), 1)
+        dimnames(A)[[1]] <- dimnames(M1)[[1]]
+        dimnames(A)[[2]] <- dimnames(M1)[[2]]
+        dimnames(A)[[3]] <- NULL
+    }
+    # if there's more than one matrix in a list, put them in an array
+    if (is.list(A) & length(A) > 1) {
+        numA <- length(A)
+        alldim <- sapply(A, dim)
+        if (!diff(range(alldim))==0) {
+            stop("all matrices in A must be square and have the same dimension as each other")
+        }
+        dimA <- mean(alldim)
+        L <- A
+        A <- numeric(dimA * dimA * numA); dim(A) <- c(dimA, dimA, numA)
+        for(i in 1:numA){
+            A[,,i] <- L[[i]]
+        }
+        dimnames(A)[[1]] <- dimnames(L[[1]])[[1]]
+        dimnames(A)[[2]] <- dimnames(L[[1]])[[2]]
+        dimnames(A)[[3]] <- names(L)
+    }
+    # do the PREcheck
+    if(is.array(A) & dim(A)[3] == 1){
+        if (dim(A)[1] != dim(A)[2]) stop("A must be a square matrix")
+        if(PREcheck){
+            if (!isIrreducible(A[,,1])) {
+                warning("Matrix is reducible")
             } else {
-                if (!isPrimitive(A[,,i])) {
-                    imp <- c(imp, i)
+                if (!isPrimitive(A[,,1])) {
+                    warning("Matrix is imprimitive")
                 }
             }
         }
-        if (length(red) > 0){
-            if(is.null(dimnames(A)[[3]])) red <- as.character(red)
-            if(!is.null(dimnames(A)[[3]])) red <- dimnames(A)[[3]][red]
-            red <- paste(red, collapse=", ")
-            warning(paste(c("One or more matrices are reducible (", red, ")"), 
-                          collapse=""))
-        }
-        if (length(imp) > 0){
-            if(is.null(dimnames(A)[[3]])) imp <- as.character(imp)
-            if(!is.null(dimnames(A)[[3]])) imp <- dimnames(A)[[3]][imp]
-            imp <- paste(imp, collapse=", ")
-            warning(paste(c("One or more matrices are imprimitive (", imp, ")"), 
-                          collapse=""))
-        }
     }
-}
-# extract some info about matrices
-order <- dim(A)[1]
-stagenames <- dimnames(A)[[2]]
-if(is.null(stagenames)) stagenames <- paste("S", as.character(1:order), sep = "")
-nmat <- dim(A)[3]
-matrixnames <- dimnames(A)[[3]]
-# standardisations
-if (standard.A == TRUE) {
-    if(nmat != 1) warning("Ignoring standard.A = TRUE: only valid when A is a single matrix.")
-    # just for single matrices but maybe extend to stochastic projections some day
-    if(nmat == 1){
-        MS <- A
-        lambda <- apply(MS, 3, eigs, what = "lambda")
-        A <- numeric(order * order * nmat); dim(A) <- c(order, order, nmat)
-        for(i in 1:nmat){
-            A[,,i] <- MS[,,i]/lambda[i]
+    if (is.array(A) & dim(A)[3] > 1) {
+        if (dim(A)[1] != dim(A)[2]) stop("all matrices in A must be square")
+        if (PREcheck) {
+            red <- numeric(0)
+            imp <- numeric(0)
+            for(i in 1:dim(A)[3]){
+                if (!isIrreducible(A[,,i])) {
+                    red <- c(red, i)
+                } else {
+                    if (!isPrimitive(A[,,i])) {
+                        imp <- c(imp, i)
+                    }
+                }
+            }
+            if (length(red) > 0){
+                if(is.null(dimnames(A)[[3]])) red <- as.character(red)
+                if(!is.null(dimnames(A)[[3]])) red <- dimnames(A)[[3]][red]
+                red <- paste(red, collapse=", ")
+                warning(paste(c("One or more matrices are reducible (", red, ")"), 
+                            collapse=""))
+            }
+            if (length(imp) > 0){
+                if(is.null(dimnames(A)[[3]])) imp <- as.character(imp)
+                if(!is.null(dimnames(A)[[3]])) imp <- dimnames(A)[[3]][imp]
+                imp <- paste(imp, collapse=", ")
+                warning(paste(c("One or more matrices are imprimitive (", imp, ")"), 
+                            collapse=""))
+            }
         }
     }
-}
-# if there's only 1 matrix, the sequence of matrices is 1L repeated
-if (nmat == 1) {
-    if(Aseq != "unif") warning("Ignoring Aseq: only 1 matrix in A")
-    MC <- rep(1L, time)
-    names(MC) <- matrixnames[MC]
-}
-# if >1 matrix, generate sequence of matrices using random Markov chain
-if (nmat > 1) {
-    if(!any(Aseq[1] == "unif", 
-            is.matrix(Aseq), 
-            is.numeric(Aseq) & is.null(dim(Aseq)),
-            is.character(Aseq) & is.null(dim(Aseq)))){
-        stop('Aseq must take "unif", a numeric matrix, a numeric vector, or a character vector')
-    }
-    # make sure Astart is OK
-    if(!any(is.numeric(Astart),
-            is.character(Astart),
-            is.null(Astart))) stop("Astart should be numeric, character or NULL")
-    if(is.numeric(Astart)){
-        if(length(Astart) > 1) stop("Astart should be length 1")
-        if(Astart < 1) stop("Astart must be greater than 0")
-        if(Astart > nmat) stop("Astart cannot be greater than the number of matrices in A")
-        if(Astart%%1 != 0) stop("Astart must be an integer")
-        MCstart <- Astart
-    }
-    if(is.character(Astart)){
-        if(length(Astart) > 1) stop("Astart should be length 1")
-        if(!(Astart %in% matrixnames)) stop("Astart is not found in names of matrices in A")
-        MCstart <- match(Astart, matrixnames)
-    }
-    if(is.null(Astart)) MCstart <- NULL
-    # uniform probability or transition matrix
-    if(any(Aseq[1] == "unif", is.matrix(Aseq))){
-        if(Aseq[1] == "unif") MCtm <- matrix(rep(1/nmat, nmat^2), nmat, nmat)
-        if(is.matrix(Aseq)) MCtm <- Aseq
-        if(dim(MCtm)[1] != dim(MCtm)[2]) stop("Aseq is not a square matrix")
-        if(dim(MCtm)[1] != nmat){
-            stop("Dimensions of Aseq must be equal to number of matrices in A")
+    # extract some info about matrices
+    order <- dim(A)[1]
+    stagenames <- dimnames(A)[[2]]
+    if(is.null(stagenames)) stagenames <- paste("S", as.character(1:order), sep = "")
+    nmat <- dim(A)[3]
+    matrixnames <- dimnames(A)[[3]]
+    # standardisations
+    if (standard.A == TRUE) {
+        if(nmat != 1) warning("Ignoring standard.A = TRUE: only valid when A is a single matrix.")
+        # just for single matrices but maybe extend to stochastic projections some day
+        if(nmat == 1){
+            MS <- A
+            lambda <- apply(MS, 3, eigs, what = "lambda")
+            A <- numeric(order * order * nmat); dim(A) <- c(order, order, nmat)
+            for(i in 1:nmat){
+                A[,,i] <- MS[,,i]/lambda[i]
+            }
         }
-        if(!all(colSums(MCtm) == 1)) stop("Columns of Aseq do not sum to 1")
-        MC <- .rmc(MCtm, time, MCstart)
+    }
+    # if there's only 1 matrix, the sequence of matrices is 1L repeated
+    if (nmat == 1) {
+        if(Aseq != "unif") warning("Ignoring Aseq: only 1 matrix in A")
+        MC <- rep(1L, time)
         names(MC) <- matrixnames[MC]
     }
-    # numeric sequence
-    if(is.numeric(Aseq) & is.null(dim(Aseq))){
-        if(min(Aseq) < 1) stop("Entries in Aseq are not all greater than 0")
-        if(max(Aseq) > nmat) stop("One or more entries in Aseq are greater than the number of matrices in A")
-        if(!all(Aseq%%1 == 0)) stop("One or more entries in Aseq are not integers")
-        if(length(Aseq) != time) time <- length(Aseq)
-        MC <- Aseq
-        names(MC) <- matrixnames[MC]
-    }
-    # character sequence (convert to numeric)
-    if(Aseq[1] != "unif" & is.character(Aseq) & is.null(dim(Aseq))){
-        if(!all(Aseq %in% matrixnames)) stop("Names of Aseq aren't all found in A")
-        if(length(Aseq) != time) time <- length(Aseq)
-        MC <- match(Aseq, matrixnames)
-        names(MC) <- matrixnames[MC]
-    }
-}
-# prepare object to return
-out <- Projection()
-# stage-biased projections
-#(run also for deterministic projections, to get bounds)
-if(nmat == 1 | vector[1] == "n"){
-    # empty objects
-    VecBias <- numeric((time + 1) * order * order)
-    dim(VecBias) <- c(time + 1, order, order)
-    dimnames(VecBias)[[2]] <- stagenames
-    dimnames(VecBias)[[3]] <- paste("bias", stagenames, sep = "")
-    PopBias <- numeric((time + 1) * order)
-    dim(PopBias) <- c(time + 1, order)
-    dimnames(PopBias)[[2]] <- paste("bias", stagenames, sep = "")
-    # initial vectors come from identity matrix
-    I <- diag(order)
-    VecBias[1, ,] <- I
-    # initial population size is always 1
-    PopBias[1,] <- 1
-    for (i in 1:order) {
-        for (j in 1:time) {
-            VecBias[j + 1, , i] <- A[, , MC[j]] %*% VecBias[j, , i]
-            PopBias[j + 1, i] <- sum(VecBias[j + 1, , i])
+    # if >1 matrix, generate sequence of matrices using random Markov chain
+    if (nmat > 1) {
+        if(!any(Aseq[1] == "unif", 
+                is.matrix(Aseq), 
+                is.numeric(Aseq) & is.null(dim(Aseq)),
+                is.character(Aseq) & is.null(dim(Aseq)))){
+            stop('Aseq must take "unif", a numeric matrix, a numeric vector, or a character vector')
+        }
+        # make sure Astart is OK
+        if(!any(is.numeric(Astart),
+                is.character(Astart),
+                is.null(Astart))) stop("Astart should be numeric, character or NULL")
+        if(is.numeric(Astart)){
+            if(length(Astart) > 1) stop("Astart should be length 1")
+            if(Astart < 1) stop("Astart must be greater than 0")
+            if(Astart > nmat) stop("Astart cannot be greater than the number of matrices in A")
+            if(Astart%%1 != 0) stop("Astart must be an integer")
+            MCstart <- Astart
+        }
+        if(is.character(Astart)){
+            if(length(Astart) > 1) stop("Astart should be length 1")
+            if(!(Astart %in% matrixnames)) stop("Astart is not found in names of matrices in A")
+            MCstart <- match(Astart, matrixnames)
+        }
+        if(is.null(Astart)) MCstart <- NULL
+        # uniform probability or transition matrix
+        if(any(Aseq[1] == "unif", is.matrix(Aseq))){
+            if(Aseq[1] == "unif") MCtm <- matrix(rep(1/nmat, nmat^2), nmat, nmat)
+            if(is.matrix(Aseq)) MCtm <- Aseq
+            if(dim(MCtm)[1] != dim(MCtm)[2]) stop("Aseq is not a square matrix")
+            if(dim(MCtm)[1] != nmat){
+                stop("Dimensions of Aseq must be equal to number of matrices in A")
+            }
+            if(!all(colSums(MCtm) == 1)) stop("Columns of Aseq do not sum to 1")
+            MC <- .rmc(MCtm, time, MCstart)
+            names(MC) <- matrixnames[MC]
+        }
+        # numeric sequence
+        if(is.numeric(Aseq) & is.null(dim(Aseq))){
+            if(min(Aseq) < 1) stop("Entries in Aseq are not all greater than 0")
+            if(max(Aseq) > nmat) stop("One or more entries in Aseq are greater than the number of matrices in A")
+            if(!all(Aseq%%1 == 0)) stop("One or more entries in Aseq are not integers")
+            if(length(Aseq) != time) time <- length(Aseq)
+            MC <- Aseq
+            names(MC) <- matrixnames[MC]
+        }
+        # character sequence (convert to numeric)
+        if(Aseq[1] != "unif" & is.character(Aseq) & is.null(dim(Aseq))){
+            if(!all(Aseq %in% matrixnames)) stop("Names of Aseq aren't all found in A")
+            if(length(Aseq) != time) time <- length(Aseq)
+            MC <- match(Aseq, matrixnames)
+            names(MC) <- matrixnames[MC]
         }
     }
-    # for deterministic projections, calculate the bounds
-    if(nmat == 1){
-        bounds <- t(apply(PopBias,1,range))
+    # prepare object to return
+    out <- Projection()
+    # stage-biased projections
+    #(run also for deterministic projections, to get bounds)
+    if(nmat == 1 | vector[1] == "n"){
+        # empty objects
+        VecBias <- numeric((time + 1) * order * order)
+        dim(VecBias) <- c(time + 1, order, order)
+        dimnames(VecBias)[[2]] <- stagenames
+        dimnames(VecBias)[[3]] <- paste("bias", stagenames, sep = "")
+        PopBias <- numeric((time + 1) * order)
+        dim(PopBias) <- c(time + 1, order)
+        dimnames(PopBias)[[2]] <- paste("bias", stagenames, sep = "")
+        # initial vectors come from identity matrix
+        I <- diag(order)
+        VecBias[1, ,] <- I
+        # initial population size is always 1
+        PopBias[1,] <- 1
+        for (i in 1:order) {
+            for (j in 1:time) {
+                VecBias[j + 1, , i] <- A[, , MC[j]] %*% VecBias[j, , i]
+                PopBias[j + 1, i] <- sum(VecBias[j + 1, , i])
+            }
+        }
+        # for deterministic projections, calculate the bounds
+        if(nmat == 1){
+            bounds <- t(apply(PopBias,1,range))
+        }
+        # return stage-biased vectors if nothing passed to vector
+        if(vector[1] == "n"){
+            if(is.null(dim(PopBias))) dim(PopBias) <- time + 1
+            out@.Data <- PopBias
+            if(return.vec) out@vec <- VecBias
+            out@mat <- A
+            out@Aseq <- MC
+            if(nmat == 1){
+                out@bounds <- bounds
+                out@projtype <- "deterministic"
+            }
+            if(nmat > 1){
+                out@projtype <- "stochastic"
+            }
+            out@vectype <- "bias"
+            return(out)
+        }
     }
-    # return stage-biased vectors if nothing passed to vector
-    if(vector[1] == "n"){
-        if(is.null(dim(PopBias))) dim(PopBias) <- time + 1
-        out@.Data <- PopBias
-        if(return.vec) out@vec <- VecBias
+    # dirichlet projections
+    if(vector[1] == "diri") {
+        # dirichlet parameters
+        if(alpha.draws[1] == "unif") alpha.draws<-rep(1,order)
+        if(length(alpha.draws) != order) stop("length of alpha.draws must be equal to matrix dimension")
+        # empty objects
+        VecDraws <- numeric((time + 1) * order * draws)
+        dim(VecDraws) <- c(time + 1, order, draws)
+        dimnames(VecDraws)[[2]] <- stagenames
+        dimnames(VecDraws)[[3]] <- paste("draw", as.character(1:draws), sep = "")
+        PopDraws <- numeric((time + 1) * draws)
+        dim(PopDraws) <- c(time + 1, draws)
+        dimnames(PopDraws)[[2]] <- paste("draw", as.character(1:draws), sep = "")
+        # initial stage vectors come from dirichlet
+        VecDraws[1, , ] <- t(MCMCpack::rdirichlet(draws,alpha.draws))
+        # initial population size is always 1
+        PopDraws[1,] <- 1
+        #project
+        for (i in 1:draws) {
+            for (j in 1:time) {
+                VecDraws[j + 1, , i] <- A[, , MC[j]] %*% VecDraws[j, ,i]
+                PopDraws[j + 1, i] <- sum(VecDraws[j + 1, ,i])
+            }
+        }
+        # choose stuff to return
+        if(is.null(dim(PopDraws))) dim(PopDraws) <- time + 1
+        out@.Data <- PopDraws
+        if(return.vec) out@vec <- VecDraws
         out@mat <- A
         out@Aseq <- MC
         if(nmat == 1){
@@ -457,125 +509,85 @@ if(nmat == 1 | vector[1] == "n"){
         if(nmat > 1){
             out@projtype <- "stochastic"
         }
-        out@vectype <- "bias"
+        out@vectype <- "diri"
+        return(out)
+    }
+    # specific vector(s)...
+    # make sure vector is the correct size
+    if(vector[1]!="n"&vector[1]!="diri"&(length(vector)%%order)!=0) stop("vector has the wrong dimension(s)")
+    # multiple vectors projections
+    if(length(vector) > order){
+        # get information from vectors
+        nvec <- dim(vector)[2]
+        vectornames <- dimnames(vector)[[2]]
+        if(is.null(vectornames)) vectornames <- paste("V", as.character(1:nvec), sep="")
+        n0 <- vector
+        # standardisations
+        if (standard.vec) vector <- apply(n0, 2, function(x){x/sum(x)})
+        # empty objects
+        Vec <- numeric((time + 1) * order * nvec)
+        dim(Vec) <- c(time + 1, order, nvec)
+        dimnames(Vec)[[2]] <- stagenames
+        dimnames(Vec)[[3]] <- vectornames
+        Pop <- numeric((time + 1) * nvec)
+        dim(Pop) <- c(time + 1, nvec)
+        dimnames(Pop)[[2]] <- vectornames
+        # initialise
+        Vec[1, , ] <- vector
+        Pop[1,] <- colSums(vector)
+        # project
+        for (i in 1:nvec) {
+            for (j in 1:time) {
+                Vec[j + 1, , i] <- A[, , MC[j]] %*% Vec[j, ,i]
+                Pop[j + 1, i] <- sum(Vec[j + 1, ,i])
+            }
+        }
+        # choose stuff to return
+        if(is.null(dim(Pop))) dim(Pop) <- time + 1
+        out@.Data <- Pop
+        if(return.vec) out@vec <- Vec
+        out@mat <- A
+        out@Aseq <- MC
+        if(nmat == 1){
+            out@bounds <- bounds
+            out@projtype <- "deterministic"
+        }
+        if(nmat > 1){
+            out@projtype <- "stochastic"
+        }
+        out@vectype <- "multiple"
+        return(out)
+    }
+    # single vector projection
+    if(length(vector)==order){
+        n0 <- vector
+        # standardisation
+        if (standard.vec) vector <- n0/sum(n0)
+        # empty objects
+        Vec <- matrix(0, ncol = order, nrow = time + 1)
+        Pop <- numeric(time + 1)
+        dimnames(Vec)[[2]] <- stagenames
+        Vec[1, ] <- vector
+        Pop[1] <- sum(vector)
+        # project
+        for (i in 1:time) {
+            Vec[(i + 1), ] <- A[, , MC[i]] %*% Vec[i, ]
+            Pop[i + 1] <- sum(Vec[(i + 1), ])
+        }
+        # choose stuff to return
+        if(is.null(dim(Pop))) dim(Pop) <- time + 1
+        out@.Data <- Pop
+        if(return.vec) out@vec <- Vec
+        out@mat <- A
+        out@Aseq <- MC
+        if(nmat == 1){
+            out@bounds <- bounds
+            out@projtype <- "deterministic"
+        }
+        if(nmat > 1){
+            out@projtype <- "stochastic"
+        }
+        out@vectype <- "single"
         return(out)
     }
 }
-# dirichlet projections
-if(vector[1] == "diri") {
-    # dirichlet parameters
-    if(alpha.draws[1] == "unif") alpha.draws<-rep(1,order)
-    if(length(alpha.draws) != order) stop("length of alpha.draws must be equal to matrix dimension")
-    # empty objects
-    VecDraws <- numeric((time + 1) * order * draws)
-    dim(VecDraws) <- c(time + 1, order, draws)
-    dimnames(VecDraws)[[2]] <- stagenames
-    dimnames(VecDraws)[[3]] <- paste("draw", as.character(1:draws), sep = "")
-    PopDraws <- numeric((time + 1) * draws)
-    dim(PopDraws) <- c(time + 1, draws)
-    dimnames(PopDraws)[[2]] <- paste("draw", as.character(1:draws), sep = "")
-    # initial stage vectors come from dirichlet
-    VecDraws[1, , ] <- t(MCMCpack::rdirichlet(draws,alpha.draws))
-    # initial population size is always 1
-    PopDraws[1,] <- 1
-    #project
-    for (i in 1:draws) {
-        for (j in 1:time) {
-            VecDraws[j + 1, , i] <- A[, , MC[j]] %*% VecDraws[j, ,i]
-            PopDraws[j + 1, i] <- sum(VecDraws[j + 1, ,i])
-        }
-    }
-    # choose stuff to return
-    if(is.null(dim(PopDraws))) dim(PopDraws) <- time + 1
-    out@.Data <- PopDraws
-    if(return.vec) out@vec <- VecDraws
-    out@mat <- A
-    out@Aseq <- MC
-    if(nmat == 1){
-        out@bounds <- bounds
-        out@projtype <- "deterministic"
-    }
-    if(nmat > 1){
-        out@projtype <- "stochastic"
-    }
-    out@vectype <- "diri"
-    return(out)
-}
-# specific vector(s)...
-# make sure vector is the correct size
-if(vector[1]!="n"&vector[1]!="diri"&(length(vector)%%order)!=0) stop("vector has the wrong dimension(s)")
-# multiple vectors projections
-if(length(vector) > order){
-    # get information from vectors
-    nvec <- dim(vector)[2]
-    vectornames <- dimnames(vector)[[2]]
-    if(is.null(vectornames)) vectornames <- paste("V", as.character(1:nvec), sep="")
-    n0 <- vector
-    # standardisations
-    if (standard.vec) vector <- apply(n0, 2, function(x){x/sum(x)})
-    # empty objects
-    Vec <- numeric((time + 1) * order * nvec)
-    dim(Vec) <- c(time + 1, order, nvec)
-    dimnames(Vec)[[2]] <- stagenames
-    dimnames(Vec)[[3]] <- vectornames
-    Pop <- numeric((time + 1) * nvec)
-    dim(Pop) <- c(time + 1, nvec)
-    dimnames(Pop)[[2]] <- vectornames
-    # initialise
-    Vec[1, , ] <- vector
-    Pop[1,] <- colSums(vector)
-    # project
-    for (i in 1:nvec) {
-        for (j in 1:time) {
-            Vec[j + 1, , i] <- A[, , MC[j]] %*% Vec[j, ,i]
-            Pop[j + 1, i] <- sum(Vec[j + 1, ,i])
-        }
-    }
-    # choose stuff to return
-    if(is.null(dim(Pop))) dim(Pop) <- time + 1
-    out@.Data <- Pop
-    if(return.vec) out@vec <- Vec
-    out@mat <- A
-    out@Aseq <- MC
-    if(nmat == 1){
-        out@bounds <- bounds
-        out@projtype <- "deterministic"
-    }
-    if(nmat > 1){
-        out@projtype <- "stochastic"
-    }
-    out@vectype <- "multiple"
-    return(out)
-}
-# single vector projection
-if(length(vector)==order){
-    n0 <- vector
-    # standardisation
-    if (standard.vec) vector <- n0/sum(n0)
-    # empty objects
-    Vec <- matrix(0, ncol = order, nrow = time + 1)
-    Pop <- numeric(time + 1)
-    dimnames(Vec)[[2]] <- stagenames
-    Vec[1, ] <- vector
-    Pop[1] <- sum(vector)
-    # project
-    for (i in 1:time) {
-        Vec[(i + 1), ] <- A[, , MC[i]] %*% Vec[i, ]
-        Pop[i + 1] <- sum(Vec[(i + 1), ])
-    }
-    # choose stuff to return
-    if(is.null(dim(Pop))) dim(Pop) <- time + 1
-    out@.Data <- Pop
-    if(return.vec) out@vec <- Vec
-    out@mat <- A
-    out@Aseq <- MC
-    if(nmat == 1){
-        out@bounds <- bounds
-        out@projtype <- "deterministic"
-    }
-    if(nmat > 1){
-        out@projtype <- "stochastic"
-    }
-    out@vectype <- "single"
-    return(out)
-}}

@@ -5,7 +5,8 @@
 #' Calculate reactivity (first-timestep amplification) and first-timestep 
 #' attenuation for a population matrix projection model.
 #'
-#' @param A a square, non-negative numeric matrix of any dimension
+#' @param A a square, non-negative numeric matrix of any dimension, 
+#' or a CompadreMat object (see RCompadre package).
 #' @param vector (optional) a numeric vector or one-column matrix describing 
 #' the age/stage distribution used to calculate a 'case-specific' reactivity/
 #' first-timestep attenuation
@@ -101,55 +102,61 @@
 #' transient dynamics amplification unstable instability structure
 #'
 #' @export reac
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
 reac <-
 function(A,vector="n",bound=NULL,return.N=FALSE){
-if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
-order<-dim(A)[1]
-if(!isIrreducible(A)){
-    warning("Matrix is reducible")
-}
-else{
-    if(!isPrimitive(A)) warning("Matrix is imprimitive")
-}
-M<-A
-eigvals<-eigen(M)$values
-lmax<-which.max(Re(eigvals))
-lambda<-Re(eigvals[lmax])
-A<-M/lambda
-if(vector[1]=="n"){
-    if(!any(bound=="upper",bound=="lower")) stop('Please specify bound="upper", bound="lower" or specify vector')
-    if(bound=="upper"){
-        reac<-norm(A)
-        if(return.N){
-            N<-reac*lambda
-            return(list(reac=reac,N=N))
-        }
-        else{
-            return(reac)
-        }
+    if(class(A %in% "CompadreMat")){
+        A <- matA(A)
     }
-    if(bound=="lower"){
-        reac<-.minCS(A)
-        if(return.N){
-            N<-reac*lambda
-            return(list(reac=reac,N=N))
-        }
-        else{
-            return(reac)
-        }
-    }
-}
-else{
-    if(!is.null(bound)) warning("Specification of vector overrides calculation of bound")
-    n0<-vector
-    vector<-n0/sum(n0)
-    reac<-sum(A%*%vector)
-    if(return.N){
-        N<-reac*sum(n0)*lambda
-        return(list(reac=reac,N=N))
+    if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
+    order<-dim(A)[1]
+    if(!isIrreducible(A)){
+        warning("Matrix is reducible")
     }
     else{
-        return(reac)
+        if(!isPrimitive(A)) warning("Matrix is imprimitive")
     }
-}}
+    M<-A
+    eigvals<-eigen(M)$values
+    lmax<-which.max(Re(eigvals))
+    lambda<-Re(eigvals[lmax])
+    A<-M/lambda
+    if(vector[1]=="n"){
+        if(!any(bound=="upper",bound=="lower")) stop('Please specify bound="upper", bound="lower" or specify vector')
+        if(bound=="upper"){
+            reac<-norm(A)
+            if(return.N){
+                N<-reac*lambda
+                return(list(reac=reac,N=N))
+            }
+            else{
+                return(reac)
+            }
+        }
+        if(bound=="lower"){
+            reac<-.minCS(A)
+            if(return.N){
+                N<-reac*lambda
+                return(list(reac=reac,N=N))
+            }
+            else{
+                return(reac)
+            }
+        }
+    }
+    else{
+        if(!is.null(bound)) warning("Specification of vector overrides calculation of bound")
+        n0<-vector
+        vector<-n0/sum(n0)
+        reac<-sum(A%*%vector)
+        if(return.N){
+            N<-reac*sum(n0)*lambda
+            return(list(reac=reac,N=N))
+        }
+        else{
+            return(reac)
+        }
+    }
+}

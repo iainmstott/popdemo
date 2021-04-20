@@ -4,7 +4,8 @@
 #' @description
 #' Calculate the damping ratio of a given population matrix projection model.
 #'
-#' @param A a square, irreducible, non-negative numeric matrix of any dimension.
+#' @param A a square, irreducible, non-negative numeric matrix of any dimension, 
+#' or a CompadreMat object (see RCompadre package).
 #' @param return.time (optional) a logical argument determining whether an 
 #' estimated convergence time should be returned.
 #' @param x (optional) the logarithm used in determining estimated time to 
@@ -48,21 +49,27 @@
 #' converge convergence resilience stability
 #'
 #' @export dr
+#' @importClassesFrom RCompadre CompadreMat
+#' @importFrom RCompadre matA
 #'
 dr <-
 function(A,return.time=FALSE,x=10){
-if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
-if(!isIrreducible(A)) stop("Matrix is reducible")
-if(!isPrimitive(A)) warning("Matrix is imprimitive")
-eigvals<-eigen(A)$values
-lmax<-which.max(Re(eigvals))
-lambda<-Re(eigvals[lmax])
-lambda2<-sort(Mod(eigvals),decreasing=TRUE)[2]
-dr<-lambda/lambda2
-if(return.time){
-    t<-log(x)/log(dr)
-    return(list(dr=dr,t=t))
+    if(class(A %in% "CompadreMat")){
+        A <- matA(A)
+    }
+    if(any(length(dim(A))!=2,dim(A)[1]!=dim(A)[2])) stop("A must be a square matrix")
+    if(!isIrreducible(A)) stop("Matrix is reducible")
+    if(!isPrimitive(A)) warning("Matrix is imprimitive")
+    eigvals<-eigen(A)$values
+    lmax<-which.max(Re(eigvals))
+    lambda<-Re(eigvals[lmax])
+    lambda2<-sort(Mod(eigvals),decreasing=TRUE)[2]
+    dr<-lambda/lambda2
+    if(return.time){
+        t<-log(x)/log(dr)
+        return(list(dr=dr,t=t))
+    }
+    else{
+        return(dr)
+    }
 }
-else{
-    return(dr)
-}}
