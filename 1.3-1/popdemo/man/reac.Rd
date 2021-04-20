@@ -106,10 +106,11 @@ no sense to have two separate functions to calculate one thing
 }
 }
 \seealso{
-Other TransientIndices: \code{\link{Kreiss}},
-  \code{\link{inertia}}, \code{\link{maxamp}},
-  \code{\link{maxatt}}
+Other TransientIndices: 
+\code{\link{Kreiss}()},
+\code{\link{inertia}()},
+\code{\link{maxamp}()},
+\code{\link{maxatt}()}
 }
-\concept{
-transient dynamics amplification unstable instability structure
-}
+\concept{TransientIndices}
+\concept{transient dynamics amplification unstable instability structure}

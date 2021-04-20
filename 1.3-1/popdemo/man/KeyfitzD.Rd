@@ -44,9 +44,9 @@ matrices with nonzero imaginary components in the dominant eigenpair).
 }
 }
 \seealso{
-Other DistanceMeasures: \code{\link{CohenD}},
-  \code{\link{projectionD}}
+Other DistanceMeasures: 
+\code{\link{CohenD}()},
+\code{\link{projectionD}()}
 }
-\concept{
-distance vector state space
-}
+\concept{DistanceMeasures}
+\concept{distance vector state space}

@@ -41,9 +41,9 @@ of \strong{A} (Caswell 2001).
 }
 }
 \seealso{
-Other PerronFrobeniusDiagnostics: \code{\link{isErgodic}},
-  \code{\link{isIrreducible}}
+Other PerronFrobeniusDiagnostics: 
+\code{\link{isErgodic}()},
+\code{\link{isIrreducible}()}
 }
-\concept{
-primitivity primitive imprimitive Perron Frobenius
-}
+\concept{PerronFrobeniusDiagnostics}
+\concept{primitivity primitive imprimitive Perron Frobenius}

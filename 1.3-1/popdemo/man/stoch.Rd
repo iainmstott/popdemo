@@ -4,8 +4,16 @@
 \alias{stoch}
 \title{Project population dynamics}
 \usage{
-stoch(A, what = "all", Aseq = "unif", vector = NULL, Astart = NULL,
-  iterations = 10000, discard = 1000, PREcheck = FALSE)
+stoch(
+  A,
+  what = "all",
+  Aseq = "unif",
+  vector = NULL,
+  Astart = NULL,
+  iterations = 10000,
+  discard = 1000,
+  PREcheck = FALSE
+)
 }
 \arguments{
 \item{A}{a list of matrices. \code{stoch} uses \code{\link{project}} to 
@@ -85,6 +93,4 @@ matrix projection model.
   ( var_unif <- stoch(Pbear, what = "var", Aseq = Pbear_seq) )
   
 }
-\concept{
-stochastic growth variance projection project population
-}
+\concept{stochastic growth variance projection project population}

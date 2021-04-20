@@ -116,16 +116,23 @@ and examples below)
 \seealso{
 S3 plotting method: \code{\link{plot.tfa}}
 
-Other TransferFunctionAnalyses: \code{\link{tfa_inertia}},
-  \code{\link{tfam_inertia}}, \code{\link{tfam_lambda}},
-  \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
+Other TransferFunctionAnalyses: 
+\code{\link{tfa_inertia}()},
+\code{\link{tfam_inertia}()},
+\code{\link{tfam_lambda}()},
+\code{\link{tfs_inertia}()},
+\code{\link{tfs_lambda}()}
 
-Other PerturbationAnalyses: \code{\link{elas}},
-  \code{\link{sens}}, \code{\link{tfa_inertia}},
-  \code{\link{tfam_inertia}}, \code{\link{tfam_lambda}},
-  \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
+Other PerturbationAnalyses: 
+\code{\link{elas}()},
+\code{\link{sens}()},
+\code{\link{tfa_inertia}()},
+\code{\link{tfam_inertia}()},
+\code{\link{tfam_lambda}()},
+\code{\link{tfs_inertia}()},
+\code{\link{tfs_lambda}()}
 }
-\concept{
-transfer function systems control nonlinear perturbation population viability
-PVA ecology demography PPM MPM
-}
+\concept{PerturbationAnalyses}
+\concept{TransferFunctionAnalyses}
+\concept{transfer function systems control nonlinear perturbation population viability
+PVA ecology demography PPM MPM}

@@ -4,9 +4,19 @@
 \alias{project}
 \title{Project population dynamics}
 \usage{
-project(A, vector = "n", time = 100, standard.A = FALSE,
-  standard.vec = FALSE, return.vec = TRUE, Aseq = "unif", Astart = NULL,
-  draws = 1000, alpha.draws = "unif", PREcheck = TRUE)
+project(
+  A,
+  vector = "n",
+  time = 100,
+  standard.A = FALSE,
+  standard.vec = FALSE,
+  return.vec = TRUE,
+  Aseq = "unif",
+  Astart = NULL,
+  draws = 1000,
+  alpha.draws = "unif",
+  PREcheck = TRUE
+)
 }
 \arguments{
 \item{A}{a matrix, or list of matrices. If \code{A} is a matrix, then 
@@ -265,6 +275,4 @@ the \code{project} function.
 \seealso{
 \code{\link{Projection-class}} \code{\link{Projection-plots}}
 }
-\concept{
-projection project population
-}
+\concept{projection project population}

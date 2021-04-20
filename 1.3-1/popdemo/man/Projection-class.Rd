@@ -3,7 +3,6 @@
 \docType{class}
 \name{Projection-class}
 \alias{Projection-class}
-\alias{Projection-class}
 \alias{Projection}
 \alias{vec}
 \alias{vec,Projection-method}

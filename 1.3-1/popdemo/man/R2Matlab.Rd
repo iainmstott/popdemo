@@ -45,6 +45,4 @@ Matlab-style character string that may be useful for exporting into databases.
 \seealso{
 \code{\link{Matlab2R}}
 }
-\concept{
-Matlab
-}
+\concept{Matlab}

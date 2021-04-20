@@ -4,8 +4,15 @@
 \alias{Kreiss}
 \title{Calculate Kreiss bounds}
 \usage{
-Kreiss(A, bound = NULL, return.r = FALSE, theta = 1, rlimit = 100,
-  step1 = 0.001, step2 = 1e-06)
+Kreiss(
+  A,
+  bound = NULL,
+  return.r = FALSE,
+  theta = 1,
+  rlimit = 100,
+  step1 = 0.001,
+  step2 = 1e-06
+)
 }
 \arguments{
 \item{A}{a square, irreducible, non-negative numeric matrix of any dimension}
@@ -84,10 +91,11 @@ imprimitive matrices.
 }
 }
 \seealso{
-Other TransientIndices: \code{\link{inertia}},
-  \code{\link{maxamp}}, \code{\link{maxatt}},
-  \code{\link{reac}}
+Other TransientIndices: 
+\code{\link{inertia}()},
+\code{\link{maxamp}()},
+\code{\link{maxatt}()},
+\code{\link{reac}()}
 }
-\concept{
-transient amplification attenuation systems control unstable instability
-}
+\concept{TransientIndices}
+\concept{transient amplification attenuation systems control unstable instability}

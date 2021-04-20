@@ -4,8 +4,7 @@
 \alias{plot.tfam}
 \title{Plot transfer function}
 \usage{
-\method{plot}{tfam}(x, xvar = NULL, yvar = NULL, mar = c(1.1, 1.1, 0.1,
-  0.1), ...)
+\method{plot}{tfam}(x, xvar = NULL, yvar = NULL, mar = c(1.1, 1.1, 0.1, 0.1), ...)
 }
 \arguments{
 \item{x}{an object of class 'tfam' (transfer function analysis matrix) 
@@ -60,7 +59,5 @@ elements.
 \seealso{
 Constructor functions: \code{\link{tfam_lambda}}, \code{\link{tfam_inertia}}
 }
-\concept{
-transfer function systems control nonlinear perturbation population viability
-PVA ecology demography PPM MPM
-}
+\concept{transfer function systems control nonlinear perturbation population viability
+PVA ecology demography PPM MPM}

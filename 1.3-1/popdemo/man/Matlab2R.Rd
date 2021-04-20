@@ -40,6 +40,4 @@ tables.
 \seealso{
 \code{\link{R2Matlab}}
 }
-\concept{
-Matlab
-}
+\concept{Matlab}

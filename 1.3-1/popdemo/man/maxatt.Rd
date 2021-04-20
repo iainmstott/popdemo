@@ -4,8 +4,15 @@
 \alias{maxatt}
 \title{Calculate maximal attenuation}
 \usage{
-maxatt(A, vector = "n", return.N = FALSE, return.t = FALSE,
-  return.stage = FALSE, conv.iterations = 1e+05, conv.accuracy = 1e-05)
+maxatt(
+  A,
+  vector = "n",
+  return.N = FALSE,
+  return.t = FALSE,
+  return.stage = FALSE,
+  conv.iterations = 1e+05,
+  conv.accuracy = 1e-05
+)
 }
 \arguments{
 \item{A}{a square, primitive, non-negative numeric matrix of any dimension}
@@ -111,10 +118,11 @@ in order to ensure maximal attenuation is correctly captured in model projection
 }
 }
 \seealso{
-Other TransientIndices: \code{\link{Kreiss}},
-  \code{\link{inertia}}, \code{\link{maxamp}},
-  \code{\link{reac}}
+Other TransientIndices: 
+\code{\link{Kreiss}()},
+\code{\link{inertia}()},
+\code{\link{maxamp}()},
+\code{\link{reac}()}
 }
-\concept{
-transient dynamics attenuation unstable instability
-}
+\concept{TransientIndices}
+\concept{transient dynamics attenuation unstable instability}

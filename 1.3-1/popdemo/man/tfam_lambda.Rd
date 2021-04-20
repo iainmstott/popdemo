@@ -4,8 +4,14 @@
 \alias{tfam_lambda}
 \title{Transfer function analysis}
 \usage{
-tfam_lambda(A, elementtype = NULL, Flim = c(-1, 10), Plim = c(-1, 10),
-  plength = 100, digits = 1e-10)
+tfam_lambda(
+  A,
+  elementtype = NULL,
+  Flim = c(-1, 10),
+  Plim = c(-1, 10),
+  plength = 100,
+  digits = 1e-10
+)
 }
 \arguments{
 \item{A}{a square, irreducible, nonnegative numeric matrix of any dimension}
@@ -111,16 +117,23 @@ problem of singular matrices (see details in \code{\link{tfa_lambda}}).
 \seealso{
 S3 plotting method: \code{\link{plot.tfa}}
 
-Other TransferFunctionAnalyses: \code{\link{tfa_inertia}},
-  \code{\link{tfa_lambda}}, \code{\link{tfam_inertia}},
-  \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
+Other TransferFunctionAnalyses: 
+\code{\link{tfa_inertia}()},
+\code{\link{tfa_lambda}()},
+\code{\link{tfam_inertia}()},
+\code{\link{tfs_inertia}()},
+\code{\link{tfs_lambda}()}
 
-Other PerturbationAnalyses: \code{\link{elas}},
-  \code{\link{sens}}, \code{\link{tfa_inertia}},
-  \code{\link{tfa_lambda}}, \code{\link{tfam_inertia}},
-  \code{\link{tfs_inertia}}, \code{\link{tfs_lambda}}
+Other PerturbationAnalyses: 
+\code{\link{elas}()},
+\code{\link{sens}()},
+\code{\link{tfa_inertia}()},
+\code{\link{tfa_lambda}()},
+\code{\link{tfam_inertia}()},
+\code{\link{tfs_inertia}()},
+\code{\link{tfs_lambda}()}
 }
-\concept{
-transfer function systems control nonlinear perturbation population viability
-PVA ecology demography PPM MPM
-}
+\concept{PerturbationAnalyses}
+\concept{TransferFunctionAnalyses}
+\concept{transfer function systems control nonlinear perturbation population viability
+PVA ecology demography PPM MPM}

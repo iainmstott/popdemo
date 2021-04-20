@@ -4,7 +4,9 @@
 \name{Tort}
 \alias{Tort}
 \title{Desert tortoise matrix}
-\format{Object of class \code{matrix}}
+\format{
+Object of class \code{matrix}
+}
 \usage{
 data(Tort)
 }
@@ -33,7 +35,5 @@ Stage 8: Adult 2 (>240mm).
  \item Doak et al. (1994) Ecol. Appl., 4, 446-460.
 }
 }
-\concept{
-data desert tortoise matrix Gopherus agassizzii
-}
+\concept{data desert tortoise matrix Gopherus agassizzii}
 \keyword{datasets}

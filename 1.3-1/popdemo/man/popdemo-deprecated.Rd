@@ -41,7 +41,6 @@
 \alias{reactivity-deprecated}
 \alias{firststepatt}
 \alias{firststepatt-deprecated}
-\alias{popdemo-deprecated-package}
 \title{Deprecated functions in the popdemo package}
 \usage{
 Cohen.cumulative(...)

@@ -79,9 +79,9 @@ function for imprimitive (therefore potentially weakly ergodic) or reducible
 }
 }
 \seealso{
-Other ConvergenceMeasures: \code{\link{dr}},
-  \code{\link{truelambda}}
+Other ConvergenceMeasures: 
+\code{\link{dr}()},
+\code{\link{truelambda}()}
 }
-\concept{
-project projection converge convergence
-}
+\concept{ConvergenceMeasures}
+\concept{project projection converge convergence}
