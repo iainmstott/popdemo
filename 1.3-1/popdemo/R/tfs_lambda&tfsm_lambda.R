@@ -109,8 +109,14 @@
 #'   tfs_lambda(A, d=c(1,0,0), e=c(0,1,1),
 #'              return.fit=TRUE, plot.fit=TRUE)
 #' 
-#' @concept 
-#' KEYWORDS
+#' @concept transfer function
+#' @concept systems control
+#' @concept perturbation
+#' @concept population viability
+#' @concept PVA
+#' @concept ecology
+#' @concept demography
+#' @concept population
 #'
 #' @export tfs_lambda 
 #' @export tfsm_lambda

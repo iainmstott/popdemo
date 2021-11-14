@@ -35,8 +35,10 @@
 #'   # Diagnose primitivity
 #'   isPrimitive(B)
 #'
-#' @concept
-#' primitivity primitive imprimitive Perron Frobenius
+#' @concept primitivity 
+#' @concept primitive 
+#' @concept imprimitive 
+#' @concept Perron Frobenius
 #'
 #' @export isPrimitive
 #' @importFrom expm "%^%"

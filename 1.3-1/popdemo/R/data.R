@@ -31,8 +31,10 @@
 #'   data(Tort)
 #'   Tort
 #'
-#' @concept 
-#' data desert tortoise matrix Gopherus agassizzii
+#' @concept data 
+#' @concept tortoise
+#' @concept desert 
+#' @concept Gopherus agassizzii
 #'
 "Tort"
 
@@ -73,7 +75,8 @@
 #'   data(Pbear)
 #'   Pbear
 #' 
-#' @concept
-#' data polar bear matrix Ursus maritimus
+#' @concept data
+#' @concept polar bear
+#' @concept Ursus maritimus
 #'
 "Pbear"

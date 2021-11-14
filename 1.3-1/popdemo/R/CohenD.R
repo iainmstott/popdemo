@@ -36,8 +36,9 @@
 #'   # Calculate Cohen cumulative distance
 #'   CohenD(A, vector=initial)
 #'
-#' @concept 
-#' distance vector state space
+#' @concept distance
+#' @concept vector 
+#' @concept state space
 #'
 #' @export CohenD
 #'

@@ -55,4 +55,6 @@ Other PerturbationAnalyses:
 \code{\link{tfs_lambda}()}
 }
 \concept{PerturbationAnalyses}
-\concept{perturbation sensitivity elasticity}
+\concept{elasticity}
+\concept{perturbation}
+\concept{sensitivity}

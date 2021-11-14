@@ -213,7 +213,7 @@ lines(0:100, Tortpw, lty = 2)
 
 Before settling to stable growth rate, a population will grow, decline or fluctuate in growth at rates faster and/or slower than asymptotic growth. We can see this in our plot of population dynamics of the desert tortoise. These population dynamics are called _**transient dynamics**_ and are a little harder to characterise than asymptotic dynamics as they're so variable and depend on the population structure[^5].  
 
-[^5]: [Stott et al. (2011) Ecol. Lett., 14, 959-970](http://onlinelibrary.wiley.com/doi/10.1111/j.1461-0248.2011.01659.x/abstract) contains a review on measuring transient dynamics in MPMs.
+[^5]: [Stott et al. (2011) Ecol. Lett., 14, 959-970](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1461-0248.2011.01659.x) contains a review on measuring transient dynamics in MPMs.
 
 ## 3.1 Standardisations
 `popdemo` contains functions that calculate deviations from stable growth at various points along the population projection. These _**transient indices**_ make two standardisations: starting population vector **n**~0~ is scaled by ||**n**~0~||~1~ so that it sums to 1: 
@@ -460,7 +460,7 @@ Where **d** represents the row to be perturbed, **e** represents the column to b
 
 $$\delta^{-1} = \textbf{e}^\text{T}(\lambda\textbf{I} - \textbf{A})^{-1}\textbf{d}$$
 
-[^7]: [Hodgson & Townley (2004) J. Appl. Ecol., 41, 1155-1161.](http://onlinelibrary.wiley.com/doi/10.1111/j.0021-8901.2004.00959.x/full)
+[^7]: [Hodgson & Townley (2004) J. Appl. Ecol., 41, 1155-1161.](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.0021-8901.2004.00959.x)
 
 Where $\lambda$ is the asymptotic growth of $\textbf{A}_{\delta}$. Using these equations, it is possible to:
 1. Decide on a maximum and minimum perturbation value
@@ -508,7 +508,7 @@ plot(tfml)
 
 Population inertia is an index that is very amenable to mathematical trickery. Although it is a measure of transient dynamics (transient dynamics lead to the population having an inertia), it is calculated using the dominant eigenvectors of the matrix. This makes it very amenable to perturbation analysis, unlike other transient indices, as the eigenvectors of $\textbf{A}_{\delta}$ can be expressed in terms of **A**, $\lambda$, **d** and **e**. The equations get long, but can be found in Stott et al. (2012)[^8].  
 
-[^8]: [Stott et al. (2012) Methods Ecol. Evol., 3, 673-684.](http://onlinelibrary.wiley.com/doi/10.1111/j.2041-210X.2012.00199.x/full)
+[^8]: [Stott et al. (2012) Methods Ecol. Evol., 3, 673-684.](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.2041-210X.2012.00199.x)
 
 ## 6.1 Sensitivity: linear perturbation analysis
 
@@ -581,7 +581,7 @@ Stage 4: adult (5+ years old), available to breed
 Stage 5: adult, with cub (0-1 years old)  
 Stage 6: adult, with yearling (1-2 years old).  
 
-[^10]: [Hunter et al. (2010) Ecology, 91, 2883-2897.](https://www.fws.gov/alaska/fisheries/mmm/polarbear/pdf/Hunter_Et_Al_%202011.pdf)
+[^10]: [Hunter et al. (2010) Ecology, 91, 2883-2897.](https://esajournals.onlinelibrary.wiley.com/doi/10.1890/09-1641.1)
 
 Load in the data
 ```{r}

@@ -98,8 +98,12 @@
 #'   # time at which it is achieved
 #'   maxatt(A, vector=initial, return.N=TRUE, return.t=TRUE)
 #'
-#' @concept 
-#' transient dynamics attenuation unstable instability
+#' @concept transient dynamics
+#' @concept attenuation
+#' @concept resilience 
+#' @concept resistance
+#' @concept unstable
+#' @concept instability
 #'
 #' @export maxatt
 #'

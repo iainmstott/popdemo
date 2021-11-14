@@ -59,5 +59,11 @@ elements.
 \seealso{
 Constructor functions: \code{\link{tfam_lambda}}, \code{\link{tfam_inertia}}
 }
-\concept{transfer function systems control nonlinear perturbation population viability
-PVA ecology demography PPM MPM}
+\concept{PVA}
+\concept{demography}
+\concept{ecology}
+\concept{nonlinear}
+\concept{perturbation}
+\concept{population viability}
+\concept{systems control}
+\concept{transfer function}

@@ -36,8 +36,10 @@
 #'   # Diagnose reducibility
 #'   isIrreducible(B)
 #'
-#' @concept
-#' reducibility reducible irreducible Perron Frobenius
+#' @concept reducibility
+#' @concept reducible
+#' @concept irreducible
+#' @concept Perron Frobenius
 #'
 #' @export isIrreducible
 #' @importFrom expm "%^%"

@@ -227,9 +227,9 @@
 #' 
 #'   # dirichlet distribution 
 #'   # darker shading indicates more likely population size
-#'   plot(project(Tort, time = 30, vector = "diri", standard.A = TRUE,
-#'                draws = 500, alpha.draws = "unif"),
-#'        plottype = "shady", bounds = TRUE)
+#'   Tortshade <- project(Tort, time = 30, vector = "diri", standard.A = TRUE,
+#'                draws = 500, alpha.draws = "unif")
+#'   plot(Tortshade, plottype = "shady", bounds = TRUE)
 #'   
 #'   ### STOCHASTIC PROJECTIONS
 #'   # load polar bear data

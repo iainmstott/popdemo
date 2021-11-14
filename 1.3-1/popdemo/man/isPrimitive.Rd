@@ -45,5 +45,8 @@ Other PerronFrobeniusDiagnostics:
 \code{\link{isErgodic}()},
 \code{\link{isIrreducible}()}
 }
+\concept{Perron Frobenius}
 \concept{PerronFrobeniusDiagnostics}
-\concept{primitivity primitive imprimitive Perron Frobenius}
+\concept{imprimitive}
+\concept{primitive}
+\concept{primitivity}

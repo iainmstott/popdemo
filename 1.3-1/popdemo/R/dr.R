@@ -44,8 +44,11 @@
 #'   # multiple of 10
 #'   dr(A, return.time=TRUE, x=10)
 #'
-#' @concept 
-#' converge convergence resilience stability
+#' @concept converge
+#' @concept convergence
+#' @concept resilience
+#' @concept return time
+#' @concept stability
 #'
 #' @export dr
 #'

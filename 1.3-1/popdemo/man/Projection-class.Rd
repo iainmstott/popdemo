@@ -22,6 +22,8 @@
 \alias{nmat,Projection-method}
 \alias{ntime}
 \alias{ntime,Projection-method}
+\alias{show}
+\alias{show,Projection-method}
 \title{'Projection' object S4 class}
 \usage{
 vec(object)
@@ -59,10 +61,13 @@ nmat(object)
 ntime(object)
 
 \S4method{ntime}{Projection}(object)
+
+show(object)
+
+\S4method{show}{Projection}(object)
 }
 \arguments{
-\item{object}{an object of class "Projection" generated using \code{\link{project}}
-vec: access population vectors}
+\item{object}{an object of class "Projection" generated using \code{\link{project}}}
 
 \item{...}{further arguments (see method, below)}
 
@@ -259,53 +264,6 @@ distribution; \code{vector = "diri"}).}
   # Select the time series for stage 1
   vec(pr4)[,1]
 
-  ### DETERMINISTIC PROJECTIONS
-
-  # Load the desert Tortoise matrix
-  data(Tort)
-
-  # Create an initial stage structure
-  Tortvec1 <- c(8, 7, 6, 5, 4, 3, 2, 1)
-  
-  # Create a projection over 30 time intervals
-  ( Tortp1 <- project(Tort, vector = Tortvec1, time = 10) )
-
-  # plot p1
-  plot(Tortp1)
-  plot(Tortp1, bounds = TRUE) #with bounds
- 
-  # new display parameters
-  plot(Tortp1, bounds = TRUE, col = "red", bty = "n", log = "y", 
-       ylab = "Number of individuals (log scale)",
-       bounds.args = list(lty = 2, lwd = 2) )
-
-  # multiple vectors
-  Tortvec2 <- cbind(Tortvec1, c(1, 2, 3, 4, 5, 6, 7, 8))
-  plot(project(Tort, vector = Tortvec2), log = "y")
-  plot(project(Tort, vector = Tortvec2), log = "y", labs = FALSE) #no labels
-
-  # dirichlet distribution 
-  # darker shading indicates more likely population size
-  plot(project(Tort, time = 30, vector = "diri", standard.A = TRUE,
-               draws = 500, alpha.draws = "unif"),
-       plottype = "shady", bounds = TRUE)
-  
-  ### STOCHASTIC PROJECTIONS
-  # load polar bear data
-  data(Pbear)
-  
-  # project over 50 years with uniform matrix selection
-  Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
-  p2 <- project(Pbear, Pbearvec, time = 50, Aseq = "unif")
-
-  # stochastic projection information
-  Aseq(p2)
-  projtype(p2)
-  nmat(p2)
-  
-  # plot
-  plot(p2, log = "y")
-  
 }
 \seealso{
 \code{\link{project}} \code{\link{Projection-plots}}

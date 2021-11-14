@@ -70,8 +70,11 @@
 #'   Pbear_seq <- matrix(rep(prob_seq,5), 5, 5)
 #'   ( var_unif <- stoch(Pbear, what = "var", Aseq = Pbear_seq) )
 #'   
-#' @concept 
-#' stochastic growth variance projection project population
+#' @concept stochastic growth
+#' @concept variance
+#' @concept projection
+#' @concept project
+#' @concept population
 #'
 #' @export stoch
 #' @import methods

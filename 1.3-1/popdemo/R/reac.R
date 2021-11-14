@@ -97,8 +97,13 @@
 #'   # and initial2 and return realised population size
 #'   reac(A, vector=initial2, return.N=TRUE)#'
 #'
-#' @concept 
-#' transient dynamics amplification unstable instability structure
+#' @concept transient dynamics
+#' @concept amplification
+#' @concept resilience
+#' @concept compensation
+#' @concept unstable
+#' @concept instability 
+#' @concept population structure
 #'
 #' @export reac
 #'

@@ -48,4 +48,6 @@ Other DistanceMeasures:
 \code{\link{projectionD}()}
 }
 \concept{DistanceMeasures}
-\concept{distance vector state space}
+\concept{distance}
+\concept{state space}
+\concept{vector}

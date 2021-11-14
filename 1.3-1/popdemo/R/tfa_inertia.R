@@ -125,8 +125,17 @@
 #'   plot(transfer$inertia~transfer$lambda,type="l", 
 #'        xlab=expression(lambda),ylab="inertia")
 #' 
-#' @concept 
-#' KEYWORDS
+#' @concept transfer function
+#' @concept transient dynamics
+#' @concept resilience
+#' @concept systems control
+#' @concept nonlinear
+#' @concept perturbation
+#' @concept population viability
+#' @concept PVA
+#' @concept ecology
+#' @concept demography
+#' @concept population
 #'
 #' @export tfa_inertia
 #'

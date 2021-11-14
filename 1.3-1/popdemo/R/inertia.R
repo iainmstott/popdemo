@@ -76,8 +76,17 @@
 #'   # return realised population size at t=25
 #'   inertia(A, vector=initial, return.N=TRUE, t=25)
 #'
-#' @concept 
-#' transient amplification attenuation unstable instability stable equivalent ratio
+#' @concept transient dynamics
+#' @concept amplification
+#' @concept attenuation
+#' @concept resilience
+#' @concept compensation
+#' @concept resistance
+#' @concept unstable
+#' @concept instability 
+#' @concept stable equivalent ratio
+#' @concept population structure
+#'
 #'
 #' @export inertia
 #'

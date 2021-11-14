@@ -37,8 +37,7 @@
 #'   # Calculate Keyfitz's delta
 #'   KeyfitzD(A, vector=initial)
 #'
-#' @concept 
-#' distance vector state space
+#' @concept distance
 #'
 #' @export KeyfitzD
 #'

@@ -125,4 +125,9 @@ Other TransientIndices:
 \code{\link{reac}()}
 }
 \concept{TransientIndices}
-\concept{transient dynamics attenuation unstable instability}
+\concept{attenuation}
+\concept{instability}
+\concept{resilience}
+\concept{resistance}
+\concept{transient dynamics}
+\concept{unstable}

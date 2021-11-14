@@ -98,8 +98,12 @@
 #'   # time at which it is achieved
 #'   maxamp(A, vector=initial, return.N=TRUE, return.t=TRUE)
 #'
-#' @concept 
-#' transient dynamics amplification unstable instability
+#' @concept transient dynamics
+#' @concept amplification
+#' @concept resilience
+#' @concept compensation
+#' @concept unstable
+#' @concept instability
 #'
 #' @export maxamp
 #'

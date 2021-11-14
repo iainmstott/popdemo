@@ -102,10 +102,16 @@
 #'   # Plot the new matrix of transfer functions using the S3 method
 #'   plot(tfmat2)
 #'     
-#' @concept 
-#' transfer function systems control nonlinear perturbation population viability
-#' PVA ecology demography PPM MPM
-#'
+#' @concept transfer function
+#' @concept systems control
+#' @concept nonlinear
+#' @concept perturbation
+#' @concept population viability
+#' @concept PVA
+#' @concept ecology
+#' @concept demography
+#' @concept population
+#' 
 #' @export tfam_lambda
 #'
 tfam_lambda<-function(A, elementtype=NULL, Flim=c(-1,10), Plim=c(-1,10), plength=100, digits=1e-10){

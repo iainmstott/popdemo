@@ -84,4 +84,7 @@ Other ConvergenceMeasures:
 \code{\link{truelambda}()}
 }
 \concept{ConvergenceMeasures}
-\concept{project projection converge convergence}
+\concept{converge}
+\concept{convergence}
+\concept{project}
+\concept{projection}

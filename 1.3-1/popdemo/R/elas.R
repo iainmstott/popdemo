@@ -39,8 +39,9 @@
 #'   # only for observed transitions
 #'   elas(A, eval=2)
 #'
-#' @concept 
-#' perturbation sensitivity elasticity 
+#' @concept perturbation
+#' @concept sensitivity
+#' @concept elasticity 
 #'
 #' @export elas
 #'

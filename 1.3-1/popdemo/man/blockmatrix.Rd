@@ -45,5 +45,10 @@ computation of eigenvalues of submatrices).
  \item Stott et al. (2010) Methods. Ecol. Evol., 1, 242-252.
 }
 }
-\concept{reducible irreducible submatrix permutation conjugation permute conjugate 
-arrange rearrange row column}
+\concept{conjugate}
+\concept{conjugation}
+\concept{irreducible}
+\concept{permutation}
+\concept{permute}
+\concept{reducible}
+\concept{submatrix}

@@ -37,8 +37,7 @@
 #'   # Print without quotes
 #'   R2Matlab(A, noquote=TRUE)
 #'
-#' @concept 
-#' Matlab
+#' @concept Matlab
 #'
 #' @export R2Matlab
 #'

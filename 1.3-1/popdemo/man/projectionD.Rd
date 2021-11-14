@@ -51,4 +51,4 @@ Other DistanceMeasures:
 \code{\link{KeyfitzD}()}
 }
 \concept{DistanceMeasures}
-\concept{distance vector state space}
+\concept{distance vector}

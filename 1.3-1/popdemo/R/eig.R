@@ -76,8 +76,12 @@
 #'   #find all eigenstuff
 #'   eigs(Tort)
 #'
-#' @concept 
-#' asymptotic growth population structure reproductive value eigenvalues
+#' @concept asymptotic
+#' @concept growth
+#' @concept stable
+#' @concept population structure
+#' @concept reproductive value
+#' @concept eigenvalues
 #'
 #' @export eigs
 #'

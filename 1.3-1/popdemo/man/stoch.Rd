@@ -93,4 +93,8 @@ matrix projection model.
   ( var_unif <- stoch(Pbear, what = "var", Aseq = Pbear_seq) )
   
 }
-\concept{stochastic growth variance projection project population}
+\concept{population}
+\concept{project}
+\concept{projection}
+\concept{stochastic growth}
+\concept{variance}

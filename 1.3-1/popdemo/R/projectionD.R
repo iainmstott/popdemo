@@ -39,9 +39,8 @@
 #'   # Calculate projection distance
 #'   projectionD(A, vector=initial)
 #'
-#' @concept 
-#' distance vector state space
-#'
+#' @concept distance vector
+#' 
 #' @export projectionD
 #'
 projectionD <-

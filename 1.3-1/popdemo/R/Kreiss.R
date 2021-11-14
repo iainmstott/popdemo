@@ -72,8 +72,12 @@
 #'   # the value of r at which the function is maximised
 #'   Kreiss(A, bound="upper", return.r=TRUE)
 #'
-#' @concept 
-#' transient amplification attenuation systems control unstable instability
+#' @concept transient dynamics 
+#' @concept amplification
+#' @concept attenuation
+#' @concept systems control
+#' @concept unstable
+#' @concept instability
 #'
 #' @export Kreiss
 #'

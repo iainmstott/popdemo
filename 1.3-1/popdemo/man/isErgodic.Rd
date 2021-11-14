@@ -62,5 +62,8 @@ Other PerronFrobeniusDiagnostics:
 \code{\link{isIrreducible}()},
 \code{\link{isPrimitive}()}
 }
+\concept{Perron Frobenius}
 \concept{PerronFrobeniusDiagnostics}
-\concept{ergodicity ergodic nonergodic Perron Frobenius}
+\concept{ergodic}
+\concept{ergodicity}
+\concept{nonergodic}

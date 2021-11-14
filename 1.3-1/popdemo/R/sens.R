@@ -41,8 +41,9 @@
 #'   # only for observed transitions
 #'   sens(A, eval=2, all=FALSE) 
 #'
-#' @concept 
-#' perturbation sensitivity elasticity 
+#' @concept perturbation
+#' @concept sensitivity
+#' @concept elasticity
 #'
 #' @export sens
 #'

@@ -50,8 +50,10 @@
 #'   # Diagnose ergodicity and return left eigenvector
 #'   isErgodic(B, return.eigvec=TRUE)
 #'
-#' @concept
-#' ergodicity ergodic nonergodic Perron Frobenius
+#' @concept ergodicity
+#' @concept ergodic
+#' @concept nonergodic
+#' @concept Perron Frobenius
 #'
 #' @export isErgodic
 #'

@@ -108,10 +108,16 @@
 #'   # Plot p and lambda without using the S3 method
 #'   plot(transfer$lambda~transfer$p, type="l", xlab="p", ylab=expression(lambda))
 #'
-#' @concept 
-#' transfer function systems control nonlinear perturbation population viability
-#' PVA ecology demography PPM MPM
-#'
+#' @concept transfer function
+#' @concept systems control
+#' @concept nonlinear
+#' @concept perturbation
+#' @concept population viability
+#' @concept PVA
+#' @concept ecology
+#' @concept demography
+#' @concept population
+#' 
 #' @export tfa_lambda
 #'
 tfa_lambda <-

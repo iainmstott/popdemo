@@ -78,8 +78,12 @@
 #'   # projections of B
 #'   truelambda(B)
 #'
-#' @concept 
-#' asymptotic growth project projection ergodic nonergodic Perron Frobenius
+#' @concept asymptotic growth 
+#' @concept project
+#' @concept projection
+#' @concept ergodic
+#' @concept nonergodic
+#' @concept Perron Frobenius
 #'
 #' @export truelambda
 #' @importFrom expm "%^%"

@@ -98,4 +98,9 @@ Other TransientIndices:
 \code{\link{reac}()}
 }
 \concept{TransientIndices}
-\concept{transient amplification attenuation systems control unstable instability}
+\concept{amplification}
+\concept{attenuation}
+\concept{instability}
+\concept{systems control}
+\concept{transient dynamics}
+\concept{unstable}

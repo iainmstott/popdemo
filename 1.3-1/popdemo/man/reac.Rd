@@ -113,4 +113,10 @@ Other TransientIndices:
 \code{\link{maxatt}()}
 }
 \concept{TransientIndices}
-\concept{transient dynamics amplification unstable instability structure}
+\concept{amplification}
+\concept{compensation}
+\concept{instability}
+\concept{population structure}
+\concept{resilience}
+\concept{transient dynamics}
+\concept{unstable}

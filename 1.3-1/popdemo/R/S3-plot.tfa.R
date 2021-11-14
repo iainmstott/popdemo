@@ -50,9 +50,14 @@
 #'   # Plot inertia against lambda
 #'   plot(transfer, xvar="lambda", yvar="inertia")
 #' 
-#' @concept 
-#' transfer function systems control nonlinear perturbation population viability
-#' PVA ecology demography PPM MPM
+#' @concept transfer function
+#' @concept systems control
+#' @concept nonlinear
+#' @concept perturbation
+#' @concept population viability
+#' @concept PVA
+#' @concept ecology
+#' @concept demography
 #' 
 #' @method plot tfa
 #' @export

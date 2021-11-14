@@ -57,4 +57,8 @@ Other ConvergenceMeasures:
 \code{\link{truelambda}()}
 }
 \concept{ConvergenceMeasures}
-\concept{converge convergence resilience stability}
+\concept{converge}
+\concept{convergence}
+\concept{resilience}
+\concept{return time}
+\concept{stability}

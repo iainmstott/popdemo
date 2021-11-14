@@ -33,8 +33,7 @@
 #'   # Create a 3x3 PPM using Matlab2R
 #'   ( A<-Matlab2R("[0 1 2;0.5 0.1 0;0 0.6 0.6]") )
 #'
-#' @concept 
-#' Matlab
+#' @concept Matlab
 #'
 #' @export Matlab2R
 #'

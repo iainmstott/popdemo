@@ -38,9 +38,13 @@
 #'   # Block-permute the matrix
 #'   blockmatrix(A)
 #' 
-#' @concept
-#' reducible irreducible submatrix permutation conjugation permute conjugate 
-#' arrange rearrange row column
+#' @concept reducible
+#' @concept irreducible
+#' @concept submatrix
+#' @concept permutation
+#' @concept conjugation
+#' @concept permute
+#' @concept conjugate
 #'
 #' @export blockmatrix
 #' @importFrom expm "%^%"

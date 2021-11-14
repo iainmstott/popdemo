@@ -116,8 +116,16 @@
 #'   tfs_inertia(A, d=c(1,0,0), e=c(0,1,1), vector=initial,tolerance=1e-7,
 #'               return.fit=TRUE,plot.fit=TRUE)
 #' 
-#' @concept 
-#' KEYWORDS
+#' @concept transfer function
+#' @concept transient dynamics
+#' @concept resilience
+#' @concept systems control
+#' @concept perturbation
+#' @concept population viability
+#' @concept PVA
+#' @concept ecology
+#' @concept demography
+#' @concept population
 #'
 #' @export tfs_inertia
 #' @export tfsm_inertia

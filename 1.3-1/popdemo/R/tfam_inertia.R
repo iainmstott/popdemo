@@ -119,9 +119,18 @@
 #'   # Plot the new matrix of transfer functions using the S3 method
 #'   plot(tfmat2)
 #'     
-#' @concept 
-#' KEYWORDS
-#'
+#' @concept transfer function
+#' @concept systems control
+#' @concept transient dynamics
+#' @concept resilience
+#' @concept nonlinear
+#' @concept perturbation
+#' @concept population viability
+#' @concept PVA
+#' @concept ecology
+#' @concept demography
+#' @concept population
+#' 
 #' @export tfam_inertia
 #'
 tfam_inertia<-function(A, bound=NULL, vector="n", elementtype=NULL, Flim=c(-1,10), Plim=c(-1,10), plength=100, digits=1e-10){

@@ -70,8 +70,10 @@
 #'  # to within 0.001% of lambda-max
 #'  ( convt(A, vector=initial, accuracy=1e-5) )
 #'
-#' @concept 
-#' project projection converge convergence
+#' @concept project 
+#' @concept projection
+#' @concept converge
+#' @concept convergence
 #'
 #' @export convt
 #' @importFrom expm "%^%"
