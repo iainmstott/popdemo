@@ -127,7 +127,6 @@
 #' @export reactivity
 #' @export firststepatt
 #'
-#' @docType package
 #' @name popdemo-deprecated
 #' 
 Cohen.cumulative <- function(...) {

@@ -14,7 +14,7 @@ created using \code{\link{tfam_lambda}} or \code{\link{tfam_inertia}}.}
 be \code{"p"}, \code{"lambda"} or \code{"inertia"}. Defaults to
 \code{xvar="p"} and \code{yvar="lambda"} for objects created using
 \code{tfam_lambda}, and \code{xvar="p"} and \code{yvar="inertia"} for 
-objects created using code{tfam_inertia}.}
+objects created using \code{tfam_inertia}.}
 
 \item{mar}{the margin limits on the plots: see \code{\link{par}}}
 

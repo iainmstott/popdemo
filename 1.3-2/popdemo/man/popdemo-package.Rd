@@ -29,7 +29,7 @@ to stability or stationarity, and diagnostic and manipulation tools. This includ
        density of a population (within the first time step). \code{\link{maxamp}}, 
        \code{\link{maxatt}} are near-term indices that measure the largest and 
        smallest transient dynamics a population may exhibit overall, respectively. 
-       code{\link{inertia}} measures asymptotic population density relative to stable
+       \code{\link{inertia}} measures asymptotic population density relative to stable
        state, and has many perturbation methods in the package (see below). All transient 
        indices can be calculated using specific population structures, as well as bounds on
        population size.
