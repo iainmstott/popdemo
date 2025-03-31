@@ -1,0 +1,844 @@
+---
+title: "popdemo: Demographic modelling using projection matrices"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: monochrome
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{popdemo: Demographic modelling using projection matrices}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "##  ", collapse = TRUE, fig.align = "center")
+library(popdemo)
+options(digits = 4)
+```
+
+`popdemo` provides tools for modelling populations and demography using matrix projection models (MPMs), with deterministic and stochastic model implementations. These tools include population projection, indices of short- and long-term population size and growth, perturbation analysis, convergence to stability or stationarity, and diagnostic and manipulation tools.  
+
+***
+# Installing `popdemo`
+`popdemo` is available on [CRAN](https://CRAN.R-project.org/package=popdemo) as well as [GitHub](https://github.com/iainmstott/popdemo). The GitHub repository may be ahead of the CRAN version, so for the latest stable version check out the [GitHub](https://github.com/iainmstott/popdemo) page. The GitHub repository also includes a [development branch](https://github.com/iainmstott/popdemo/tree/development) with a development version of the package (called `popdemoDev`). This is likely to be unstable but may include new features.  
+
+Vignette exercises usually require the latest version of the package (unless they're sourced from within an older package version).  
+
+## Installing from GitHub:
+```{r eval = FALSE}
+# Install dependencies from CRAN:
+install.packages(c("devtools", "expm", "MCMCpack", "markovchain"))
+
+# Install stable version from GitHub (recommended):
+# NOTE don't forget to change the version number!
+devtools::install_github("iainmstott/popdemo/x.x-x/popdemo") #x.x-x is the desired version number
+
+# Install development version 'popdemoDev' (not recommended):
+devtools::install_github("iainmstott/popdemo/Dev/popdemoDev", ref = "development")
+
+```
+Note that vignettes do not install automatically from GitHub. If you want vignettes to be included, include `build_vignettes = TRUE`.  
+
+## Installing from CRAN:
+```{r eval = FALSE}
+install.packages("popdemo")
+```
+
+
+***
+# Vignette layout
+
+The two main sections **Deterministic population dynamics** and **Stochastic population dynamics** can be completed independently of one another. Within each of these two sections, core exercises are in normal print, and code in each sub-section may depend on code in previous sections. The "extras" sections (in *italics*), contain further exercises and tasks for independent completion: take care when working on these not to change objects from earlier core sections, as they may be needed later on. Code chunks are formatted like this:
+```{r example, echo = -1}
+an_input <- function() cat("an output")
+# a comment
+an_input()
+```
+Key terms in the text are in _**bold italic**_, and functions or arguments are `fixed width`.  
+
+
+***  
+# Deterministic population dynamics
+
+## Desert tortoise model
+
+We will use a matrix projection model (MPM) to explore population dynamics for the desert tortoise *Gopherus agassizzii*, with medium fecundity[^1]. The population is found in the Mojave desert, USA. There are 8 stages are based on age and size (carapace length in mm):  
+- Yearling (age 0-1)  
+- Juvenile 1 (<60 mm)  
+- Juvenile 2 (90-99mm)  
+- Immature 1 (100-139mm)  
+- Immature 2 (140-179mm)  
+- Subadult (180-207mm)  
+- Adult 1 (208-239mm)  
+- Adult 2 (>240mm)  
+
+[^1]: [Doak et al. (1994) Ecol. Appl., 4, 446-460.](http://bio.research.ucsc.edu/~barrylab/classes/climate_change/DoakEcolApp.pdf)
+
+Load in the data:  
+```{r}
+data(Tort); Tort
+
+```
+
+The numbers in the matrix (called _**matrix elements**_ or _**transitions**_) describe the probability of moving FROM stages in each column TO stages in each row, within the time interval chosen. For example, for this desert tortoise matrix, in any year a subadult (stage 6) has approimately 24.9% probability of becoming an adult (stage 7): this may be called a growth or progression transition. Likewise, in any year a subadult has about 67.8% chance of staying a subadult: this is called a stasis transition. This means that 100 - (67.8 + 24.9) = 7.3% of subadults die every year. There are different types of transitions: in this matrix there are also fecundity transitions which describe offspring production, and subadults produce on average 1.3 offspring per year. Other species may have different transitions, including skipping stages through fast growth, shrinkage or fission (especially in modular organisms, e.g. most plants, corals), or asexual reproduction.  
+
+Matrix elements combine underlying _**vital rates**_ such as survival, growth and reproduction. For example, the subadult to adult transition (24.9%) combines probability of growing to adult size in one year, and probability of surviving the year. The subadult fecundity (1.3) combines the average number of offspring produced by subadults per year, and probability that those offspring survive the year.  
+\  
+
+```{r echo = FALSE}
+Tortpic <- magick::image_read("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Baby_Desert_Tortoise_%2816490346262%29.jpg/1024px-Baby_Desert_Tortoise_%2816490346262%29.jpg")
+par(mar = c(0, 0, 0, 0))
+plot(as.raster(Tortpic))
+text(10, 10, adj = c (0, 0), col = "white",
+     "A baby desert tortoise")
+```
+\  
+
+***
+# 1. Deterministic projections
+
+> Topics:  
+> 
+> * Functions: `project`  
+> * Classes: Projection  
+> * Methods:  
+>     + Projection: `plot`, `vec`  
+
+The core function for understanding population dynamics is the `project` function. It can be used to understand a number of different types of population dynamics, including deterministic models, stochastic models, long-term dynamics and short-term dynamics.  
+
+In a deterministic model, there is no density dependence, and no stochasticity: the vital rates of the model, and therefore the matrix elements, don't change from timestep to timestep (in a density dependent model, they would change according to the size of all or part of the population, and in a stochastic model they would change randomly at each iteration of the model to incorporate random environmental or demographic variation). The projected population dynamics (time series of population size and structure over time) come from multiplying the matrix and the starting poulation vector:  
+
+$$\textbf{n}_{\text{t}} = \textbf{A}^t\textbf{n}_0$$
+
+That is, the population size at time t **n**~t~ is equal to projection matrix **A** multiplied by the population size at time 0, **n**~0~. We have the matrix, but not a vector. We will:  
+- choose a vector using a random uniform distribution  
+- project this vector using the `project` function from `popdemo`  
+- plot the projection  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+Tortvec1 <- runif(8)
+Tortvec1 <- Tortvec1/sum(Tortvec1) #scales the vector to sum to 1
+( Tortp1.1 <- project(Tort, Tortvec1, time = 100) )
+
+plot(Tortp1.1, log = "y")
+```
+
+The `project` function should usually have a matrix passed to the `A` argument, and a `vector`, which can be a single vector, multiple column vectors in a matrix, `"n"` (a default option which projects a set of stage-biased vectors) or `"diri"` (which projects large set of random vectors). We will encounter all these options in this vignette. The `time` argument gives the number of projection intervals, but the output will have length `time` + 1, because the population size at time 0 is included.  
+
+The `project` function returns an object of class 'Projection', containing the overall population size over time. In this case, this is a single vector but for objects containing multiple projections (as we'll encounter later), the projections are held in a matrix with one column per projection (therefore the number of rows is equal to `time + 1`).  
+
+The 'Projection' object also includes information on the time series of population vectors (i.e. (st)age-specific number / density). For an object containing a single projection, each row represents one timestep and each column represents one (st)age. We will access vectors for time intervals from 0 to 10:  
+```{r}
+vec(Tortp1.1)[1:11, ]
+
+```
+
+The time series of stage 2 sizes is:
+```{r}
+vec(Tortp1.1)[ , 2]
+
+```
+
+When a Projection object contains multiple projections, the vectors are contained in a 3-dimensional array. As for a single projection, the first dimension is time and the second is (st)age, whilst the third represents each separate population projection. Therefore, for example, the first 10 timesteps of the third projection would be accessed using `object[1:11, ,3]`; the sizes of the second stage for all projections would be accessed using `object[ , 2, ]`; the size of the second stage at the 10th timestep of the second stage in the third projection would be `object[1:11, 2, 3]`.  
+
+Population growth in an MPM is geometric: when you plot population size on a log scale (as we have here), it's easy to see that the population settles to a stable geometric rate of decline. At this point, the population also has a fixed structure: the relative numbers of individuals in each stage don't change (although the absolute numbers do; this is what causes the population decline). These stable long-term dynamics are often called _**asymptotic dynamics**_. The short-term dynamics that happen before this stable state is reached and are different to asymptotic dynamics are called _**transient dynamics**_. In this exercise we'll explore both asymptotic and transient dynamics of deterministic MPM models.  
+\  
+
+
+## *i. EXTRAS*  
+*'Projection objects contain further information that can be accessed in similar ways to the  `vec()` function. Type `?"Projection-class"` to see further options.*  
+
+*Try altering the parameters in the `project` function: change the amount of time the model is projected using the `time` argument, or change the population vector using the `vector` argument. Have a look at how the asymptotic dynamics don't change as the vector changes, but observe how the transient dynamics change. See whether changing the vector changes the amount of time taken to reach stable state. Type `?project` to see further options (some of them will be covered in this vignette).*  
+
+*The `plot` function takes any of the usual graphical parameters: try changing the lines to points (`type` argument), changing the line colour, type or thickness(`col`, `lty`, `lwd`), changing the box around the plot (`bty`), or any other graphical parameters (see `?par`). There are further options available specifically for 'Projection' objects: see `?"Projection-plots"`.*  
+\  
+
+***
+# 2. Asymptotic dynamics
+
+> Topics:  
+> 
+> * Functions: `eigs`, `project`
+
+In the long term, the population dynamics are described by the dominant eigendata of the matrix:  
+```{r}
+eigs(Tort, "all")
+
+```
+
+## 2.1 Asymptotic growth
+The `eigs` function returns the dominant eigendata (or "eigenstuff") of the matrix[^2]. The growth rate is commonly referred to as _**lambda ($\lambda$)**_. In this case, $\lambda$ < 1 which means the population declines. If $\lambda$ = 1 the population neither grows nor declines, and If $\lambda$ > 1, the population grows.  
+
+[^2]: for a detailed introduction to matrix models and eigendata, see Caswell (2001) Matrix Population Models, Sinauer.
+
+## 2.2 Asymptotic population structure
+The rest of the eigenstuff describes other aspects of stable dynamics. "ss" refers to the stable structure: this is the ratio of numbers of individuals in each stage once the population reaches stable state, and the vector is usually denoted with **w**. A population with this structure, then it will grow/decline at the stable rate from the outset (populations starting with a stable structure will always be shown with dashed lines):  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1); plot(Tortp1.1, log = "y")
+Tortw <- eigs(Tort, "ss")
+Tortpw <- project(Tort, Tortw, time = 100)
+lines(0:100, Tortpw, lty = 2)
+```
+
+**w** is scaled so that ||**w**||~1~ = 1.[^3]  
+
+[^3]: ||**w**||~1~ is the one-norm of **w**, which is equal to its sum.
+
+## 2.3 Reproductive value
+"rv" refers to the reproductive value vector, and is usually denoted with **v**. This is the contribution that each stage makes to stable growth (through survival, growth and reproduction). Stages with high current and reproduction and survival have high reproductive value. **v** is scaled so that **v**^T^**w** = 1[^4] when ||**w**||~1~ = 1.
+
+[^4]: **v**^T^ is the transpose of **v**: not to be confused with an exponent!
+
+\  
+
+## *ii. EXTRAS*  
+*The `eigs` function allows you to choose what eigenstuff you want to calculate. Try replacing "all" with one or more of "lambda", "ss", or "rv". If you want to look at subdominant eigenstuff then the base function "eigen" does this, with `eigen(A)` giving the right eigenvectors and `eigen(t(A))` giving the left eigenvectors.*  
+\  
+
+***
+# 3. Transient dynamics
+
+> Topics:  
+> 
+> * Functions: `reac`, `inertia`, `maxamp`, `maxatt`, `project` 
+> * Classes: Projection
+> * Methods: 
+>     + Projection: `plot`
+
+
+Before settling to stable growth rate, a population will grow, decline or fluctuate in growth at rates faster and/or slower than asymptotic growth. We can see this in our plot of population dynamics of the desert tortoise. These population dynamics are called _**transient dynamics**_ and are a little harder to characterise than asymptotic dynamics as they're so variable and depend on the population structure[^5].  
+
+[^5]: [Stott et al. (2011) Ecol. Lett., 14, 959-970](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1461-0248.2011.01659.x) contains a review on measuring transient dynamics in MPMs.
+
+## 3.1 Standardisations
+`popdemo` contains functions that calculate deviations from stable growth at various points along the population projection. These _**transient indices**_ make two standardisations: starting population vector **n**~0~ is scaled by ||**n**~0~||~1~ so that it sums to 1: 
+
+$$\hat{\textbf{n}}_0 = \frac{\textbf{n}_0}{||\textbf{n}_0||_1}$$
+
+The projection matrix is scaled by $\lambda$, so that lambda of the scaled matrix becomes 1: 
+
+$$\hat{\textbf{A}} = \frac{\textbf{A}}{\lambda}$$
+
+These standardisations allow comparison of transient dynamics between populations with different sizes, and with different long-term dynamics. We can visualise this this in a _**standardised**_ population projection:  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+Tortp1.1s <- project(Tort, Tortvec1, time = 100, 
+                     standard.A = TRUE, standard.vec = TRUE)
+Tortpws <- project(Tort, Tortw, time = 100, 
+                   standard.A = TRUE, standard.vec = TRUE)
+plot(Tortp1.1s, log = "y")
+lines(Tortpws, lty = 2)
+```
+
+Transient dynamics vary according to the starting population vector. If there is an overrepresentation of individuals in stages with high survival and/or fertility, then the population will grow faster (or decline slower) than the stable rate (this is called 'amplification'). If there is an overrepresentation of individuals in stages with low survival and zero/low fertility, then the population will grow slower (or decline faster) than the stable rate (this is called 'attenuation'). Indices of amplification are always >1, which means that log-transformed indices of amplification are always >0. Indices of attenuation are always <1 but >0. This means that log-transformed indices of attenuation are always <0.  
+
+## 3.2 Transient indices
+We can measure transient density at any time along the projection (we say "density" because a standardised dynamic is no longer directly equivalent to size... but this is not the same thing as spatial density!). But in comparative analysis, to make things comparable between populations, we can use comparable timepoints. 
+
+Two possibilities are at t = 1 and at $t\to\infty$. These indices are called _**reactivity**_ and _**inertia**_ respectively:  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1); plot(Tortp1.1s, log = "y"); lines(Tortpws, lty = 2)
+( r1 <- reac(Tort, Tortvec1) )
+
+( i1 <- inertia(Tort, Tortvec1) )
+
+points(c(1, 100), c(r1, i1), pch = 3, col = "red")
+```
+
+### 3.2.1 Reactivity
+Reactivity (`r1`) is the population size in the first timestep of the projection (one year), relative to a population with stable growth. A reactivity of 2 would mean that in the first timestep, the population grows twice as fast as its stable growth rate. Reactivity is calculated using:  
+
+$$\textit{reactivity} = P_1 = ||\hat{\textbf{A}} \hat{\textbf{n}}_0||_1$$
+
+As we can see, measurements of transient dynamics use the standardisations we encountered earlier. These "standardisations" mean that transient indices are measured relative to long-term population growth, and initial population size. The interpretation of this is that transient indices measure the ratio of population size compared to a population growing at a stable rate.  
+
+### 3.2.2 Inertia
+Inertia (`i1`) is the ratio of the size of the population in the long-term, relative to a population with stable growth. An inertia of 4 would mean that after the transient period, the population settles to a size 4 times as large as a population that grows with stable rate. Inertia is calculated using:  
+
+$$\textit{inertia} = P_{\infty} = \frac{\textbf{v}^\text{T}\hat{\textbf{n}}_0||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}$$  
+
+**w** and **v** are the right and left eigenvectors as described in the "Asymptotic dynamics" section above. If **w** and **v** are scaled as described, then $\textit{inertia} = \textbf{v}^\text{T}\hat{\textbf{n}}_0$.  
+
+### 3.2.3 Maximum amplification and attenuation
+Comparable points at which to measure transient dynamics don't have to be at the same time of the projection. _**maximum amplification**_ and _**maximum attenuation**_ describe the largest and smallest population sizes (relative to long-term growth $\lambda$). Maximum amplification and maximum attenuation can occur at any point along the projection. Use `return.t = TRUE` to return the time at which they occur, as well as their value.  
+
+Some populations only have a maximum amplification (because they never attenuate), some only have a maximum attenuation (because they never amplify), and some have both. With this proviso in mind, these indices are calculated using:
+$$maximum\ amplification = \bar{P}_{max} = \max_{t > 0}||\hat{\textbf{A}}^t\hat{\textbf{n}}_0||_1$$
+$$maximum\ attenuation = \underline{P}_{min} = \min_{t > 0}||\hat{\textbf{A}}^t\hat{\textbf{n}}_0||_1$$
+
+If we want to compare several different population structures, then it's possible to project several simultaneously. We will:  
+- create two extra vectors; one which amplifies and one which attenuates  
+- bind these with the random vector into a matrix with 3 columns  
+- project the model with this matrix passed to the `vec` argument  
+- calculate reactivity, inertia and maximum amplification / attenuation for the extra vectors  
+- plot these on the graph  
+```{r echo = -1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+TortAMP <- c(1, 1, 2, 3, 5, 8, 13, 21) #a population that amplifies
+TortATT <- c(21, 13, 8, 5, 3, 2, 1, 1) #a population that attenuates
+TortBTH <- c(0, 0, 0, 1, 0, 0, 0, 0) #a population that does both
+Tortvec3 <- cbind(AMP = TortAMP, 
+                  ATT = TortATT,
+                  BTH = TortBTH)
+Tortp3.1 <- project(Tort, Tortvec3, time = 100, 
+                    standard.A = TRUE, standard.vec = TRUE)
+plot(Tortp3.1, log = "y"); lines(Tortpws, lty = 2)
+( r3 <- apply(Tortvec3, 2, reac, A = Tort) )
+( r3t <- rep(1, 3) )
+
+( i3 <- apply(Tortvec3, 2, inertia, A = Tort) )
+( i3t <- rep(100, 3) )
+
+( max3 <- apply(Tortvec3[,c(1,3)], 2, maxamp, A = Tort) )
+( max3t <- apply(Tortvec3[,c(1,3)], 2, function(x){
+                 maxamp(vector = x, A = Tort, return.t = TRUE)$t}) )
+
+( min3 <- apply(Tortvec3[,c(2,3)], 2, maxatt, A = Tort) )
+( min3t <- apply(Tortvec3[,c(2,3)], 2, function(x){
+                 maxatt(vector = x, A = Tort, return.t = TRUE )$t}) )
+
+points(c(r3t, i3t, max3t, min3t), 
+       c(r3, i3, max3, min3), 
+       pch = 3, col = "red")
+```  
+\  
+
+## *iii. EXTRAS*  
+*Some further functionality offered by the `reac`, `inertia`, `maxamp` and `maxatt` functions. Try using, for example, `return.N = TRUE` to give the transient population size (including influences of initial population size and asymptotic population growth), and use this to plot transient indices on non-standardised population projections.*  
+\  
+
+***
+# 4. Transient bounds
+
+> Topics:  
+> 
+> * Functions: `reac`, `inertia`, `maxamp`, `maxatt`, `project`
+> * Classes: Projection
+> * Methods:
+>     + Projection: `plot`
+
+Transient dynamics are very variable, and there are an infinite number of different starting population vectors. Sometimes we don't know what the population structure is (making a fair census of plants and animals is difficult!), but it is possible to get an idea of what the transient dynamics will be like. _**Transient bounds**_ capture the outer extremes of transient dynamics; all population trajectories lie within the bounds. 
+
+## 4.1 Plotting transient bounds
+It's easy to plot the bounds by adding `bounds = TRUE` when plotting a population projection:
+```{r}
+plot(Tortp1.1s, log = "y", bounds = TRUE)
+
+```
+
+### 4.1.1 Stage-biased projections
+The bounds are calculated from the set of projections of "stage-biased" vectors, each of which has 100% of individuals in one stage. For example, the stage-biased vectors for a 3-by-3 matrix are [1,0,0], [0,1,0] and [0,0,1]. To project these, use `vector = "n"`; this is the default value, so in fact if `vector` isn't set then the stage-biased vectors will be projected automatically:
+```{r}
+plot(project(Tort, standard.A = TRUE), log = "y")
+
+```
+
+The top and bottom lines are the bounds on population dynamics. No deterministic projection can be outside these lines.  
+
+## 4.2 Bounds on transient indices
+When calculating transient indices, use `bound = "upper"` or `bound = "lower"` to calculate bounds on reactivity and inertia. To calculate bounds on maximum amplification or attenuation, just don't pass anything to `vector`:  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+plot(Tortp3.1, log = "y", bounds = TRUE)
+lines(Tortpws, lty = 2)
+( ruprB <- reac(Tort, bound = "upper") )
+
+( rlwrB <- reac(Tort, bound = "lower") )
+
+( iuprB <- inertia(Tort, bound = "upper") )
+
+( ilwrB <- inertia(Tort, bound = "lower") )
+
+( maxB <- maxamp(Tort, return.t = TRUE) )
+
+( minB <- maxatt(Tort, return.t = TRUE) )
+
+points(c(rep(1, 5), rep(100, 5), max3t, maxB$t, min3t, minB$t), 
+       c(r3, ruprB, rlwrB, i3, iuprB, ilwrB, max3, maxB$maxamp, min3, minB$maxatt), 
+       pch = 3, col = "red", 
+       lwd = c(rep(c(1, 1, 1, 2, 2), 2), rep(c(1, 1, 2) ,2 )) )
+```
+
+Using $\rho_1$ to refer to reactivity bounds, $\rho_{\infty}$ to refer to inertia bounds, $\rho_{max}$ to refer to the maxmimum amplification bound, $\rho_{min}$ to refer to the maximum attenuation bound, and with overbars to refer to upper bounds and underbars to refer to lower bounds[^6]:  
+
+$$\bar{\rho}_1 = ||\hat{\textbf{A}}||_1 \quad and \quad 
+  \underline{\rho}_1 = minCS(\hat{\textbf{A}})$$
+$$\bar{\rho}_{\infty} = \frac{v_{max}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}} \quad and \quad 
+  \underline{\rho}_{\infty} = \frac{v_{min}||\textbf{w}||_1}{\textbf{v}^\text{T}\textbf{w}}$$
+$$\bar{\rho}_{max} = \max_{t > 0}||\hat{\textbf{A}}^t||_1 \quad and \quad 
+  \underline{\rho}_{min} = \min_{t > 0}(minCS(\hat{\textbf{A}}^t))$$
+
+[^6]: $||\hat{\textbf{A}}||_1$ is the one-norm of $\hat{\textbf{A}}$, is equal to its maximum column sum. $minCS$ describes the minimum column sum. $v_{max}$ and $v_{min}$ are the maximum and minimum entries of **v**, respectively. 
+
+When **w** and **v** are scaled as decribed in the "Asymptotic dynamics" section, then $\bar{\rho}_{\infty} = v_{max}$ and $\bar{\rho}_{\infty} = v_{min}$.  
+\  
+
+## *iv. EXTRAS*  
+*We've seen a little bit of the diversity of different transient dynamics that can be shown by a model. But there are an infinite number of different possible starting population vectors. If population vectors are drawn at random, it is possible to shade in the space within the transient bounds to work out the likelihood of different transient densities. This can be done by using `vector = "diri"` in the `project` function, which draws populations at random from a dirichlet distribution and projects them. Plot this using `plottype = "shady"`:*  
+```{r echo=-1}
+par(mar = c(5, 4, 2, 2) + 0.1)
+Tortpd <- project(Tort, "diri", time = 31,
+                  standard.A = TRUE)
+plot(Tortpd, plottype = "shady", bounds = T, log = "y")
+```
+
+*Dirichlet projections have their own options within the `project` and `plot` functions: see the "Projection-class" and "project" help pages.*  
+\  
+
+***
+# 5. Perturbations: asymptotic
+
+> Topics:  
+> 
+> * Functions: `sens`, `elas`, `tfa_lambda`, `tfam_lambda`
+> * Classes: tfa, tfam
+> * Methods: 
+>     + tfa: `plot`
+>     + tfam: `plot`
+
+Population dynamics depend on the life cycle transitions described in the projection matrix elements. If the matrix elements change, then the population dynamics change too. However, different life cycle transitions contribute differently to population dynamics: for example, increasing the survival of younger age classes may cause a smaller increase in asymptotic growth than increasing the survival of older age classes. _**Perturbation analysis**_ looks to understand and compare how such changes may impact population dynamics: this information can help inform population management by identifying the best management strategies to achieve desired results.  
+
+It's easy to see this by changing a matrix element (e.g. fertility of subadults), by some magnitude of perturbation ($\delta$), calculating a population dynamic (e.g. asymptotic growth), and plotting the results:
+```{r} 
+delta <- seq(0, 4*Tort[1, 6], 0.1)
+Tort_delta <- Tort
+lambda_delta <- numeric(length(delta))
+for(i in 1:length(delta)){
+    Tort_delta[1, 6] <- Tort[1, 6] + delta[i]
+    lambda_delta[i] <- eigs(Tort_delta, "lambda")
+}
+
+plot(delta, lambda_delta, type = "l")
+``` 
+\  
+
+## 5.1 Sensitivity and elasticity: linear perturbation analysis
+The first perturbation analyses described linear relationships between matrix elements and asymptotic growth. These are the first derivatives of the relationship between a the matrix element and lambda:
+
+$$s_{i,j} = \frac{\partial \lambda_{max}}{\partial a_{i,j}} = \frac{v_iw_j}{\textbf{v}^\text{T}\textbf{w}}$$
+
+**v** and **w** are commonly scaled so that ||**w**||~1~ = 1 and **v**^T^**w** = 1 (see "Deterministic population dynamics vignette), so the above simplifies to $v_iw_j$. This equation describes the slope of the line in the previous plot. It's evaluated for infinitessimally small perturbation magnitude, so strictly it's the slope of the line where delta = 0.  
+
+### 5.1.1 Sensitivity
+The above analysis is called _**sensitivity analysis**_ and it's quick to calculate sensitivity of all matrix elements using:
+
+$$\textbf{S} = \frac{\textbf{vw}^\text{T}}{\textbf{v}^\text{T}\textbf{w}}$$
+
+This is the "sensitivity matrix", and assuming the same scaling of **w** and **v**, simplifies to $\textbf{vw}^\text{T}$. It can be calculated in `popdemo` using the `sens` function.
+```{r} 
+sens(Tort)
+
+``` 
+
+Any element equal to zero in the projection matrix is shown as zero in the sensitivity matrix, but adding `all = TRUE` will show the sensitivity of every element.  
+
+### 5.1.2 Elasticity
+The effort required to change a matrix element by a certain amount is not the same for every matrix element. The fecundity of subadults is 1.3 but the fecundity of the second adult class is 2.57. Increasing fecundity by 1 may therefore be harder for subadults than adults. Elasticity analysis adjusts for these differences:
+
+$$\textbf{E} = \frac{1}{\lambda_{max}}\textbf{A}\cdot\textbf{S}$$
+
+It's calculated using the `elas` function:
+```{r} 
+elas(Tort)
+
+``` 
+\  
+
+## 5.2 Transfer functions: nonlinear perturbation analysis
+In actual fact, the sensitivites asymptotic growth (or transient dynamics), are linear approximations of nonlinear relationships. The effect of changing a life cycle transition or a vital rate on population dynamics can be very nonlinear: sensitivities are tangents to these functions at infinitessimally small perturbation magnitudes of near 0 (differentiations of a curve).
+
+`popdemo` provides tools for describing and visualising the nonlinear relationships between matrix entries and population dynamics, called _**transfer functions**_. These functions paradoxically define the perturbation magnitude in terms of $\lambda_{max}$. The perturbed matrix can be represented using:
+
+$$\textbf{A}_{\delta} = \textbf{A} + \delta\textbf{de}^\text{T}$$
+
+Where **d** represents the row to be perturbed, **e** represents the column to be perturbed, and $\delta$ is the perturbation magnitude. Using this notation, it can be shown[^7] that:
+
+$$\delta^{-1} = \textbf{e}^\text{T}(\lambda\textbf{I} - \textbf{A})^{-1}\textbf{d}$$
+
+[^7]: [Hodgson & Townley (2004) J. Appl. Ecol., 41, 1155-1161.](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.0021-8901.2004.00959.x)
+
+Where $\lambda$ is the asymptotic growth of $\textbf{A}_{\delta}$. Using these equations, it is possible to:
+1. Decide on a maximum and minimum perturbation value
+2. Compute $\lambda$ of $\textbf{A}_{\delta}$ for max and min $\delta$
+3. Compute the transfer function for values of $\lambda$ within this range
+
+Alternatively, if there is a desired target range for growth, stages 1 and 2 can be skipped. It's important to make sure that the range of $\delta$ doesn't result in any negative matrix elements, or any situation where overall survival of a single stage is greater than 1.    
+
+The `tfa_lambda` function calculates this transfer function ('tfa' stands for 'transfer function analysis'). The following calculates perturbation to element [7,6]. The sensitivity is the slope where delta is equal to zero, which has an intercept at $\lambda_{max}$:
+```{r} 
+delta <- seq(-0.2, 0.4, 0.01)
+d1 <- c(0, 0, 0, 0, 0, 0, 1, 0)
+e1 <- c(0, 0, 0, 0, 0, 1, 0, 0)
+tf1 <- tfa_lambda(Tort, d = d1, e = e1, prange = delta)
+
+plot(tf1)
+s76 <- sens(Tort)[7, 6]
+abline(eigs(Tort, "lambda"), s76, lty = 2)
+``` 
+\  
+
+This transfer function shows that the perturbation has a nonlinear effect on $\lambda$. Note that it's also possible to specify a target range of $\lambda$ instead using the `lambdarange` argument.  
+
+The function `tfam_lambda` calculates a transfer function for every matrix element (the 'm' stands for 'matrix'), and it's possible to plot these together:
+```{r} 
+tfml <- tfam_lambda(Tort)
+plot(tfml)
+``` 
+\  
+
+## *v. EXTRAS*  
+*Transfer functions don't have to be limited to single matrix elements. By choosing the __d__ and __e__ vectors carefully, it's possible to calculate more complex management strategies. For example, by choosing `d <- c(1, 0, 0, 0, 0, 0, 0, 0)` and `e <- c(0, 0, 0, 0, 0, 1, 1, 1)`, the transfer function perturbs all fecundity values simultaneously. Trade-offs in management can also be modelled: using `d <- c(0, 0, 0, 0, 0, -1, 1, 0)` and `e <- c(0, 0, 0, 0, 0, 1, 0, 0)` would model increases in the rate of growth of subadults to adults whilst simultaneously decreasing stasis of subadults, so keeping overall survival the same. Try using these perturbation structures, or exploring other possibilities (not all combinations of elements are possible, as outlined in Hodgson & Townley 2004).*  
+\  
+
+***
+# 6. Perturbations: transient
+
+> Topics:
+> 
+> * Functions: `tfsm_inertia`, `tfs_inertia`, `tfa_inertia`, `tfam_inertia`
+> * Classes: tfa, tfam
+> * Methods: 
+>     + tfa: `plot`
+>     + tfam: `plot`
+
+Population inertia is an index that is very amenable to mathematical trickery. Although it is a measure of transient dynamics (transient dynamics lead to the population having an inertia), it is calculated using the dominant eigenvectors of the matrix. This makes it very amenable to perturbation analysis, unlike other transient indices, as the eigenvectors of $\textbf{A}_{\delta}$ can be expressed in terms of **A**, $\lambda$, **d** and **e**. The equations get long, but can be found in Stott et al. (2012)[^8].  
+
+[^8]: [Stott et al. (2012) Methods Ecol. Evol., 3, 673-684.](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.2041-210X.2012.00199.x)
+
+## 6.1 Sensitivity: linear perturbation analysis
+
+Calculating the sensitivity values for inertia is super simple. Let's do it for a specific population vector first[^9]:
+```{r}
+Tortvec <- c(1, 1, 2, 3, 5, 8, 13, 21)
+tfsm_inertia(Tort, Tortvec, tolerance=1e-5)
+
+```
+\  
+
+[^9]: The `tolerance` argument sometimes has to be increased, when there are problems computing the sensitivities.  
+
+Many of the matrix transitions have a negative effect on population inertia, but there's a large positive effect of the survival of the largest adults.  
+
+We can also calculate sensitivities for the bounds on population dynamics.
+```{r}
+tfsm_inertia(Tort, bound="upper", tolerance=1e-5)
+
+tfsm_inertia(Tort, bound="lower", tolerance=1e-5)
+
+```
+\  
+Note that the sensitivities of the different bounds are different. This will be the same for any population vector: the sensitivities depend on the population structure.  
+
+## 6.2 Transfer functions: nonlinear perturbation analysis
+
+`popdemo` provides tools for visualising the nonlinear relationships between matrix entries and population inertia, which as for asymptotic growth can be calculated using transfer functions. Transfer function analysis for every matrix element can be achieved using `tfam_inertia`:
+```{r}
+tfmi <- tfam_inertia(Tort, vector = Tortvec)
+plot(tfmi)
+```
+\  
+
+On the x axes are the perturbation magnitudes (how much you change the entry of the matrix by), and on the y axis is the value of inertia. Note how nonlinear the curves can be, and that unlike for asymptotic growth the slopes can be negative. The sensitivities are tangents to these curves at p=0.  
+
+We can do the same thing for the bounds:
+```{r}
+tfmi_upr <- tfam_inertia(Tort, bound="upper")
+plot(tfmi_upr)
+tfmi_lwr<-tfam_inertia(Tort, bound="lower")
+plot(tfmi_lwr)
+```
+\  
+
+These can be incredibly nonlinear, because there can be breaks in the function where a different stage-biased population structure takes over as achieving the bound on inertia. Note where there are kinks in the lines, or switches in the direction of the slope.  
+\  
+
+## *vi. EXTRAS*  
+
+*In the same way that inertia depends strongly on the population vector, perturbation analysis of inertia does as well: try passing different numbers to `vector`.*  
+
+*In the `tfsm_inertia` function, 'tfsm' stands for 'transfer function sensitivity matrix'. This is because the sensitivity is calculated by differentiating the transfer function. There is also a `tfs_inertia` function, which calculates the sensitivity of a particular transfer function specified with __d__ and __e__ vectors in the same way as the `tfa_lambda` and `tfa_inertia` functions.*  
+
+*Worked real-world examples for transfer functions of inertia and lambda can be found in Stott et al. (2012)*
+\  
+
+\  
+
+***
+# Stochastic population dynamics
+
+## Polar bear model
+
+We will use a set of matrices for the polar bear *Ursus maritimus*[^10]. The population is found in the southern Beaufort Sea, USA and Canada. There are 6 stages based on age and reproductive status:  
+Stage 1: 2-year-old  
+Stage 2: 3-year-old  
+Stage 3: 4-year-old  
+Stage 4: adult (5+ years old), available to breed  
+Stage 5: adult, with cub (0-1 years old)  
+Stage 6: adult, with yearling (1-2 years old).  
+
+[^10]: [Hunter et al. (2010) Ecology, 91, 2883-2897.](https://esajournals.onlinelibrary.wiley.com/doi/10.1890/09-1641.1)
+
+Load in the data
+```{r}
+data(Pbear); Pbear
+```
+
+The study also gives the population vector, which is the relative numers of individuals in each stage.
+```{r}
+Pbearvec <- c(0.106, 0.068, 0.106, 0.461, 0.151, 0.108)
+```
+
+The polar bear matrices have a mixed age-stage definition: the stages 1-3 are defined by age, whereas stages 4-6 are defined by a mix of age and reproductive stage. Each matrix describes life cycle transitions in a *specific* year, from 2001-2005. Due to varying environmental conditions (e.g. weather, resource availability), life cycle transitions may change from year to year. For the polar bear, 2004 and 2005 were "bad years" due to low summer sea ice.  
+
+The numbers in the matrix (called _**matrix elements**_ or _**transitions**_) describe the probability of moving FROM stages in each column TO stages in each row, within the time interval chosen. For example, for the 2005 polar bear matrix, an adult (stage 4) has 7.18% probability of breeding and becoming an adult with a cub (stage 5). Likewise, in any year an adult without a cub has about 72.25% chance of not breeding (therefore remaining in stage 4): this is called a stasis transition. This means that 100 - (72.25 + 7.18) = 20.57% of adults without cubs die every year. Contrast these numbers with "good" years, where reproduction is high and mortality is lower. There are different types of transitions: in this matrix there are also fecundity transitions which describe recruitment of offspring (at an age of 2 years; this is the top-right transition in the matrix). Other species may have different transitions, including skipping stages through fast growth, shrinkage or fission (especially in modular organisms, e.g. most plants, corals), or asexual reproduction.  
+
+Matrix elements combine underlying _**vital rates**_ such as survival, growth and reproduction. For example, the stasis transition of adults without cubs (72.25%) combines probability of not breeding successfully, and the probability of surviving the year.  
+\  
+
+```{r echo = FALSE}
+Pbearpic <- magick::image_read("https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Polar_Bears_Across_the_Arctic_Face_Shorter_Sea_Ice_Season_%2829664357826%29_%282%29.jpg/1024px-Polar_Bears_Across_the_Arctic_Face_Shorter_Sea_Ice_Season_%2829664357826%29_%282%29.jpg")
+par(mar = c(0, 0, 0, 0))
+plot(as.raster(Pbearpic))
+text(10, 10, adj = c (0, 0), col = "white",
+     "Polar bear (photo by NASA Goddard Space Flight Center from Greenbelt, MD, USA)")
+```
+\  
+
+_Polar bear (photo by NASA Goddard Space Flight Center from Greenbelt, MD, USA)_
+
+
+***
+# 7. Stochastic projections
+
+> Topics: 
+> 
+> * Functions: `project`
+> * Classes: Projection
+> * Methods:
+>     + Projection: `plot`, `Aseq`
+
+This vignette builds on the "Deterministic population dynamics" vignette, in which a single matrix is used to project population dynamics over time. Using just a single matrix to project population dynamics makes the assumption that _**vital rates**_ such as survival, reproduction and growth stay fixed over time. It's a big assumption that over years or decades, the vital rates of a population won't change. One reason that they may change is because of environmental stochasticity, where environmental conditions, which change from year to year, impact vital rates. This could be due to many things, such as changes in weather or extreme weather events, disease outbreaks, varying resource availability, changes in predation or parasitism, and so on. If the vital rates change each year, then the matrix changes each year. The projection equation is:
+
+$$\textbf{n}_{t+1} = \textbf{A}_t\textbf{n}_t $$
+
+This is called a stochastic population projection.  
+
+In the polar bear data, there are 5 matrices from 2001-2005. If you pass the `project` function a single matrix then it does a deterministic projection (see the "Deterministic Population Dynamics" vignette), but if you pass it a list of matrices as we have for the Polar bear, then it will do a stochastic projection:
+```{r}
+Pbearp1.1 <- project(Pbear, Pbearvec, time = 50)
+plot(Pbearp1.1, log = "y")
+```
+
+For a stochastic projection, the `project` function should usually have a list of matrices passed to the `A` argument, and a `vector`. The function will check that all the matrices have the same dimensions. `vector` can be either a single vector (as in the above case), or a matrix of several vectors, where each individual column represents one vector. The `time` argument gives the number of projection intervals, but the output will have length `time` + 1, because the population size at time 0 is included. There is one further important argument called `Aseq`, which determines the sequence of matrices chosen for the projection. By default, `Aseq = "unif"`. It's easy to see what the random sequence of matrices chosen is, how many matrices were used to make the projection, and what those matrices are:  
+```{r}
+Aseq(Pbearp1.1)
+
+nmat(Pbearp1.1)
+
+mat(Pbearp1.1)
+
+```
+
+In this vignette, we'll look at different ways of determining the sequence of matrices chosen in a projection, and what the consequences are.  
+
+## 7.1 Matrix selection using Markov processes
+By default, the projection selects each matrix with an equal probability at each time interval. This process can be considered a _**Markov process**_ with the following transition matrix:
+```{r}
+p1 <- 0.4
+( PbearM1 <- matrix(rep(c((1-p1)/3, (1-p1)/3, (1-p1)/3, p1/2, p1/2), 5), 5, 5) )
+
+```
+
+The matrix determines the probability of selecting any matrix at random based on what the previous selection was. It's defined columnwise: at each timestep, the column represents what the previous selection (at time t) was, and the rows in that column tell you the probability of selecting the next matrix (at time t+1). In this case, all the numbers in the matrix are equal to one another, so there is exactly the same probability of selecting each matrix each time, regardless of what the last selection was.  
+
+As 2004 and 2005 were "bad" years, `p1` represents the probability of selecting a "bad" year (0.4) whilst `1 - p1` represents the probability of selecting a "good" year (0.6).  
+
+We can pass this matrix to the `Aseq` argument of the function to get a new estimate of population dynamics:
+```{r}
+Pbearp2.1 <- project(Pbear, Pbearvec, Aseq = PbearM1, time = 50)
+plot(Pbearp2.1, log = "y")
+```
+
+This projection will look different to the previous one, because a new random sequence of matrices is generated. However, it is generated from the same set of parameters so overall it should look fairly similar (and later in the "Stochastic dynamics" section we'll see that it is the same).  
+
+There are situations for some systems where we might want to have unequal probabilities of choosing each matrix (e.g. nonrandom patterns in environmental conditions, behaviour, or food availability). In the polar bear data, years '04 and '05 were "bad" years. If bad years occur with probability p, then we can construct a Markov transition matrix incorporating this:
+```{r}
+p2 <- 0.5
+( PbearM2 <- matrix(rep(c((1-p2)/3, (1-p2)/3, (1-p2)/3, p2/2, p2/2), 5), 5, 5) )
+
+```
+
+In this case, p = 0.5 means that there is now an equal probability of bad and good years. We can pass this to the `Aseq` argument of the function to get a new estimate of population dynamics:
+```{r}
+Pbearp2.2 <- project(Pbear, Pbearvec, Aseq = PbearM2, time = 50)
+plot(Pbearp2.2, log = "y")
+```
+
+This probably doesn't look too much different from the first projection, because in the first projection bad years have a probability of 2/5 = 0.4 chance of being chosen, but in the second they have a probability of 0.5 of being chosen; the two are not very different. With climate change there's a good chance that bad years might become more frequent. What happens if we increase the probability of bad years so that they occur four times as often as good years?
+```{r}
+p3 <- 0.8
+( PbearM3 <- matrix(rep(c((1-p3)/3, (1-p3)/3, (1-p3)/3, p3/2, p3/2), 5), 5, 5) )
+
+Pbearp2.3 <- project(Pbear, Pbearvec, Aseq = PbearM3, time = 50)
+plot(Pbearp2.3, log = "y")
+```
+
+You should clearly see a steeper decline in population size as the probability of bad years increases.  
+
+At the moment, the probability a matrix is chosen doesn't depend on what the last matrix chosen was: we can tell this because all the columns are the same. The 2004 matrix always has the same probability of being chosen, regardless of whether the last one chosen was 2001, 2002, 2003, 2004 or 2005. Imagine, however, that there's positive feedback in the weather systems that determine ice cover, so that good years are more likely to follow good years and bad years are more likely to follow bad years. We can define two parameters now: p, which describes the probability next year is a bad year given that this year was a good year, and q, which is the probability next year is a bad year given that this year was a bad year:
+```{r}
+p4 <- 0.2
+q4 <- 0.8
+( PbearM4 <- matrix(c(rep(c((1-p4)/3, (1-p4)/3, (1-p4)/3, p4/2, p4/2), 3),
+                      rep(c((1-q4)/3, (1-q4)/3, (1-q4)/3, q4/2, q4/2), 2)),
+                    5, 5) )
+
+```
+
+The numbers show that if it's a good year (columns 1-3), the probability of next year being bad is low, whereas if it's a bad year (columns 4-5), the probability of next year being bad is high (see rows 4-5 of `PbearM4`). The projection should show us this is true:
+```{r}
+Pbearp2.4 <- project(Pbear, Pbearvec, Aseq = PbearM4, time = 50)
+plot(Pbearp2.4, log = "y")
+```
+
+Generally, it seems that bad years occur together (where the population shrinks), and so do good years (where the population grows).  
+
+So far, the overall probability of switching between the states is symmetric: 20% chance of switching from bad to good, 20% chance of switching from good to bad. This needn't be the case: perhaps there are stronger positive feedbacks in bad weather conditions than in good. In the next projection we will increase the probability of switching from good to bad, but keep the probability of switching from bad to good the same:
+```{r}
+p5 <- 0.5
+q5 <- 0.8
+( PbearM5 <- matrix(c(rep(c((1-p5)/3, (1-p5)/3, (1-p5)/3, p5/2, p5/2), 3),
+                      rep(c((1-q5)/3, (1-q5)/3, (1-q5)/3, q5/2, q5/2), 2)),
+                    5, 5) )
+
+Pbearp2.5 <- project(Pbear, Pbearvec, Aseq = PbearM5, time = 50)
+plot(Pbearp2.5, log = "y")
+```
+
+In this case, whilst there are still long strings of bad years, the strings of good years are much shorter.  
+
+## 7.2 Nonrandom matrix selection
+The final option for matrix selection is to give exactly the sequence of matrices to use. It's possible to force `project` to use a specific sequence of matrices, simply by passing a sequence of numbers or names to `Aseq`. These numbers or names must correspond to the elements of your list of matrices.  
+
+(so for the final projection of the polar bear model we could have instead specified c(1, 2, 3, 4, 5, 1, 2, 3,...) or c("2001", "2002", "2003", "2004", "2005", "2001", "2002", "2003",...) ).
+
+Imagine that the weather conditions are cyclic over 5-year cycles, and that the different conditions occur in the order in which they were observed. In this case, there's a 100% chance of moving from 2001 conditions to 2002 conditions, the same for 2002 to 2003, and so on, until the 5-year cycle completes and conditions move from 2005 conditions back to 2001 again, so the matrix sequence is 2001, 2002, 2003, 2004, 2005, 2001, 2002, 2003,... and so on. We can specify this using the matrix numbers (in the order they appear in the `Pbear`) list, or their names in that list:
+```{r}
+( Pbearseq <- rep(1:5, 10) )
+
+Pbearp3.1 <- project(Pbear, Pbearvec, Aseq = Pbearseq)
+plot(Pbearp3.1, log = "y")
+```
+
+You would get the same result using `Aseq = rep(c("Y2001", "Y2002", "Y2003", "Y2004", "Y2005"), 10)`. The projection shows there's still a decline in overall population size, but with a clear cyclic dynamic to the trend.  
+\  
+
+## *vii. EXTRAS*  
+*The type of population projection we've used is called **matrix selection**: at each timestep a matrix is selected at random from a list. These are usually parameterised by collecting data under multiple different environmental conditions (these are often replications through time, but may also be replications through space or different experimental treatments).*  
+
+*Another common form of stochastic projection is using **element selection**. In this case, one or more of the matrix elements are selected at random from a statistical distribution. Projections using element selection are possible in `popdemo` by generating a list of matrices using element selection procedures and passing all of these to `project`. In this example, we'll use a matrix for the thistle Carlina vulgaris[^11]. There are 3 stages based on size and reproductive status:*  
+*small rosette*  
+*large rosette*  
+*large flowering rosette*
+```{r}
+( Thistle <- Matlab2R("[0.5 0 2.8; 0.25 0.222 0; 0 0.667 0]") )
+
+#we'll use a random vector for the models
+Thistlevec <- runif(3); Thistlevec <- Thistlevec / sum(Thistlevec)
+```
+[^11]: [L�fgren et al. (2000) Ann. Bot. Fennici, 37, 183-192.](http://www.sekj.org/PDF/anbf37/anbf37-183p.pdf)
+
+*In any given year, 88.9% of stage 2 individuals survive, with 75% of these survivors flowering and 25% not flowering. At the moment these parameters are fixed, but they don't have to be. A beta distribution with $\alpha$ = 12 and $\beta$ = 5 would puts some variability around this 75% flowering probability:*
+```{r}
+x<- seq(0, 1, 0.01)
+plot(x, dbeta(x, shape1 = 12, shape2 = 5), type = "l", ylab = "beta PDF")
+```
+
+*In reality it would be necessary to fit statistical models to data to quantify these sorts of probabilities, but this example illustrates the method.*  
+
+*If we want to create a set of 30 matrices, using this beta distribution to allow probability of flowering to vary, we can:*  
+*- replicate the projection matrix 30 times in a list*  
+*- generate 30 random beta draws using the parameters above, which describe the random probability of flowering in each year; let's call this p(flower)*  
+*- replace the [3,2] element of each of the 30 matrices with 0.889 x p(flower)*  
+*- replace the [2,2] element of each of the 30 matrices with 0.889 x (1 - p(flower))*  
+```{r}
+#create list of 30 matrices
+ThistleS <- rep(list(Thistle), 30)
+#generate beta-distributed random probability of flowering
+times <- 30
+pflwr <- rbeta(times, shape1 = 12, shape2 = 5)
+#replace [3,2] element of every matrix with new random number
+a32 <- 0.889*pflwr
+a22 <- 0.889*(1-pflwr)
+ThistleS <- mapply(function(A, r){A[3,2] <- r; A}, ThistleS, a32, SIMPLIFY = FALSE)
+#replace [3,2] element of every matrix with new random number
+ThistleS <- mapply(function(A, r){A[2,2] <- r; A}, ThistleS, a22, SIMPLIFY = FALSE)
+```
+
+*As we saw earlier, it's possible to force `project` to use a specific sequence of matrices, simply by passing a sequence of numbers or names to `Aseq`. For this exercise in element selection, all we need to do is pass `1:30` to `Aseq` and it selects the random matrices in order:*
+```{r}
+Thistlep1.1 <- project(ThistleS, vector = Thistlevec, Aseq = 1:30)
+plot(Thistlep1.1, log = "y")
+lines(0:30, project(Thistle, Thistlevec, time = 30), lty = 3)
+```
+
+*The dotted line shows the deterministc projection for comparison. The stochastic projection should look similar, but with variation in the timestep-by-timestep growth.*  
+
+*The underlying biology should drive decisions about how to sample transitions in element selection. For example:*  
+
+* _Something like a Gamma distribution could be used to model fecundity transitions, as these should be truncated at 0 and $+\infty$_  
+* _More than one distribution can model a certain type of transition; for example, probabilities (such as flowering, survival, etc.) can be drawn from beta distributions, but other possibilities exist, e.g. truncated normal._  
+* _Transitions are composed of underlying vital rates and they may correlate with one another, so it may be important to model stochasticity in underlying vital rates and contruct matrices from these. The example here is a simple version of this: two elements correlate perfectly negatively with one another. However, if the underlying elements are calculated from other distributions such as survival or growth kernels, or different life cycle transitions depend on things such as resource allocation trade-offs, the correlations can get much more complex._  
+\  
+
+***
+# 8. Long-run stochastic dynamics
+
+> Topics: 
+> 
+> * Functions: `stoch`
+
+Stochastic projections are a random process. Perhaps the best way to understand stochastic population growth is to project the model and calculate growth from the results. We can calculate long-term growth of a stochastic model by averaging per-timestep growth rates over a long projection time. Every stochastic projection has a mean growth and a variance in growth. Let's calculate stochastic dynamics for the five polar bear examples from the Markov processes section above:
+```{r}
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM1,
+      iterations = 3000, discard = 100)
+
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM2,
+      iterations = 3000, discard = 100)
+
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM3,
+      iterations = 3000, discard = 100)
+
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM4,
+      iterations = 3000, discard = 100)
+
+stoch(Pbear, c("lambda", "var"), vector = Pbearvec, Aseq = PbearM5,
+      iterations = 3000, discard = 100)
+
+```
+
+Look carefully at these outcomes. As predicted, the mean growth goes down the higher the probability of bad years, decreasing from projection 1 to 2 to 3.  
+
+Projections 4 has almost the same growth rate as projection 2, and there's a good reason for this. It's not as intuitive to understand the overall probability of choosing a matrix for a Markov process like the one in model 4, but it is easy to calculate: it's the dominant right eigenvector of the matrix (scaled to sum to 1). As such, we can calculate it easily using the `eigs` function in `popdemo`:
+```{r}
+eigs(PbearM2, "ss")
+
+eigs(PbearM4, "ss")
+
+```
+
+In these vectors, each number gives the probability of choosing a matrix at random (in order from 2001-2005). For model 2, the probabilities are the same as the columns in the matrix. For model 4, it works out that there's an equal and symmetric (but low) probability of switching between "bad" and "good" states (20% change of switching from good to bad, 20% chance of switching from bad to good), and therefore equal (but high) probability of staying within the states (80% chance of each). The long-run probabilities of choosing each matrix are the same as for model 2 because on average each matrix gets picked 50% of the time. This observation stresses the need for long projections to calculate stochastic growth. In the above examples we used 3000 `iterations`, `discard`ing the first 100 to eliminate effects from the initial conditions. Conversely, too many iterations could result in numbers becoming too large or too small for `R` to continue to be able to calculate them.  
+
+It's even more difficult to understand long-run probabilities in asymmetric situations such as model 5, but we can still use the dominant eigenvector:
+```{r}
+eigs(PbearM5, "ss")
+
+```
+
+This explains why population growth in model 5 is so low. Overall, more than 71% of years will be "bad" years.
+

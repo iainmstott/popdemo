@@ -1,0 +1,29 @@
+Package: popdemo
+Title: Demographic Modelling Using Projection Matrices
+Version: 1.3-2
+Authors@R: c(person("Iain", "Stott", email = "iainmstott@gmail.com", role = c("aut", "cre")),
+             person("Dave", "Hodgson", email = "D.J.Hodgson@exeter.ac.uk", role = "aut"),
+             person("Stuart", "Townley", email = "S.B.Townley@exeter.ac.uk", role = "aut"),
+             person("Stephen", "Ellner", email = "spe2@cornell.edu", role = "ctb"))
+Maintainer: Iain Stott <iainmstott@gmail.com>
+Description: Tools for modelling populations and demography using matrix projection models,
+ with deterministic and stochastic model implementations. Includes population projection,
+ indices of short- and long-term population size and growth, perturbation analysis,
+ convergence to stability or stationarity, and diagnostic and manipulation tools.
+Depends:
+    R (>= 4.1.0)
+Imports:
+    expm, 
+    graphics, 
+    methods, 
+    MCMCpack, 
+    stats
+Suggests:
+    knitr,
+    magick,
+    rmarkdown
+VignetteBuilder: knitr
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
