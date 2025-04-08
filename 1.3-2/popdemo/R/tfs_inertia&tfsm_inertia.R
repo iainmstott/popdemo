@@ -107,11 +107,7 @@
 #'   tfsm_inertia(A, bound="upper",tolerance=1e-7)
 #' 
 #'   # Calculate the sensitivity of simultaneous perturbation to 
-#'   # A[1,3] and A[2,3] for the lower bound on inertia
-#'   tfs_inertia(A, d=c(1,0,0), e=c(0,1,1), bound="lower")
-#' 
-#'   # Calculate the sensitivity of simultaneous perturbation to 
-#'   # A[1,3] and A[2,3] for specified initial stage structure
+#'   # A[1,2] and A[1,3] for specified initial stage structure
 #'   # and return and plot the fitting process
 #'   tfs_inertia(A, d=c(1,0,0), e=c(0,1,1), vector=initial,tolerance=1e-7,
 #'               return.fit=TRUE,plot.fit=TRUE)
